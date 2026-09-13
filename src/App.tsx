@@ -81,7 +81,7 @@ const DEFAULT_PROFILES: Profile[] = [
         category: "family",
         emoji: "👨‍👩‍👧",
         date: "2 days ago",
-        image: import.meta.env.BASE_URL + "elderly_family.png",
+        image: import.meta.env.BASE_URL + "bihu_celebration_memory.png",
       },
       {
         id: "m2",
@@ -90,7 +90,7 @@ const DEFAULT_PROFILES: Profile[] = [
         category: "places",
         emoji: "🏡",
         date: "1 week ago",
-        image: "https://images.unsplash.com/photo-1513151233558-d860c5398176?w=600&h=600&fit=crop&auto=format",
+        image: import.meta.env.BASE_URL + "tea_garden_memory.png",
       },
       {
         id: "m3",
@@ -99,7 +99,7 @@ const DEFAULT_PROFILES: Profile[] = [
         category: "moments",
         emoji: "🎵",
         date: "2 weeks ago",
-        image: import.meta.env.BASE_URL + "elderly_radio.png",
+        image: import.meta.env.BASE_URL + "vintage_radio_memory.png",
       },
     ],
     reminders: [
@@ -730,6 +730,13 @@ function AboutDementiaScreen({ onNav }: { onNav: (s: Screen) => void }) {
       </section>
 
       <section className="max-w-3xl mx-auto px-4 sm:px-6 space-y-10">
+        <div className="rounded-3xl overflow-hidden border border-[var(--border)] shadow-md h-56 sm:h-72 relative">
+          <img src={import.meta.env.BASE_URL + "caregiver_support.png"} alt="Caregiver support" className="w-full h-full object-cover" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[rgba(21,27,30,0.75)] via-transparent to-transparent flex items-end p-6">
+            <span className="text-white font-extrabold text-lg sm:text-xl">Empathetic Care &amp; Daily Companionship</span>
+          </div>
+        </div>
+
         <Card className="p-8 space-y-4 bg-[var(--bg-section)]">
           <h2 className="text-2xl font-black text-[var(--text-primary)]">{t.aboutDementia.whatIsDementia}</h2>
           <p className="text-base text-[var(--text-secondary)] leading-relaxed font-medium">{t.aboutDementia.whatIsDesc}</p>
@@ -1186,7 +1193,7 @@ function MyMemoriesScreen({ profile, onUpdate }: { profile: Profile; onUpdate: (
       category: cat,
       emoji: cat === "family" ? "👨‍👩‍👧" : cat === "places" ? "🏡" : "🎵",
       date: "Just now",
-      image: import.meta.env.BASE_URL + "elderly_family.png",
+      image: import.meta.env.BASE_URL + "default_memory_cover.png",
     };
     onUpdate({ ...profile, memories: [newM, ...profile.memories] });
     setTitle(""); setDesc(""); setShowAdd(false);
