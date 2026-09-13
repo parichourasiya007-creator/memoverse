@@ -654,7 +654,7 @@ function HomeScreen({ onNav, active, onSwitchProfile }: { onNav: (s: Screen) => 
               { icon: "🛒", title: t.activities.marketMemory, desc: t.activities.marketMemoryDesc, screen: "game-market" as Screen, tag: t.activities.catEveryday },
               { icon: "📖", title: t.activities.storyRecall, desc: t.activities.storyRecallDesc, screen: "game-story" as Screen, tag: t.activities.catStorytelling },
             ].map((g) => (
-              <Card key={g.title} className="p-6 flex flex-col justify-between gap-4 hover:border-[var(--oxblood)] transition-all group" onClick={() => onNav(g.screen)}>
+              <Card key={g.title} className="p-6 flex flex-col justify-between gap-4 hover:border-[var(--oxblood)] transition-all group cursor-pointer" onClick={() => onNav(g.screen)}>
                 <div className="space-y-3">
                   <div className="w-12 h-12 rounded-2xl bg-[var(--oxblood-light)] border border-[var(--oxblood)] flex items-center justify-center text-2xl">{g.icon}</div>
                   <div>
@@ -668,6 +668,65 @@ function HomeScreen({ onNav, active, onSwitchProfile }: { onNav: (s: Screen) => 
                   <span>→</span>
                 </div>
               </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Featured Keepsake Memories Gallery Section on Homepage */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6">
+        <div className="space-y-8">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-[var(--border)]">
+            <div>
+              <Badge color="brass">📸 Keepsake Memory Vault</Badge>
+              <h2 className="text-3xl sm:text-4xl font-black text-[var(--text-primary)] mt-1">{t.home.keepsakeCardTitle}</h2>
+              <p className="text-sm text-[var(--text-secondary)] font-medium mt-1">{t.home.keepsakeCardDesc}</p>
+            </div>
+            <Btn onClick={() => onNav("my-memories")} variant="primary" className="text-sm py-2.5 px-5">Open Memory Album →</Btn>
+          </div>
+
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[
+              {
+                title: "Bihu Celebration in Jorhat",
+                desc: "Dancing Bihu with my family near our village mustard fields. The dhol beats filled the warm spring air.",
+                image: import.meta.env.BASE_URL + "bihu_celebration_memory.png",
+                tag: "Family Celebration",
+                emoji: "👨‍👩‍👧",
+              },
+              {
+                title: "Our Ancestral Tea Garden",
+                desc: "The wooden tea estate house where I grew up in Upper Assam. Morning mist and fresh brewed chai.",
+                image: import.meta.env.BASE_URL + "tea_garden_memory.png",
+                tag: "Heritage Places",
+                emoji: "🏡",
+              },
+              {
+                title: "Bhupen Hazarika on the Radio",
+                desc: "Listening to the golden voice of Bhupen da on the morning radio every Sunday with my parents.",
+                image: import.meta.env.BASE_URL + "vintage_radio_memory.png",
+                tag: "Cultural Moments",
+                emoji: "🎵",
+              },
+            ].map((m) => (
+              <div key={m.title} onClick={() => onNav("my-memories")} className="clay-card rounded-3xl p-5 space-y-4 border border-[var(--border)] bg-[var(--bg-card)] flex flex-col justify-between cursor-pointer hover:border-[var(--oxblood)] transition-all group shadow-sm">
+                <div className="space-y-3">
+                  <div className="h-48 sm:h-52 rounded-2xl overflow-hidden border border-[var(--border)] relative">
+                    <img src={m.image} alt={m.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                    <div className="absolute top-3 left-3 px-3 py-1 rounded-full text-xs font-black bg-black/60 backdrop-blur-md text-white border border-white/20 flex items-center gap-1.5">
+                      <span>{m.emoji}</span> {m.tag}
+                    </div>
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-black text-[var(--text-primary)] group-hover:text-[var(--oxblood)] transition-colors">{m.title}</h3>
+                    <p className="text-sm text-[var(--text-secondary)] mt-2 leading-relaxed font-medium">{m.desc}</p>
+                  </div>
+                </div>
+                <div className="pt-3 border-t border-[var(--border)] flex items-center justify-between text-xs font-black text-[var(--oxblood-dark)]">
+                  <span>View Full Memory</span>
+                  <span>→</span>
+                </div>
+              </div>
             ))}
           </div>
         </div>
