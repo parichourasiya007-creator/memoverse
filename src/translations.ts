@@ -172,10 +172,22 @@ export interface TranslationSchema {
     switchProfile: string;
     createProfile: string;
     age: string;
+    gender: string;
+    phone: string;
     region: string;
     level: string;
     activeProfile: string;
     welcomeBack: string;
+    editProfile: string;
+    logout: string;
+    startJourney: string;
+    lockedTitle: string;
+    lockedMemoriesMsg: string;
+    lockedRemindersMsg: string;
+    lockedProgressMsg: string;
+    maybeLater: string;
+    saveChanges: string;
+    cancel: string;
   };
   settings: {
     title: string;
@@ -385,15 +397,27 @@ const baseEnglish: TranslationSchema = {
     helplineNote: "Consult a local healthcare professional or neurologist for personalized medical advice.",
   },
   profile: {
-    title: "Profile & Settings",
-    subtitle: "Manage elder profile, regional preferences, and accessibility settings.",
+    title: "Your Profile",
+    subtitle: "Personal memory companion details and options.",
     switchProfile: "🔄 Switch Profile",
-    createProfile: "➕ Create New Profile",
+    createProfile: "✨ Create Profile",
     age: "Age",
+    gender: "Gender",
+    phone: "Phone Number",
     region: "Region",
     level: "Activity Level",
     activeProfile: "Active Profile",
     welcomeBack: "Welcome back",
+    editProfile: "✏️ Edit Profile",
+    logout: "🚪 Logout",
+    startJourney: "🚀 Start Your Journey",
+    lockedTitle: "Unlock Personalized Features",
+    lockedMemoriesMsg: "Create your profile to start saving and revisiting personal memories.",
+    lockedRemindersMsg: "Create your profile to set up personal daily reminders.",
+    lockedProgressMsg: "Create your profile to track your activity journey.",
+    maybeLater: "Maybe Later",
+    saveChanges: "💾 Save Changes",
+    cancel: "Cancel",
   },
   settings: {
     title: "Application Settings",

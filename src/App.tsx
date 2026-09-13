@@ -28,6 +28,8 @@ interface Profile {
   name: string;
   avatar: string;
   age: number;
+  gender?: string;
+  phone?: string;
   language: string;
   region: string;
   accessibility: {
@@ -69,6 +71,8 @@ const DEFAULT_PROFILES: Profile[] = [
     name: "Kamla Devi",
     avatar: "👵",
     age: 68,
+    gender: "Female",
+    phone: "+91 98765 43210",
     language: "Assamese",
     region: "Assam",
     accessibility: { spokenGuidance: true, largeText: true, highContrast: false },
@@ -205,7 +209,7 @@ function useProfiles() {
     storageGet("mv_profiles", DEFAULT_PROFILES)
   );
   const [activeId, setActiveId] = useState<string | null>(() =>
-    storageGet("mv_active_id", "kamla-devi")
+    storageGet("mv_active_id", null)
   );
 
   useEffect(() => storageSet("mv_profiles", profiles), [profiles]);
@@ -225,11 +229,15 @@ function useProfiles() {
     });
   }
 
+  function logout() {
+    setActiveId(null);
+  }
+
   function switchTo(id: string) {
     setActiveId(id);
   }
 
-  return { profiles, activeId, active, saveProfile, switchTo };
+  return { profiles, activeId, active, saveProfile, logout, switchTo };
 }
 
 function useDarkTheme() {
@@ -258,6 +266,7 @@ function Btn({
   fullWidth = false,
   className = "",
   disabled = false,
+  type = "button",
 }: {
   children: React.ReactNode;
   onClick?: () => void;
@@ -265,6 +274,7 @@ function Btn({
   fullWidth?: boolean;
   className?: string;
   disabled?: boolean;
+  type?: "button" | "submit" | "reset";
 }) {
   const base =
     "inline-flex items-center justify-center font-extrabold rounded-2xl transition-all duration-200 min-h-[48px] px-5 py-3 text-base cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed";
@@ -276,6 +286,7 @@ function Btn({
 
   return (
     <button
+      type={type}
       disabled={disabled}
       onClick={() => {
         if (!disabled) {
@@ -371,7 +382,7 @@ function NavBar({
   screen,
   onNav,
   active,
-  onSwitchProfile,
+  onOpenLockModal,
   dark,
   toggleDark,
   isOffline,
@@ -380,7 +391,7 @@ function NavBar({
   screen: Screen;
   onNav: (s: Screen) => void;
   active: Profile | null;
-  onSwitchProfile: () => void;
+  onOpenLockModal: (feature: "memories" | "reminders" | "progress") => void;
   dark: boolean;
   toggleDark: () => void;
   isOffline: boolean;
@@ -391,13 +402,13 @@ function NavBar({
   const [langOpen, setLangOpen] = useState(false);
   const langRef = useRef<HTMLDivElement>(null);
 
-  const NAV_ITEMS: { label: string; screen: Screen; gated?: boolean }[] = [
+  const NAV_ITEMS: { label: string; screen: Screen; gated?: boolean; featureKey?: "memories" | "reminders" | "progress" }[] = [
     { label: t.nav.home,          screen: "home" },
     { label: t.nav.activities,    screen: "activities" },
     { label: t.nav.aboutDementia, screen: "about-dementia" },
-    { label: t.nav.myMemories,    screen: "my-memories", gated: true },
-    { label: t.nav.reminders,     screen: "reminders",   gated: true },
-    { label: t.nav.progress,      screen: "progress",    gated: true },
+    { label: t.nav.myMemories,    screen: "my-memories", gated: true, featureKey: "memories" },
+    { label: t.nav.reminders,     screen: "reminders",   gated: true, featureKey: "reminders" },
+    { label: t.nav.progress,      screen: "progress",    gated: true, featureKey: "progress" },
   ];
 
   useEffect(() => {
@@ -408,9 +419,12 @@ function NavBar({
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
-  function go(s: Screen, gated?: boolean) {
+  function go(s: Screen, gated?: boolean, featureKey?: "memories" | "reminders" | "progress") {
     setMobileOpen(false);
-    if (gated && !active) { onNav("gate"); return; }
+    if (gated && !active) {
+      onOpenLockModal(featureKey || "memories");
+      return;
+    }
     onNav(s);
   }
 
@@ -440,7 +454,7 @@ function NavBar({
             return (
               <button
                 key={link.screen}
-                onClick={() => go(link.screen, link.gated)}
+                onClick={() => go(link.screen, link.gated, link.featureKey)}
                 className={`px-4 py-1.5 rounded-lg text-xs font-extrabold transition-all cursor-pointer ${
                   isActive
                     ? "bg-[var(--oxblood)] text-[#F3F0E8] shadow-md border border-[var(--brass)]"
@@ -483,16 +497,32 @@ function NavBar({
             )}
           </div>
 
-          {active ? (
-            <button onClick={onSwitchProfile} className="flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-extrabold border border-[var(--brass)] bg-[var(--oxblood-light)] text-[var(--oxblood-dark)] cursor-pointer">
-              <span>{active.avatar}</span>
-              <span className="hidden sm:inline">{active.name.split(" ")[0]}</span>
-            </button>
-          ) : (
-            <Btn onClick={() => go("profiles-select")} variant="primary" className="text-xs px-3.5 py-1.5 min-h-[36px] rounded-xl">
-              Profiles 👤
-            </Btn>
-          )}
+          {/* Profile control button (Always shows "Profile", never "Kamla") */}
+          <button
+            onClick={() => onNav("profile-home")}
+            className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-extrabold border transition-all cursor-pointer ${
+              screen === "profile-home"
+                ? "bg-[var(--oxblood)] text-white border-[var(--brass)] shadow-md"
+                : "border-[var(--brass)] bg-[var(--oxblood-light)] text-[var(--oxblood-dark)] hover:bg-[var(--brass-light)]"
+            }`}
+            title="Profile & Details"
+          >
+            <span>{active ? active.avatar : "👤"}</span>
+            <span>Profile</span>
+          </button>
+
+          {/* Settings Icon Button */}
+          <button
+            onClick={() => { tone("flip"); onNav("more"); }}
+            title={t.nav.settings}
+            className={`p-2 rounded-xl text-sm border transition-colors cursor-pointer ${
+              screen === "more"
+                ? "bg-[var(--oxblood)] text-white border-[var(--brass)]"
+                : "border-[var(--border)] bg-[var(--bg-card)] text-[var(--text-primary)] hover:bg-[var(--bg-hover)]"
+            }`}
+          >
+            ⚙️
+          </button>
 
           <button onClick={() => { tone("flip"); toggleDark(); }} className="p-2 rounded-xl text-sm border border-[var(--border)] bg-[var(--bg-card)] hover:bg-[var(--bg-hover)] transition-colors cursor-pointer">
             {dark ? "☀️" : "🌙"}
@@ -510,7 +540,7 @@ function NavBar({
             {NAV_ITEMS.map((link) => (
               <button
                 key={link.screen}
-                onClick={() => go(link.screen, link.gated)}
+                onClick={() => go(link.screen, link.gated, link.featureKey)}
                 className={`text-left px-4 py-3 rounded-xl text-sm font-extrabold cursor-pointer ${
                   screen === link.screen ? "bg-[var(--oxblood)] text-white border border-[var(--brass)]" : "bg-[var(--bg-section)] text-[var(--text-primary)] border border-[var(--border)]"
                 }`}
@@ -548,7 +578,7 @@ function HomeScreen({ onNav, active, onSwitchProfile }: { onNav: (s: Screen) => 
 
   return (
     <div className="space-y-16 pb-20">
-      {active && (
+      {active ? (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-4">
           <div className="rounded-2xl p-4 border border-[var(--oxblood)] bg-[var(--oxblood-light)] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-sm">
             <div className="flex items-center gap-3">
@@ -562,6 +592,19 @@ function HomeScreen({ onNav, active, onSwitchProfile }: { onNav: (s: Screen) => 
               <Btn onClick={() => onNav("profile-home")} variant="primary" className="text-xs px-4 py-2 min-h-[36px]">Dashboard</Btn>
               <Btn onClick={onSwitchProfile} variant="ghost" className="text-xs px-3 py-2 min-h-[36px]">Switch</Btn>
             </div>
+          </div>
+        </div>
+      ) : (
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-4">
+          <div className="rounded-2xl p-4 border border-[var(--brass)] bg-[var(--brass-light)] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-sm">
+            <div className="flex items-center gap-3">
+              <span className="text-3xl">✨</span>
+              <div>
+                <div className="font-extrabold text-base text-[var(--brass-dark)]">Welcome to MEMOVERSE Archival</div>
+                <div className="text-xs font-bold text-[var(--text-secondary)]">Explore cognitive activities freely or create a profile to save personal memories.</div>
+              </div>
+            </div>
+            <Btn onClick={() => onNav("start-journey")} variant="primary" className="text-xs px-4 py-2 min-h-[36px]">✨ {t.profile.startJourney}</Btn>
           </div>
         </div>
       )}
@@ -944,7 +987,7 @@ function MoreScreen({
 //  OTHER SCREENS (GameMemory, GameSounds, Memories, Reminders, Progress)
 // ═══════════════════════════════════════════════════════════════════
 
-function GameMemoryScreen({ onNav, onProgress }: { onNav: (s: Screen) => void; active: Profile | null; onProgress: () => void }) {
+function GameMemoryScreen({ onNav, active, onProgress }: { onNav: (s: Screen) => void; active: Profile | null; onProgress: () => void }) {
   const { t } = useLanguage();
   const CARD_ITEMS = [
     { id: "1", emoji: "🫖", label: "Tea Cup" },
@@ -1017,6 +1060,7 @@ function GameMemoryScreen({ onNav, onProgress }: { onNav: (s: Screen) => void; a
             <Btn onClick={initGame} variant="primary">{t.games.playAgain}</Btn>
             <Btn onClick={() => onNav("activities")} variant="secondary">Back</Btn>
           </div>
+          {!active && <StartYourJourneyCTA onNav={onNav} />}
         </div>
       </div>
     );
@@ -1069,7 +1113,7 @@ function GameMemoryScreen({ onNav, onProgress }: { onNav: (s: Screen) => void; a
   );
 }
 
-function GameSoundsScreen({ onNav, onProgress }: { onNav: (s: Screen) => void; active: Profile | null; onProgress: () => void }) {
+function GameSoundsScreen({ onNav, active, onProgress }: { onNav: (s: Screen) => void; active: Profile | null; onProgress: () => void }) {
   const { t, speakText } = useLanguage();
   const [playing, setPlaying] = useState<string | null>(null);
 
@@ -1115,12 +1159,14 @@ function GameSoundsScreen({ onNav, onProgress }: { onNav: (s: Screen) => void; a
             </Card>
           ))}
         </div>
+
+        {!active && <StartYourJourneyCTA onNav={onNav} />}
       </div>
     </div>
   );
 }
 
-function GameMarketScreen({ onNav, onProgress }: { onNav: (s: Screen) => void; active: Profile | null; onProgress: () => void }) {
+function GameMarketScreen({ onNav, active, onProgress }: { onNav: (s: Screen) => void; active: Profile | null; onProgress: () => void }) {
   const { t } = useLanguage();
   const [basket, setBasket] = useState<string[]>([]);
   const items = [t.games.itemTea, t.games.itemBamboo, t.games.itemLemon, t.games.itemSweets, t.games.itemOil, t.games.itemFish];
@@ -1163,12 +1209,14 @@ function GameMarketScreen({ onNav, onProgress }: { onNav: (s: Screen) => void; a
             {basket.length > 0 ? basket.join(", ") : "Basket empty."}
           </div>
         </Card>
+
+        {basket.length >= 3 && !active && <StartYourJourneyCTA onNav={onNav} />}
       </div>
     </div>
   );
 }
 
-function GameStoryScreen({ onNav, onProgress }: { onNav: (s: Screen) => void; active: Profile | null; onProgress: () => void }) {
+function GameStoryScreen({ onNav, active, onProgress }: { onNav: (s: Screen) => void; active: Profile | null; onProgress: () => void }) {
   const { t } = useLanguage();
   const [ans, setAns] = useState<string | null>(null);
 
@@ -1228,6 +1276,8 @@ function GameStoryScreen({ onNav, onProgress }: { onNav: (s: Screen) => void; ac
             </div>
           )}
         </Card>
+
+        {ans === t.games.optMuga && !active && <StartYourJourneyCTA onNav={onNav} />}
       </div>
     </div>
   );
@@ -1442,6 +1492,215 @@ function ProgressScreen({ profile }: { profile: Profile; onNav: (s: Screen) => v
   );
 }
 
+function LockedFeatureModal({
+  open,
+  feature,
+  onClose,
+  onCreateProfile,
+}: {
+  open: boolean;
+  feature: "memories" | "reminders" | "progress" | null;
+  onClose: () => void;
+  onCreateProfile: () => void;
+}) {
+  const { t } = useLanguage();
+  if (!open || !feature) return null;
+
+  const details = {
+    memories: {
+      icon: "🖼️",
+      title: t.nav.myMemories,
+      message: t.profile.lockedMemoriesMsg,
+    },
+    reminders: {
+      icon: "🔔",
+      title: t.nav.reminders,
+      message: t.profile.lockedRemindersMsg,
+    },
+    progress: {
+      icon: "📊",
+      title: t.nav.progress,
+      message: t.profile.lockedProgressMsg,
+    },
+  }[feature];
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm anim-fade">
+      <Card level={3} className="w-full max-w-md p-6 sm:p-8 space-y-6 text-center border border-[var(--brass)] bg-[var(--bg-card)] shadow-2xl">
+        <div className="mx-auto w-16 h-16 rounded-full bg-[var(--oxblood-light)] border border-[var(--brass)] flex items-center justify-center text-3xl shadow-inner">
+          🔒
+        </div>
+        <div className="space-y-2">
+          <Badge color="brass">{details.icon} {details.title}</Badge>
+          <h2 className="text-2xl font-black text-[var(--text-primary)]">{t.profile.lockedTitle}</h2>
+          <p className="text-sm font-semibold text-[var(--text-secondary)] leading-relaxed">
+            {details.message}
+          </p>
+        </div>
+        <div className="space-y-3 pt-2">
+          <Btn onClick={() => { onClose(); onCreateProfile(); }} variant="primary" fullWidth className="py-3.5 text-base">
+            ✨ {t.profile.createProfile}
+          </Btn>
+          <Btn onClick={onClose} variant="ghost" fullWidth className="py-2.5 text-sm">
+            {t.profile.maybeLater}
+          </Btn>
+        </div>
+      </Card>
+    </div>
+  );
+}
+
+function EditProfileModal({
+  open,
+  profile,
+  onClose,
+  onSave,
+}: {
+  open: boolean;
+  profile: Profile | null;
+  onClose: () => void;
+  onSave: (p: Profile) => void;
+}) {
+  const { t } = useLanguage();
+  const [name, setName] = useState(profile?.name || "");
+  const [age, setAge] = useState(profile?.age || 68);
+  const [gender, setGender] = useState(profile?.gender || "Female");
+  const [phone, setPhone] = useState(profile?.phone || "+91 98765 43210");
+  const [avatar, setAvatar] = useState(profile?.avatar || "👵");
+
+  useEffect(() => {
+    if (profile) {
+      setName(profile.name);
+      setAge(profile.age);
+      setGender(profile.gender || "Female");
+      setPhone(profile.phone || "+91 98765 43210");
+      setAvatar(profile.avatar);
+    }
+  }, [profile]);
+
+  if (!open || !profile) return null;
+
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!name.trim()) return;
+    onSave({
+      ...profile,
+      name: name.trim(),
+      age: Number(age) || 68,
+      gender,
+      phone: phone.trim(),
+      avatar,
+    });
+    onClose();
+  }
+
+  const AVATARS = ["👵", "👨‍🦳", "👵‍🦳", "👴", "🌸", "🌿", "🧠"];
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm anim-fade">
+      <Card level={3} className="w-full max-w-lg p-6 sm:p-8 space-y-6 border border-[var(--brass)] bg-[var(--bg-card)] shadow-2xl max-h-[90vh] overflow-y-auto">
+        <div className="flex items-center justify-between pb-2 border-b border-[var(--border)]">
+          <h2 className="text-2xl font-black text-[var(--text-primary)]">✏️ {t.profile.editProfile}</h2>
+          <button onClick={onClose} className="text-xl font-bold text-[var(--text-muted)] hover:text-[var(--text-primary)] cursor-pointer">✕</button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-5 text-left">
+          <div>
+            <label className="text-xs font-black uppercase text-[var(--text-muted)] tracking-wider">Choose Avatar</label>
+            <div className="flex flex-wrap gap-2.5 mt-2 justify-center sm:justify-start">
+              {AVATARS.map((av) => (
+                <button
+                  type="button"
+                  key={av}
+                  onClick={() => setAvatar(av)}
+                  className={`w-12 h-12 rounded-2xl text-2xl flex items-center justify-center border-2 transition-all cursor-pointer ${
+                    avatar === av ? "bg-[var(--oxblood-light)] border-[var(--oxblood)] scale-110 shadow-md" : "bg-[var(--bg-section)] border-[var(--border)]"
+                  }`}
+                >
+                  {av}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <label className="text-xs font-black uppercase text-[var(--text-muted)] tracking-wider">Full Name</label>
+            <input
+              type="text"
+              required
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="w-full p-3.5 mt-1 rounded-xl border border-[var(--border)] bg-[var(--bg-input)] font-bold text-base text-[var(--text-primary)]"
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="text-xs font-black uppercase text-[var(--text-muted)] tracking-wider">{t.profile.age}</label>
+              <input
+                type="number"
+                min="18"
+                max="120"
+                value={age}
+                onChange={(e) => setAge(Number(e.target.value))}
+                className="w-full p-3.5 mt-1 rounded-xl border border-[var(--border)] bg-[var(--bg-input)] font-bold text-base text-[var(--text-primary)]"
+              />
+            </div>
+
+            <div>
+              <label className="text-xs font-black uppercase text-[var(--text-muted)] tracking-wider">{t.profile.gender}</label>
+              <select
+                value={gender}
+                onChange={(e) => setGender(e.target.value)}
+                className="w-full p-3.5 mt-1 rounded-xl border border-[var(--border)] bg-[var(--bg-input)] font-bold text-base text-[var(--text-primary)] cursor-pointer"
+              >
+                <option value="Female">Female</option>
+                <option value="Male">Male</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label className="text-xs font-black uppercase text-[var(--text-muted)] tracking-wider">{t.profile.phone}</label>
+            <input
+              type="tel"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              className="w-full p-3.5 mt-1 rounded-xl border border-[var(--border)] bg-[var(--bg-input)] font-bold text-base text-[var(--text-primary)]"
+            />
+          </div>
+
+          <div className="flex gap-3 pt-4 border-t border-[var(--border)]">
+            <Btn type="submit" variant="primary" fullWidth className="py-3.5">
+              {t.profile.saveChanges}
+            </Btn>
+            <Btn onClick={onClose} type="button" variant="secondary" fullWidth className="py-3.5">
+              {t.profile.cancel}
+            </Btn>
+          </div>
+        </form>
+      </Card>
+    </div>
+  );
+}
+
+function StartYourJourneyCTA({ onNav }: { onNav: (s: Screen) => void }) {
+  const { t } = useLanguage();
+  return (
+    <div className="p-5 rounded-2xl bg-[var(--oxblood-light)] border border-[var(--oxblood)] space-y-3 text-center mt-4 anim-fade">
+      <div className="text-3xl">🌟</div>
+      <h3 className="text-lg font-black text-[var(--oxblood-dark)]">Great Job! Start Your Journey</h3>
+      <p className="text-xs font-semibold text-[var(--text-secondary)] leading-relaxed max-w-xs mx-auto">
+        You've completed your activity. Create your profile to save your progress, personal memories, and daily reminders.
+      </p>
+      <Btn onClick={() => onNav("start-journey")} variant="primary" fullWidth className="py-3 text-sm">
+        🚀 {t.profile.startJourney}
+      </Btn>
+    </div>
+  );
+}
+
 function ProfilesSelectScreen({ profiles, active, onSelect, onCreateNew, onSkip }: { profiles: Profile[]; active: Profile | null; onSelect: (id: string) => void; onCreateNew: () => void; onSkip: () => void }) {
   const { t } = useLanguage();
   return (
@@ -1470,25 +1729,122 @@ function ProfilesSelectScreen({ profiles, active, onSelect, onCreateNew, onSkip 
 }
 
 function StartJourneyScreen({ onNav, onSave }: { onNav: (s: Screen) => void; onSave: (p: Profile) => void }) {
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
   const [name, setName] = useState("");
+  const [age, setAge] = useState<number>(68);
+  const [gender, setGender] = useState("Female");
+  const [phone, setPhone] = useState("");
+  const [avatar, setAvatar] = useState("👵");
 
-  function create() {
+  const AVATARS = ["👵", "👨‍🦳", "👵‍🦳", "👴", "🌸", "🌿", "🧠"];
+
+  function create(e: React.FormEvent) {
+    e.preventDefault();
     if (!name.trim()) return;
     const newP: Profile = {
-      id: "p_" + Date.now(), name: name.trim(), avatar: "👵", age: 68, language: "Assamese", region: "Assam",
+      id: "p_" + Date.now(),
+      name: name.trim(),
+      avatar,
+      age: Number(age) || 68,
+      gender,
+      phone: phone.trim() || "+91 98765 00000",
+      language: lang,
+      region: "India",
       accessibility: { spokenGuidance: true, largeText: true, highContrast: false },
-      activities: { completed: 0, bestCategory: "Listening", level: 1 }, memories: [], reminders: [],
+      activities: { completed: 0, bestCategory: "Listening", level: 1 },
+      memories: [],
+      reminders: [],
     };
-    onSave(newP); onNav("profile-created");
+    onSave(newP);
+    onNav("profile-home");
   }
 
   return (
-    <div className="min-h-screen pb-24 flex items-center justify-center p-4">
-      <Card level={3} className="w-full max-w-md p-8 space-y-6">
-        <h1 className="text-2xl font-black text-[var(--text-primary)]">{t.profile.createProfile}</h1>
-        <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="Full Name" className="w-full p-3" />
-        <Btn onClick={create} variant="primary" fullWidth>Save &amp; Start</Btn>
+    <div className="min-h-screen pb-24 flex items-center justify-center p-4 pt-8">
+      <Card level={3} className="w-full max-w-lg p-6 sm:p-8 space-y-6 border border-[var(--brass)] bg-[var(--bg-card)] shadow-2xl">
+        <div className="text-center space-y-2">
+          <Badge color="brass">✨ {t.profile.startJourney}</Badge>
+          <h1 className="text-3xl font-black text-[var(--text-primary)]">{t.profile.createProfile}</h1>
+          <p className="text-sm font-semibold text-[var(--text-secondary)]">
+            Enter your details to create your personalized memory companion.
+          </p>
+        </div>
+
+        <form onSubmit={create} className="space-y-5 text-left">
+          <div>
+            <label className="text-xs font-black uppercase text-[var(--text-muted)] tracking-wider">Choose Avatar</label>
+            <div className="flex flex-wrap gap-2.5 mt-2 justify-center">
+              {AVATARS.map((av) => (
+                <button
+                  type="button"
+                  key={av}
+                  onClick={() => setAvatar(av)}
+                  className={`w-12 h-12 rounded-2xl text-2xl flex items-center justify-center border-2 transition-all cursor-pointer ${
+                    avatar === av ? "bg-[var(--oxblood-light)] border-[var(--oxblood)] scale-110 shadow-md" : "bg-[var(--bg-section)] border-[var(--border)]"
+                  }`}
+                >
+                  {av}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <label className="text-xs font-black uppercase text-[var(--text-muted)] tracking-wider">Full Name</label>
+            <input
+              type="text"
+              required
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="e.g. Kamla Devi"
+              className="w-full p-3.5 mt-1 rounded-xl border border-[var(--border)] bg-[var(--bg-input)] font-bold text-base text-[var(--text-primary)]"
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="text-xs font-black uppercase text-[var(--text-muted)] tracking-wider">{t.profile.age}</label>
+              <input
+                type="number"
+                min="18"
+                max="120"
+                value={age}
+                onChange={(e) => setAge(Number(e.target.value))}
+                className="w-full p-3.5 mt-1 rounded-xl border border-[var(--border)] bg-[var(--bg-input)] font-bold text-base text-[var(--text-primary)]"
+              />
+            </div>
+
+            <div>
+              <label className="text-xs font-black uppercase text-[var(--text-muted)] tracking-wider">{t.profile.gender}</label>
+              <select
+                value={gender}
+                onChange={(e) => setGender(e.target.value)}
+                className="w-full p-3.5 mt-1 rounded-xl border border-[var(--border)] bg-[var(--bg-input)] font-bold text-base text-[var(--text-primary)] cursor-pointer"
+              >
+                <option value="Female">Female</option>
+                <option value="Male">Male</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label className="text-xs font-black uppercase text-[var(--text-muted)] tracking-wider">{t.profile.phone}</label>
+            <input
+              type="tel"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              placeholder="+91 98765 43210"
+              className="w-full p-3.5 mt-1 rounded-xl border border-[var(--border)] bg-[var(--bg-input)] font-bold text-base text-[var(--text-primary)]"
+            />
+          </div>
+
+          <div className="pt-3">
+            <Btn type="submit" variant="primary" fullWidth className="py-4 text-base">
+              🚀 {t.profile.startJourney}
+            </Btn>
+          </div>
+        </form>
       </Card>
     </div>
   );
@@ -1506,25 +1862,120 @@ function ProfileCreatedScreen({ active, onNav }: { active: Profile | null; onNav
   );
 }
 
-function ProfileHomeScreen({ profile, onNav, onSwitchProfile }: { profile: Profile; onNav: (s: Screen) => void; onSwitchProfile: () => void }) {
+function ProfileHomeScreen({
+  profile,
+  onNav,
+  onEditProfile,
+  onCreateNewAccount,
+  onLogout,
+  onLoadDemo,
+}: {
+  profile: Profile | null;
+  onNav: (s: Screen) => void;
+  onEditProfile: () => void;
+  onCreateNewAccount: () => void;
+  onLogout: () => void;
+  onLoadDemo: () => void;
+}) {
   const { t } = useLanguage();
+
+  if (!profile) {
+    return (
+      <div className="min-h-screen pb-24 pt-8">
+        <div className="max-w-2xl mx-auto px-4 space-y-8">
+          <div>
+            <Badge color="brass">👤 Guest Mode</Badge>
+            <h1 className="text-3xl sm:text-5xl font-black text-[var(--text-primary)] mt-1">Welcome to MEMOVERSE</h1>
+            <p className="text-base text-[var(--text-secondary)] font-medium mt-2 leading-relaxed">
+              You are currently exploring as a guest. You can play cognitive activities freely, or create a profile to save personal memories, daily reminders, and activity progress.
+            </p>
+          </div>
+
+          <Card level={2} className="p-8 space-y-6 text-center bg-[var(--bg-card)] border border-[var(--border)]">
+            <div className="text-6xl">✨</div>
+            <div className="space-y-2">
+              <h2 className="text-2xl font-black text-[var(--text-primary)]">Start Your Journey</h2>
+              <p className="text-sm font-semibold text-[var(--text-secondary)] max-w-md mx-auto">
+                Create your senior profile to unlock personalized keepsake albums, medicine reminders, and focus metrics.
+              </p>
+            </div>
+            <div className="space-y-3 max-w-sm mx-auto pt-2">
+              <Btn onClick={onCreateNewAccount} variant="primary" fullWidth className="py-4 text-base">
+                ✨ {t.profile.createProfile}
+              </Btn>
+              <Btn onClick={onLoadDemo} variant="secondary" fullWidth className="py-3.5 text-sm">
+                👵 Load Demo Profile (Kamla Devi)
+              </Btn>
+            </div>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen pb-24 pt-8">
-      <div className="max-w-4xl mx-auto px-4 space-y-8">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <span className="text-5xl">{profile.avatar}</span>
-            <div>
-              <h1 className="text-3xl font-black text-[var(--text-primary)]">{profile.name}</h1>
-              <p className="text-sm font-bold text-[var(--text-muted)]">{profile.region} · {profile.language} · Age {profile.age}</p>
+    <div className="min-h-screen pb-24 pt-8 space-y-8">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 space-y-8">
+        <div>
+          <Badge color="oxblood">👤 {t.profile.title}</Badge>
+          <h1 className="text-3xl sm:text-5xl font-black text-[var(--text-primary)] mt-1">{profile.name}</h1>
+          <p className="text-base text-[var(--text-secondary)] font-medium">{t.profile.subtitle}</p>
+        </div>
+
+        {/* Profile Card */}
+        <Card level={2} className="p-6 sm:p-8 space-y-6 bg-[var(--bg-card)] border border-[var(--border)] shadow-lg">
+          <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 pb-6 border-b border-[var(--border)]">
+            <div className="w-24 h-24 rounded-full bg-[var(--oxblood-light)] border-2 border-[var(--brass)] flex items-center justify-center text-5xl shadow-md shrink-0">
+              {profile.avatar}
+            </div>
+            <div className="space-y-2 text-center sm:text-left flex-1">
+              <h2 className="text-2xl sm:text-3xl font-black text-[var(--text-primary)]">{profile.name}</h2>
+              <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 text-xs font-extrabold text-[var(--text-secondary)]">
+                <span className="px-3 py-1 rounded-full bg-[var(--bg-section)] border border-[var(--border)]">🎂 Age {profile.age}</span>
+                {profile.gender && <span className="px-3 py-1 rounded-full bg-[var(--bg-section)] border border-[var(--border)]">👤 {profile.gender}</span>}
+                <span className="px-3 py-1 rounded-full bg-[var(--bg-section)] border border-[var(--border)]">📍 {profile.region}</span>
+                <span className="px-3 py-1 rounded-full bg-[var(--bg-section)] border border-[var(--border)]">🌐 {profile.language}</span>
+              </div>
+              {profile.phone && (
+                <div className="text-sm font-bold text-[var(--text-primary)] pt-1 flex items-center justify-center sm:justify-start gap-2">
+                  <span>📞</span> {profile.phone}
+                </div>
+              )}
             </div>
           </div>
-          <Btn onClick={onSwitchProfile} variant="secondary" className="text-xs py-2 px-4">{t.profile.switchProfile}</Btn>
-        </div>
-        <div className="flex gap-4">
-          <Btn onClick={() => onNav("activities")} variant="primary">{t.activities.title}</Btn>
-          <Btn onClick={() => onNav("my-memories")} variant="secondary">{t.memories.title}</Btn>
-        </div>
+
+          {/* Quick Metrics */}
+          <div className="grid grid-cols-3 gap-4 pt-1">
+            <div className="p-4 rounded-2xl bg-[var(--bg-section)] text-center border border-[var(--border)]">
+              <div className="text-2xl font-black text-[var(--oxblood-dark)]">{profile.activities.completed}</div>
+              <div className="text-[11px] font-bold text-[var(--text-muted)] uppercase tracking-wider mt-1">{t.progress.activitiesCompleted}</div>
+            </div>
+            <div className="p-4 rounded-2xl bg-[var(--bg-section)] text-center border border-[var(--border)]">
+              <div className="text-2xl font-black text-[var(--oxblood-dark)]">Level {profile.activities.level}</div>
+              <div className="text-[11px] font-bold text-[var(--text-muted)] uppercase tracking-wider mt-1">{t.progress.currentLevel}</div>
+            </div>
+            <div className="p-4 rounded-2xl bg-[var(--bg-section)] text-center border border-[var(--border)]">
+              <div className="text-2xl font-black text-[var(--oxblood-dark)]">{profile.memories.length}</div>
+              <div className="text-[11px] font-bold text-[var(--text-muted)] uppercase tracking-wider mt-1">Saved Memories</div>
+            </div>
+          </div>
+        </Card>
+
+        {/* Profile Actions */}
+        <Card level={2} className="p-6 sm:p-8 space-y-4 bg-[var(--bg-section)] border border-[var(--border)]">
+          <h3 className="text-xl font-black text-[var(--text-primary)] mb-2">Profile Actions</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <Btn onClick={onEditProfile} variant="primary" className="py-4 text-sm flex items-center justify-center gap-2">
+              <span>✏️</span> {t.profile.editProfile}
+            </Btn>
+            <Btn onClick={onCreateNewAccount} variant="secondary" className="py-4 text-sm flex items-center justify-center gap-2">
+              <span>👤</span> {t.profile.createProfile}
+            </Btn>
+            <Btn onClick={onLogout} variant="danger" className="py-4 text-sm flex items-center justify-center gap-2">
+              <span>🚪</span> {t.profile.logout}
+            </Btn>
+          </div>
+        </Card>
       </div>
     </div>
   );
@@ -1618,13 +2069,15 @@ function Footer({ onNav }: { onNav: (s: Screen) => void }) {
 // ═══════════════════════════════════════════════════════════════════
 
 function MainAppContent() {
-  const { profiles, active, saveProfile, switchTo } = useProfiles();
+  const { profiles, active, saveProfile, logout, switchTo } = useProfiles();
   const { dark, toggleDark } = useDarkTheme();
   const { notice, clearNotice } = useLanguage();
 
   const [screen, setScreen] = useState<Screen>("home");
   const [isOffline, setIsOffline] = useState(false);
   const [profileModalOpen, setProfileModalOpen] = useState(false);
+  const [editProfileOpen, setEditProfileOpen] = useState(false);
+  const [lockModalFeature, setLockModalFeature] = useState<"memories" | "reminders" | "progress" | null>(null);
 
   useEffect(() => {
     document.title = "MEMOVERSE";
@@ -1661,7 +2114,7 @@ function MainAppContent() {
         screen={screen}
         onNav={nav}
         active={active}
-        onSwitchProfile={() => setProfileModalOpen(true)}
+        onOpenLockModal={(feature) => setLockModalFeature(feature)}
         dark={dark}
         toggleDark={toggleDark}
         isOffline={isOffline}
