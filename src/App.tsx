@@ -2260,24 +2260,23 @@ function MainAppContent() {
   const [editProfileOpen, setEditProfileOpen] = useState(false);
   const [lockModalFeature, setLockModalFeature] = useState<"memories" | "reminders" | "progress" | null>(null);
 
+  function getValidScreen(raw?: string): Screen {
+    if (!raw) return "home";
+    const clean = raw.replace("#", "").split("-modal")[0].split("-edit")[0].split("-profiles")[0].split("-locked")[0];
+    if (TOP_LEVEL_SCREENS.has(clean as Screen) || ["play", "more", "game-memory", "game-sounds", "game-market", "game-story", "profiles-select", "start-journey", "profile-created", "gate"].includes(clean)) {
+      return clean as Screen;
+    }
+    return "home";
+  }
+
   // Initialize root history entry on mount
   useEffect(() => {
     document.title = "MEMOVERSE";
 
-    const initialHash = window.location.hash.replace("#", "");
-    const validScreens: Screen[] = [
-      "home", "play", "more", "about-dementia", "activities",
-      "game-memory", "game-sounds", "game-market", "game-story",
-      "profiles-select", "start-journey", "profile-created",
-      "profile-home", "my-memories", "reminders", "progress", "gate"
-    ];
-
-    if (initialHash && validScreens.includes(initialHash as Screen)) {
-      setScreen(initialHash as Screen);
-      window.history.replaceState({ screen: initialHash }, "", `#${initialHash}`);
-    } else {
-      window.history.replaceState({ screen: "home", isRoot: true }, "", "#home");
-    }
+    const hash = window.location.hash;
+    const initialScreen = getValidScreen(hash);
+    setScreen(initialScreen);
+    window.history.replaceState({ screen: initialScreen, isRoot: true }, "", `#${initialScreen}`);
   }, []);
 
   // Listen for browser / Android device Back button (popstate)
@@ -2289,16 +2288,8 @@ function MainAppContent() {
         setLockModalFeature(null);
       }
 
-      if (e.state && e.state.screen) {
-        setScreen(e.state.screen);
-      } else {
-        const hash = window.location.hash.replace("#", "");
-        if (hash) {
-          setScreen(hash as Screen);
-        } else {
-          setScreen("home");
-        }
-      }
+      const targetScreen = getValidScreen(e.state?.screen || window.location.hash);
+      setScreen(targetScreen);
     }
 
     window.addEventListener("popstate", handlePopState);
@@ -2307,15 +2298,16 @@ function MainAppContent() {
 
   function nav(s: Screen, source?: "navbar" | "user") {
     window.scrollTo({ top: 0, behavior: "smooth" });
-    if (s === screen) return;
+    const target = getValidScreen(s);
+    if (target === screen && !editProfileOpen && !profileModalOpen && lockModalFeature === null) return;
 
     setEditProfileOpen(false);
     setProfileModalOpen(false);
     setLockModalFeature(null);
 
-    setScreen(s);
+    setScreen(target);
     try {
-      window.history.pushState({ screen: s }, "", `#${s}`);
+      window.history.pushState({ screen: target }, "", `#${target}`);
     } catch {
       // Ignore fallback
     }
@@ -2351,7 +2343,7 @@ function MainAppContent() {
   function openEditProfileModal() {
     setEditProfileOpen(true);
     try {
-      window.history.pushState({ screen, modal: "edit-profile" }, "", `#${screen}-edit`);
+      window.history.pushState({ screen, modal: "edit-profile" }, "", `#${screen}`);
     } catch {
       // Ignore fallback
     }
@@ -2360,7 +2352,7 @@ function MainAppContent() {
   function openProfileModal() {
     setProfileModalOpen(true);
     try {
-      window.history.pushState({ screen, modal: "switch-profile" }, "", `#${screen}-profiles`);
+      window.history.pushState({ screen, modal: "switch-profile" }, "", `#${screen}`);
     } catch {
       // Ignore fallback
     }
@@ -2369,7 +2361,7 @@ function MainAppContent() {
   function openLockModal(feature: "memories" | "reminders" | "progress") {
     setLockModalFeature(feature);
     try {
-      window.history.pushState({ screen, modal: "lock-feature" }, "", `#${screen}-locked`);
+      window.history.pushState({ screen, modal: "lock-feature" }, "", `#${screen}`);
     } catch {
       // Ignore fallback
     }
@@ -2387,6 +2379,8 @@ function MainAppContent() {
     });
   }
 
+  const activeScreen = getValidScreen(screen);
+
   return (
     <div className="page-root">
       {notice && (
@@ -2398,7 +2392,7 @@ function MainAppContent() {
       )}
 
       <NavBar
-        screen={screen}
+        screen={activeScreen}
         onNav={nav}
         active={active}
         onOpenLockModal={(feature) => openLockModal(feature)}
@@ -2409,23 +2403,23 @@ function MainAppContent() {
       />
 
       <main>
-        {!TOP_LEVEL_SCREENS.has(screen) && (
+        {!TOP_LEVEL_SCREENS.has(activeScreen) && (
           <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-4 pb-0 flex items-center justify-start">
             <BackButton onClick={goBack} label={t.nav.back || "Back"} />
           </div>
         )}
 
-        {screen === "home" && <HomeScreen onNav={nav} active={active} onSwitchProfile={openProfileModal} />}
-        {screen === "more" && <MoreScreen onNav={nav} active={active} onSwitchProfile={openProfileModal} isOffline={isOffline} toggleOffline={() => setIsOffline((v) => !v)} />}
-        {screen === "about-dementia" && <AboutDementiaScreen onNav={nav} />}
-        {screen === "activities"     && <ActivitiesScreen onNav={nav} />}
+        {activeScreen === "home" && <HomeScreen onNav={nav} active={active} onSwitchProfile={openProfileModal} />}
+        {activeScreen === "more" && <MoreScreen onNav={nav} active={active} onSwitchProfile={openProfileModal} isOffline={isOffline} toggleOffline={() => setIsOffline((v) => !v)} />}
+        {activeScreen === "about-dementia" && <AboutDementiaScreen onNav={nav} />}
+        {activeScreen === "activities"     && <ActivitiesScreen onNav={nav} />}
 
-        {screen === "game-memory" && <GameMemoryScreen onNav={nav} onBack={goBack} active={active} onProgress={recordProgress} />}
-        {screen === "game-sounds" && <GameSoundsScreen onNav={nav} onBack={goBack} active={active} onProgress={recordProgress} />}
-        {screen === "game-market" && <GameMarketScreen onNav={nav} onBack={goBack} active={active} onProgress={recordProgress} />}
-        {screen === "game-story"  && <GameStoryScreen onNav={nav} onBack={goBack} active={active} onProgress={recordProgress} />}
+        {activeScreen === "game-memory" && <GameMemoryScreen onNav={nav} onBack={goBack} active={active} onProgress={recordProgress} />}
+        {activeScreen === "game-sounds" && <GameSoundsScreen onNav={nav} onBack={goBack} active={active} onProgress={recordProgress} />}
+        {activeScreen === "game-market" && <GameMarketScreen onNav={nav} onBack={goBack} active={active} onProgress={recordProgress} />}
+        {activeScreen === "game-story"  && <GameStoryScreen onNav={nav} onBack={goBack} active={active} onProgress={recordProgress} />}
 
-        {screen === "profiles-select" && (
+        {activeScreen === "profiles-select" && (
           <ProfilesSelectScreen
             profiles={profiles}
             active={active}
@@ -2434,10 +2428,10 @@ function MainAppContent() {
             onSkip={() => nav("activities")}
           />
         )}
-        {screen === "start-journey"  && <StartJourneyScreen onNav={nav} onSave={saveProfile} />}
-        {screen === "profile-created"&& <ProfileCreatedScreen active={active} onNav={nav} />}
+        {activeScreen === "start-journey"  && <StartJourneyScreen onNav={nav} onSave={saveProfile} />}
+        {activeScreen === "profile-created"&& <ProfileCreatedScreen active={active} onNav={nav} />}
 
-        {screen === "profile-home" && (
+        {activeScreen === "profile-home" && (
           <ProfileHomeScreen
             profile={active}
             onNav={nav}
@@ -2447,16 +2441,16 @@ function MainAppContent() {
             onLoadDemo={() => { switchTo("kamla-devi"); nav("profile-home"); }}
           />
         )}
-        {screen === "my-memories" && (
+        {activeScreen === "my-memories" && (
           active ? <MyMemoriesScreen profile={active} onUpdate={saveProfile} /> : <GateScreen onNav={nav} onProfiles={openProfileModal} />
         )}
-        {screen === "reminders" && (
+        {activeScreen === "reminders" && (
           active ? <RemindersScreen profile={active} onUpdate={saveProfile} /> : <GateScreen onNav={nav} onProfiles={openProfileModal} />
         )}
-        {screen === "progress" && (
-          active ? <ProgressScreen profile={active} onNav={nav} /> : <GateScreen onNav={nav} onProfiles={openProfileModal} />
+        {activeScreen === "progress" && (
+          active ? <ProgressScreen profile={active} onUpdate={saveProfile} /> : <GateScreen onNav={nav} onProfiles={openProfileModal} />
         )}
-        {screen === "gate" && <GateScreen onNav={nav} onProfiles={openProfileModal} />}
+        {activeScreen === "gate" && <GateScreen onNav={nav} onProfiles={openProfileModal} />}
       </main>
 
       <Footer onNav={nav} />
