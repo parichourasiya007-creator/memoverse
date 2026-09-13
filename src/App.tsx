@@ -2255,62 +2255,81 @@ function MainAppContent() {
   const { notice, clearNotice, t } = useLanguage();
 
   const [screen, setScreen] = useState<Screen>("home");
-  const [historyStack, setHistoryStack] = useState<Screen[]>(["home"]);
   const [isOffline, setIsOffline] = useState(false);
   const [profileModalOpen, setProfileModalOpen] = useState(false);
   const [editProfileOpen, setEditProfileOpen] = useState(false);
   const [lockModalFeature, setLockModalFeature] = useState<"memories" | "reminders" | "progress" | null>(null);
 
+  // Initialize root history entry on mount
   useEffect(() => {
     document.title = "MEMOVERSE";
+
+    const initialHash = window.location.hash.replace("#", "");
+    const validScreens: Screen[] = [
+      "home", "play", "more", "about-dementia", "activities",
+      "game-memory", "game-sounds", "game-market", "game-story",
+      "profiles-select", "start-journey", "profile-created",
+      "profile-home", "my-memories", "reminders", "progress", "gate"
+    ];
+
+    if (initialHash && validScreens.includes(initialHash as Screen)) {
+      setScreen(initialHash as Screen);
+      window.history.replaceState({ screen: initialHash }, "", `#${initialHash}`);
+    } else {
+      window.history.replaceState({ screen: "home", isRoot: true }, "", "#home");
+    }
   }, []);
 
+  // Listen for browser / Android device Back button (popstate)
   useEffect(() => {
     function handlePopState(e: PopStateEvent) {
+      if (editProfileOpen || profileModalOpen || lockModalFeature !== null) {
+        setEditProfileOpen(false);
+        setProfileModalOpen(false);
+        setLockModalFeature(null);
+      }
+
       if (e.state && e.state.screen) {
         setScreen(e.state.screen);
-        setHistoryStack((prev) => {
-          if (prev.length > 1) {
-            return prev.slice(0, -1);
-          }
-          return [e.state.screen];
-        });
+      } else {
+        const hash = window.location.hash.replace("#", "");
+        if (hash) {
+          setScreen(hash as Screen);
+        } else {
+          setScreen("home");
+        }
       }
     }
+
     window.addEventListener("popstate", handlePopState);
     return () => window.removeEventListener("popstate", handlePopState);
-  }, []);
+  }, [editProfileOpen, profileModalOpen, lockModalFeature]);
 
   function nav(s: Screen, source?: "navbar" | "user") {
     window.scrollTo({ top: 0, behavior: "smooth" });
     if (s === screen) return;
 
-    if (source === "navbar" || TOP_LEVEL_SCREENS.has(s)) {
-      setHistoryStack([s]);
-    } else {
-      setHistoryStack((prev) => [...prev, s]);
-    }
+    setEditProfileOpen(false);
+    setProfileModalOpen(false);
+    setLockModalFeature(null);
 
     setScreen(s);
     try {
       window.history.pushState({ screen: s }, "", `#${s}`);
     } catch {
-      // Ignore if pushState unsupported
+      // Ignore fallback
     }
   }
 
   function goBack() {
     window.scrollTo({ top: 0, behavior: "smooth" });
-    if (historyStack.length > 1) {
-      const nextStack = historyStack.slice(0, -1);
-      const prevScreen = nextStack[nextStack.length - 1];
-      setHistoryStack(nextStack);
-      setScreen(prevScreen);
-      try {
-        window.history.pushState({ screen: prevScreen }, "", `#${prevScreen}`);
-      } catch {
-        // Ignore fallback
-      }
+    if (editProfileOpen || profileModalOpen || lockModalFeature !== null) {
+      setEditProfileOpen(false);
+      setProfileModalOpen(false);
+      setLockModalFeature(null);
+    }
+    if (window.history.length > 1) {
+      window.history.back();
     } else {
       const fallbackMap: Record<string, Screen> = {
         more: "profile-home",
@@ -2325,13 +2344,34 @@ function MainAppContent() {
         play: "activities",
       };
       const target = fallbackMap[screen] || "home";
-      setHistoryStack([target]);
-      setScreen(target);
-      try {
-        window.history.pushState({ screen: target }, "", `#${target}`);
-      } catch {
-        // Ignore fallback
-      }
+      nav(target);
+    }
+  }
+
+  function openEditProfileModal() {
+    setEditProfileOpen(true);
+    try {
+      window.history.pushState({ screen, modal: "edit-profile" }, "", `#${screen}-edit`);
+    } catch {
+      // Ignore fallback
+    }
+  }
+
+  function openProfileModal() {
+    setProfileModalOpen(true);
+    try {
+      window.history.pushState({ screen, modal: "switch-profile" }, "", `#${screen}-profiles`);
+    } catch {
+      // Ignore fallback
+    }
+  }
+
+  function openLockModal(feature: "memories" | "reminders" | "progress") {
+    setLockModalFeature(feature);
+    try {
+      window.history.pushState({ screen, modal: "lock-feature" }, "", `#${screen}-locked`);
+    } catch {
+      // Ignore fallback
     }
   }
 
@@ -2361,7 +2401,7 @@ function MainAppContent() {
         screen={screen}
         onNav={nav}
         active={active}
-        onOpenLockModal={(feature) => setLockModalFeature(feature)}
+        onOpenLockModal={(feature) => openLockModal(feature)}
         dark={dark}
         toggleDark={toggleDark}
         isOffline={isOffline}
@@ -2375,8 +2415,8 @@ function MainAppContent() {
           </div>
         )}
 
-        {screen === "home" && <HomeScreen onNav={nav} active={active} onSwitchProfile={() => setProfileModalOpen(true)} />}
-        {screen === "more" && <MoreScreen onNav={nav} active={active} onSwitchProfile={() => setProfileModalOpen(true)} isOffline={isOffline} toggleOffline={() => setIsOffline((v) => !v)} />}
+        {screen === "home" && <HomeScreen onNav={nav} active={active} onSwitchProfile={openProfileModal} />}
+        {screen === "more" && <MoreScreen onNav={nav} active={active} onSwitchProfile={openProfileModal} isOffline={isOffline} toggleOffline={() => setIsOffline((v) => !v)} />}
         {screen === "about-dementia" && <AboutDementiaScreen onNav={nav} />}
         {screen === "activities"     && <ActivitiesScreen onNav={nav} />}
 
@@ -2401,29 +2441,29 @@ function MainAppContent() {
           <ProfileHomeScreen
             profile={active}
             onNav={nav}
-            onEditProfile={() => setEditProfileOpen(true)}
+            onEditProfile={openEditProfileModal}
             onCreateNewAccount={() => nav("start-journey")}
             onLogout={() => { logout(); nav("home"); }}
             onLoadDemo={() => { switchTo("kamla-devi"); nav("profile-home"); }}
           />
         )}
         {screen === "my-memories" && (
-          active ? <MyMemoriesScreen profile={active} onUpdate={saveProfile} /> : <GateScreen onNav={nav} onProfiles={() => setProfileModalOpen(true)} />
+          active ? <MyMemoriesScreen profile={active} onUpdate={saveProfile} /> : <GateScreen onNav={nav} onProfiles={openProfileModal} />
         )}
         {screen === "reminders" && (
-          active ? <RemindersScreen profile={active} onUpdate={saveProfile} /> : <GateScreen onNav={nav} onProfiles={() => setProfileModalOpen(true)} />
+          active ? <RemindersScreen profile={active} onUpdate={saveProfile} /> : <GateScreen onNav={nav} onProfiles={openProfileModal} />
         )}
         {screen === "progress" && (
-          active ? <ProgressScreen profile={active} onNav={nav} /> : <GateScreen onNav={nav} onProfiles={() => setProfileModalOpen(true)} />
+          active ? <ProgressScreen profile={active} onNav={nav} /> : <GateScreen onNav={nav} onProfiles={openProfileModal} />
         )}
-        {screen === "gate" && <GateScreen onNav={nav} onProfiles={() => setProfileModalOpen(true)} />}
+        {screen === "gate" && <GateScreen onNav={nav} onProfiles={openProfileModal} />}
       </main>
 
       <Footer onNav={nav} />
 
       <SwitchProfileModal
         open={profileModalOpen}
-        onClose={() => setProfileModalOpen(false)}
+        onClose={goBack}
         profiles={profiles}
         active={active}
         onSelect={(id) => { switchTo(id); nav("profile-home"); }}
@@ -2433,17 +2473,17 @@ function MainAppContent() {
       <EditProfileModal
         open={editProfileOpen}
         profile={active}
-        onClose={() => setEditProfileOpen(false)}
+        onClose={goBack}
         onSave={(updated) => {
           saveProfile(updated);
-          setEditProfileOpen(false);
+          goBack();
         }}
       />
 
       <LockedFeatureModal
         open={lockModalFeature !== null}
         feature={lockModalFeature}
-        onClose={() => setLockModalFeature(null)}
+        onClose={goBack}
         onCreateProfile={() => nav("start-journey")}
       />
     </div>
