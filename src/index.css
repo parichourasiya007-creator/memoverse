@@ -1,0 +1,363 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap');
+@import 'tailwindcss';
+
+/* ─── Premium Archival Porcelain + Deep Ink + Oxblood Design System ──────── */
+/* ─── Premium Archival Porcelain + Deep Ink + Oxblood Design System ──────── */
+:root {
+  /* Surface & Canvas Tokens (LIGHT MODE) */
+  --bg-page:        #F3F0E8; /* Porcelain */
+  --bg-section:     #E7E2D8; /* Warm Paper */
+  --bg-card:        #FBFAF6; /* Ivory */
+  --surface-raised: #FFFFFF;
+  --bg-input:       #FBFAF6;
+  --bg-hover:       #E7E2D8;
+
+  /* Typography Tokens */
+  --text-primary:   #252C30; /* Ink */
+  --text-secondary: #6C706F; /* Stone */
+  --text-muted:     #888E91;
+  --text-on-dark:   #252C30;
+  --text-on-dark-muted: #6C706F;
+
+  /* Translucent & Taupe Borders */
+  --border:         #D6CEC2; /* Soft Taupe */
+  --border-light:   rgba(255, 255, 255, 0.9);
+  --border-dark:    rgba(214, 206, 194, 0.6);
+
+  /* Primary Brand Accent: Oxblood */
+  --oxblood:        #713F3A;
+  --oxblood-hover:  #854B46;
+  --oxblood-light:  #F7EFF0;
+  --oxblood-dark:   #4D2926;
+  --amber:          var(--oxblood);
+  --amber-hover:    var(--oxblood-hover);
+  --amber-light:    var(--oxblood-light);
+  --amber-dark:     var(--oxblood-dark);
+  --primary-text:   #F3F0E8;
+
+  /* Highlight Accent: Aged Brass */
+  --brass:          #B18A4A;
+  --brass-hover:    #A07A3B;
+  --brass-light:    #FAF5EC;
+  --brass-dark:     #523D19;
+  --mustard:        var(--brass);
+  --mustard-hover:  var(--brass-hover);
+  --mustard-light:  var(--brass-light);
+  --mustard-dark:   var(--brass-dark);
+
+  /* Secondary Cool Accent: Mineral Blue-Gray */
+  --mineral:        #74888D;
+  --mineral-hover:  #63767B;
+  --mineral-light:  #F0F4F5;
+  --mineral-dark:   #2C393C;
+  --slate:          var(--mineral);
+  --slate-hover:    var(--mineral-hover);
+  --slate-light:    var(--mineral-light);
+  --slate-dark:     var(--mineral-dark);
+
+  /* Aliases for Complete Compatibility */
+  --peach:          var(--oxblood);
+  --peach-hover:    var(--oxblood-hover);
+  --peach-light:    var(--oxblood-light);
+  --peach-dark:     var(--oxblood-dark);
+
+  --rose:           var(--oxblood);
+  --rose-light:     var(--oxblood-light);
+  --rose-hover:     var(--oxblood-hover);
+  --rose-dark:      var(--oxblood-dark);
+
+  --lavender:       var(--mineral);
+  --lavender-light: var(--mineral-light);
+  --lavender-dark:  var(--mineral-dark);
+
+  /* Functional Colors */
+  --success:        #3E6B4E;
+  --success-light:  #EEF6F1;
+  --error:          #9E3838;
+  --error-light:    #FAF0F0;
+
+  /* Glassmorphism & Translucency Tokens */
+  --glass-bg:       rgba(251, 250, 246, 0.92);
+  --glass-nav-bg:   rgba(243, 240, 232, 0.94); /* Porcelain Translucent Header */
+  --glass-border:   rgba(214, 206, 194, 0.6);
+  --glass-blur:     18px;
+
+  /* Depth Tokens */
+  --shadow-sm:      0 2px 8px -2px rgba(37, 44, 48, 0.06);
+  --shadow-clay:    0 10px 28px -6px rgba(37, 44, 48, 0.09), inset 0 1px 0 rgba(255, 255, 255, 0.95);
+  --shadow-glass:   0 16px 36px -8px rgba(37, 44, 48, 0.12);
+
+  --nav-bg:         var(--glass-nav-bg);
+  --nav-border:     var(--border);
+  --nav-text:       var(--text-primary);
+}
+
+.dark {
+  /* Surface & Canvas Tokens (DARK MODE) */
+  --bg-page:        #151B1E; /* Deep Ink Page Background */
+  --bg-section:     #20282C; /* Dark Surface */
+  --bg-card:        #293237; /* Elevated Dark Surface */
+  --surface-raised: #323D43;
+  --bg-input:       #293237;
+  --bg-hover:       #364349;
+
+  /* Typography Tokens */
+  --text-primary:   #F3F0E8; /* Warm Porcelain Text */
+  --text-secondary: #C7C5BE; /* Stone Light Text */
+  --text-muted:     #9CA4A8;
+  --text-on-dark:   #F3F0E8;
+  --text-on-dark-muted: #C7C5BE;
+
+  /* Dark Borders */
+  --border:         rgba(243, 240, 232, 0.14);
+  --border-light:   rgba(243, 240, 232, 0.22);
+  --border-dark:    rgba(243, 240, 232, 0.3);
+
+  /* Primary Brand Accent: Dark Oxblood */
+  --oxblood:        #8A5149;
+  --oxblood-hover:  #A06057;
+  --oxblood-light:  #382422;
+  --oxblood-dark:   #F5E8E7;
+  --amber:          var(--oxblood);
+  --amber-hover:    var(--oxblood-hover);
+  --amber-light:    var(--oxblood-light);
+  --amber-dark:     var(--oxblood-dark);
+  --primary-text:   #F3F0E8;
+
+  /* Highlight Accent: Aged Brass */
+  --brass:          #B18A4A;
+  --brass-hover:    #C69B56;
+  --brass-light:    #362B17;
+  --brass-dark:     #FAF5EC;
+  --mustard:        var(--brass);
+  --mustard-hover:  var(--brass-hover);
+  --mustard-light:  var(--brass-light);
+  --mustard-dark:   var(--brass-dark);
+
+  /* Secondary Cool Accent: Mineral Slate */
+  --mineral:        #7F969A;
+  --mineral-hover:  #95ADB1;
+  --mineral-light:  #1F2B2E;
+  --mineral-dark:   #EFF4F5;
+  --slate:          var(--mineral);
+  --slate-hover:    var(--mineral-hover);
+  --slate-light:    var(--mineral-light);
+  --slate-dark:     var(--mineral-dark);
+
+  /* Aliases */
+  --peach:          var(--oxblood);
+  --peach-hover:    var(--oxblood-hover);
+  --peach-light:    var(--oxblood-light);
+  --peach-dark:     var(--oxblood-dark);
+
+  --rose:           var(--oxblood);
+  --rose-light:     var(--oxblood-light);
+  --rose-hover:     var(--oxblood-hover);
+  --rose-dark:      var(--oxblood-dark);
+
+  --lavender:       var(--mineral);
+  --lavender-light: var(--mineral-light);
+  --lavender-dark:  var(--mineral-dark);
+
+  /* Functional */
+  --success:        #5A986E;
+  --success-light:  #1B3123;
+  --error:          #CF5A5A;
+  --error-light:    #3A1F1F;
+
+  /* Glassmorphism Dark Tokens */
+  --glass-bg:       rgba(32, 40, 44, 0.88);
+  --glass-nav-bg:   rgba(21, 27, 30, 0.94);
+  --glass-border:   rgba(243, 240, 232, 0.14);
+
+  /* Shadows Dark */
+  --shadow-sm:      0 2px 8px rgba(0, 0, 0, 0.3);
+  --shadow-clay:    0 10px 28px -6px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  --shadow-glass:   0 16px 36px -8px rgba(0, 0, 0, 0.6);
+
+  --nav-bg:         var(--glass-nav-bg);
+  --nav-border:     var(--border);
+  --nav-text:       var(--text-primary);
+}
+
+/* ─── Base Typography & Reset ────────────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html {
+  font-family: 'Nunito', 'Plus Jakarta Sans', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  margin: 0;
+  background-color: var(--bg-page);
+  color: var(--text-primary);
+  font-size: 17px;
+  line-height: 1.6;
+  position: relative;
+}
+
+/* Organic Soft Ambient Background */
+.bg-ambient {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.bg-ambient-blob-1 {
+  position: absolute;
+  top: -12%;
+  left: -10%;
+  width: 55vw;
+  height: 55vw;
+  max-width: 700px;
+  max-height: 700px;
+  background: radial-gradient(circle, rgba(200, 137, 75, 0.13) 0%, rgba(245, 241, 232, 0) 70%);
+  border-radius: 50%;
+  filter: blur(60px);
+}
+
+.bg-ambient-blob-2 {
+  position: absolute;
+  bottom: -10%;
+  right: -10%;
+  width: 50vw;
+  height: 50vw;
+  max-width: 650px;
+  max-height: 650px;
+  background: radial-gradient(circle, rgba(102, 122, 131, 0.12) 0%, rgba(245, 241, 232, 0) 70%);
+  border-radius: 50%;
+  filter: blur(60px);
+}
+
+.dark .bg-ambient-blob-1 {
+  background: radial-gradient(circle, rgba(217, 152, 89, 0.1) 0%, transparent 70%);
+}
+.dark .bg-ambient-blob-2 {
+  background: radial-gradient(circle, rgba(133, 154, 164, 0.08) 0%, transparent 70%);
+}
+
+/* ─── Typography scale ───────────────────────────────────────────────────────── */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Nunito', 'Plus Jakarta Sans', system-ui, sans-serif;
+  font-weight: 800;
+  line-height: 1.25;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+}
+
+/* ─── Scrollbar ──────────────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--text-muted); opacity: 0.3; border-radius: 4px; }
+
+/* ─── Focus visible ──────────────────────────────────────────────────────────── */
+:focus-visible {
+  outline: 3px solid var(--amber);
+  outline-offset: 3px;
+  border-radius: 10px;
+}
+
+/* ─── Input / Select base ────────────────────────────────────────────────────── */
+input, select, textarea {
+  font-family: 'Nunito', system-ui, sans-serif;
+  background-color: var(--bg-input);
+  color: var(--text-primary);
+  border: 1.5px solid var(--border);
+  border-radius: 16px;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+  box-shadow: inset 0 1.5px 3px rgba(39, 51, 58, 0.04);
+}
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: var(--amber);
+  box-shadow: 0 0 0 3px rgba(200, 137, 75, 0.25);
+}
+
+/* ─── Range accent ───────────────────────────────────────────────────────────── */
+input[type="range"] {
+  accent-color: var(--amber);
+  border: none;
+  background: transparent;
+  box-shadow: none;
+}
+
+/* ─── Tactile & Glass Utility Classes ────────────────────────────────────────── */
+.glass-panel {
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--shadow-glass);
+}
+
+.clay-card {
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-clay);
+}
+
+.btn-clay-primary {
+  background: var(--amber);
+  color: var(--primary-text);
+  box-shadow: var(--btn-clay-shadow);
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.btn-clay-primary:hover {
+  background: var(--amber-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 22px -2px rgba(200, 137, 75, 0.48), inset 0 1px 1px 0 rgba(255, 255, 255, 0.6);
+}
+.btn-clay-primary:active {
+  transform: translateY(1px);
+  box-shadow: 0 2px 8px -1px rgba(200, 137, 75, 0.35), inset 0 1px 2px 0 rgba(0, 0, 0, 0.15);
+}
+
+.btn-glass-secondary {
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  color: var(--text-primary);
+  border: 1.5px solid var(--border);
+  box-shadow: var(--shadow-sm);
+  transition: all 0.2s ease;
+}
+.btn-glass-secondary:hover {
+  background: var(--bg-hover);
+  border-color: var(--amber);
+  transform: translateY(-1px);
+}
+
+/* ─── Animations ─────────────────────────────────────────────────────────────── */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(100%); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.96); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+.anim-fade  { animation: fadeIn  0.22s ease both; }
+.anim-slide { animation: slideUp 0.32s cubic-bezier(0.32, 0.72, 0, 1) both; }
+.anim-scale { animation: scaleIn 0.22s ease both; }
+
+/* ─── Mobile Viewport Fix ────────────────────────────────────────────────────── */
+.page-root {
+  min-height: 100dvh;
+  background-color: var(--bg-page);
+  color: var(--text-primary);
+  overflow-x: hidden;
+  position: relative;
+  z-index: 1;
+}
