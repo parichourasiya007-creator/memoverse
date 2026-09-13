@@ -2298,10 +2298,25 @@ function MainAppContent() {
         {screen === "start-journey"  && <StartJourneyScreen onNav={nav} onSave={saveProfile} />}
         {screen === "profile-created"&& <ProfileCreatedScreen active={active} onNav={nav} />}
 
-        {screen === "profile-home" && active && <ProfileHomeScreen profile={active} onNav={nav} onSwitchProfile={() => setProfileModalOpen(true)} />}
-        {screen === "my-memories" && active && <MyMemoriesScreen profile={active} onUpdate={saveProfile} />}
-        {screen === "reminders" && active && <RemindersScreen profile={active} onUpdate={saveProfile} />}
-        {screen === "progress" && active && <ProgressScreen profile={active} onNav={nav} />}
+        {screen === "profile-home" && (
+          <ProfileHomeScreen
+            profile={active}
+            onNav={nav}
+            onEditProfile={() => setEditProfileOpen(true)}
+            onCreateNewAccount={() => nav("start-journey")}
+            onLogout={() => { logout(); nav("home"); }}
+            onLoadDemo={() => { switchTo("kamla-devi"); nav("profile-home"); }}
+          />
+        )}
+        {screen === "my-memories" && (
+          active ? <MyMemoriesScreen profile={active} onUpdate={saveProfile} /> : <GateScreen onNav={nav} onProfiles={() => setProfileModalOpen(true)} />
+        )}
+        {screen === "reminders" && (
+          active ? <RemindersScreen profile={active} onUpdate={saveProfile} /> : <GateScreen onNav={nav} onProfiles={() => setProfileModalOpen(true)} />
+        )}
+        {screen === "progress" && (
+          active ? <ProgressScreen profile={active} onNav={nav} /> : <GateScreen onNav={nav} onProfiles={() => setProfileModalOpen(true)} />
+        )}
         {screen === "gate" && <GateScreen onNav={nav} onProfiles={() => setProfileModalOpen(true)} />}
       </main>
 
@@ -2314,6 +2329,23 @@ function MainAppContent() {
         active={active}
         onSelect={(id) => { switchTo(id); nav("profile-home"); }}
         onCreateNew={() => nav("start-journey")}
+      />
+
+      <EditProfileModal
+        open={editProfileOpen}
+        profile={active}
+        onClose={() => setEditProfileOpen(false)}
+        onSave={(updated) => {
+          saveProfile(updated);
+          setEditProfileOpen(false);
+        }}
+      />
+
+      <LockedFeatureModal
+        open={lockModalFeature !== null}
+        feature={lockModalFeature}
+        onClose={() => setLockModalFeature(null)}
+        onCreateProfile={() => nav("start-journey")}
       />
     </div>
   );
