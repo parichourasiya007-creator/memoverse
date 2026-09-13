@@ -29,7 +29,11 @@ interface Profile {
   avatar: string;
   age: number;
   gender?: string;
+  location?: string;
   phone?: string;
+  familyContactName?: string;
+  familyContactPhone?: string;
+  address?: string;
   language: string;
   region: string;
   accessibility: {
@@ -72,7 +76,11 @@ const DEFAULT_PROFILES: Profile[] = [
     avatar: "👵",
     age: 68,
     gender: "Female",
+    location: "Jorhat, Assam",
     phone: "+91 98765 43210",
+    familyContactName: "Ananya Devi (Daughter)",
+    familyContactPhone: "+91 98123 45678",
+    address: "House No. 42, Tea Estate Road, Near Central Park, Jorhat, Assam - 785001",
     language: "Assamese",
     region: "Assam",
     accessibility: { spokenGuidance: true, largeText: true, highContrast: false },
@@ -509,19 +517,6 @@ function NavBar({
           >
             <span>{active ? active.avatar : "👤"}</span>
             <span>Profile</span>
-          </button>
-
-          {/* Settings Icon Button */}
-          <button
-            onClick={() => { tone("flip"); onNav("more"); }}
-            title={t.nav.settings}
-            className={`p-2 rounded-xl text-sm border transition-colors cursor-pointer ${
-              screen === "more"
-                ? "bg-[var(--oxblood)] text-white border-[var(--brass)]"
-                : "border-[var(--border)] bg-[var(--bg-card)] text-[var(--text-primary)] hover:bg-[var(--bg-hover)]"
-            }`}
-          >
-            ⚙️
           </button>
 
           <button onClick={() => { tone("flip"); toggleDark(); }} className="p-2 rounded-xl text-sm border border-[var(--border)] bg-[var(--bg-card)] hover:bg-[var(--bg-hover)] transition-colors cursor-pointer">
@@ -1565,7 +1560,11 @@ function EditProfileModal({
   const [name, setName] = useState(profile?.name || "");
   const [age, setAge] = useState(profile?.age || 68);
   const [gender, setGender] = useState(profile?.gender || "Female");
+  const [location, setLocation] = useState(profile?.location || profile?.region || "Jorhat, Assam");
   const [phone, setPhone] = useState(profile?.phone || "+91 98765 43210");
+  const [familyContactName, setFamilyContactName] = useState(profile?.familyContactName || "");
+  const [familyContactPhone, setFamilyContactPhone] = useState(profile?.familyContactPhone || "");
+  const [address, setAddress] = useState(profile?.address || "");
   const [avatar, setAvatar] = useState(profile?.avatar || "👵");
 
   useEffect(() => {
@@ -1573,7 +1572,11 @@ function EditProfileModal({
       setName(profile.name);
       setAge(profile.age);
       setGender(profile.gender || "Female");
+      setLocation(profile.location || profile.region || "Jorhat, Assam");
       setPhone(profile.phone || "+91 98765 43210");
+      setFamilyContactName(profile.familyContactName || "");
+      setFamilyContactPhone(profile.familyContactPhone || "");
+      setAddress(profile.address || "");
       setAvatar(profile.avatar);
     }
   }, [profile]);
@@ -1588,7 +1591,11 @@ function EditProfileModal({
       name: name.trim(),
       age: Number(age) || 68,
       gender,
+      location: location.trim(),
       phone: phone.trim(),
+      familyContactName: familyContactName.trim(),
+      familyContactPhone: familyContactPhone.trim(),
+      address: address.trim(),
       avatar,
     });
     onClose();
@@ -1604,7 +1611,7 @@ function EditProfileModal({
           <button onClick={onClose} className="text-xl font-bold text-[var(--text-muted)] hover:text-[var(--text-primary)] cursor-pointer">✕</button>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-5 text-left">
+        <form onSubmit={handleSubmit} className="space-y-4 text-left">
           <div>
             <label className="text-xs font-black uppercase text-[var(--text-muted)] tracking-wider">Choose Avatar</label>
             <div className="flex flex-wrap gap-2.5 mt-2 justify-center sm:justify-start">
@@ -1662,6 +1669,17 @@ function EditProfileModal({
           </div>
 
           <div>
+            <label className="text-xs font-black uppercase text-[var(--text-muted)] tracking-wider">{t.profile.location}</label>
+            <input
+              type="text"
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
+              placeholder="e.g. Jorhat, Assam"
+              className="w-full p-3.5 mt-1 rounded-xl border border-[var(--border)] bg-[var(--bg-input)] font-bold text-base text-[var(--text-primary)]"
+            />
+          </div>
+
+          <div>
             <label className="text-xs font-black uppercase text-[var(--text-muted)] tracking-wider">{t.profile.phone}</label>
             <input
               type="tel"
@@ -1671,12 +1689,43 @@ function EditProfileModal({
             />
           </div>
 
+          <div className="pt-2 border-t border-[var(--border)]">
+            <label className="text-xs font-black uppercase text-[var(--oxblood-dark)] tracking-wider">{t.profile.familyContact}</label>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-1">
+              <input
+                type="text"
+                value={familyContactName}
+                onChange={(e) => setFamilyContactName(e.target.value)}
+                placeholder="Contact Name (e.g. Daughter)"
+                className="w-full p-3 rounded-xl border border-[var(--border)] bg-[var(--bg-input)] font-bold text-sm text-[var(--text-primary)]"
+              />
+              <input
+                type="tel"
+                value={familyContactPhone}
+                onChange={(e) => setFamilyContactPhone(e.target.value)}
+                placeholder="Contact Phone Number"
+                className="w-full p-3 rounded-xl border border-[var(--border)] bg-[var(--bg-input)] font-bold text-sm text-[var(--text-primary)]"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="text-xs font-black uppercase text-[var(--text-muted)] tracking-wider">{t.profile.address}</label>
+            <textarea
+              rows={2}
+              value={address}
+              onChange={(e) => setAddress(e.target.value)}
+              placeholder="Full residence address..."
+              className="w-full p-3 mt-1 rounded-xl border border-[var(--border)] bg-[var(--bg-input)] font-bold text-sm text-[var(--text-primary)]"
+            />
+          </div>
+
           <div className="flex gap-3 pt-4 border-t border-[var(--border)]">
-            <Btn type="submit" variant="primary" fullWidth className="py-3.5">
-              {t.profile.saveChanges}
+            <Btn type="submit" variant="primary" fullWidth className="py-3.5 flex items-center justify-center gap-2">
+              <span>💾</span> {t.profile.saveChanges}
             </Btn>
-            <Btn onClick={onClose} type="button" variant="secondary" fullWidth className="py-3.5">
-              {t.profile.cancel}
+            <Btn onClick={onClose} type="button" variant="secondary" fullWidth className="py-3.5 flex items-center justify-center gap-2">
+              <span>✕</span> {t.profile.cancel}
             </Btn>
           </div>
         </form>
@@ -1694,8 +1743,8 @@ function StartYourJourneyCTA({ onNav }: { onNav: (s: Screen) => void }) {
       <p className="text-xs font-semibold text-[var(--text-secondary)] leading-relaxed max-w-xs mx-auto">
         You've completed your activity. Create your profile to save your progress, personal memories, and daily reminders.
       </p>
-      <Btn onClick={() => onNav("start-journey")} variant="primary" fullWidth className="py-3 text-sm">
-        🚀 {t.profile.startJourney}
+      <Btn onClick={() => onNav("start-journey")} variant="primary" fullWidth className="py-3 text-sm flex items-center justify-center gap-2">
+        <span>🚀</span> {t.profile.startJourney}
       </Btn>
     </div>
   );
@@ -1721,7 +1770,7 @@ function ProfilesSelectScreen({ profiles, active, onSelect, onCreateNew, onSkip 
             </button>
           ))}
         </div>
-        <Btn onClick={onCreateNew} variant="primary" fullWidth>{t.profile.createProfile}</Btn>
+        <Btn onClick={onCreateNew} variant="primary" fullWidth flex items-center justify-center gap-2><span>✨</span> {t.profile.createProfile}</Btn>
         <Btn onClick={onSkip} variant="ghost" fullWidth>Continue Guest Mode</Btn>
       </Card>
     </div>
@@ -1733,7 +1782,11 @@ function StartJourneyScreen({ onNav, onSave }: { onNav: (s: Screen) => void; onS
   const [name, setName] = useState("");
   const [age, setAge] = useState<number>(68);
   const [gender, setGender] = useState("Female");
+  const [location, setLocation] = useState("");
   const [phone, setPhone] = useState("");
+  const [familyContactName, setFamilyContactName] = useState("");
+  const [familyContactPhone, setFamilyContactPhone] = useState("");
+  const [address, setAddress] = useState("");
   const [avatar, setAvatar] = useState("👵");
 
   const AVATARS = ["👵", "👨‍🦳", "👵‍🦳", "👴", "🌸", "🌿", "🧠"];
@@ -1747,9 +1800,13 @@ function StartJourneyScreen({ onNav, onSave }: { onNav: (s: Screen) => void; onS
       avatar,
       age: Number(age) || 68,
       gender,
+      location: location.trim() || "India",
       phone: phone.trim() || "+91 98765 00000",
+      familyContactName: familyContactName.trim(),
+      familyContactPhone: familyContactPhone.trim(),
+      address: address.trim(),
       language: lang,
-      region: "India",
+      region: location.trim() || "India",
       accessibility: { spokenGuidance: true, largeText: true, highContrast: false },
       activities: { completed: 0, bestCategory: "Listening", level: 1 },
       memories: [],
@@ -1761,7 +1818,7 @@ function StartJourneyScreen({ onNav, onSave }: { onNav: (s: Screen) => void; onS
 
   return (
     <div className="min-h-screen pb-24 flex items-center justify-center p-4 pt-8">
-      <Card level={3} className="w-full max-w-lg p-6 sm:p-8 space-y-6 border border-[var(--brass)] bg-[var(--bg-card)] shadow-2xl">
+      <Card level={3} className="w-full max-w-lg p-6 sm:p-8 space-y-6 border border-[var(--brass)] bg-[var(--bg-card)] shadow-2xl max-h-[90vh] overflow-y-auto">
         <div className="text-center space-y-2">
           <Badge color="brass">✨ {t.profile.startJourney}</Badge>
           <h1 className="text-3xl font-black text-[var(--text-primary)]">{t.profile.createProfile}</h1>
@@ -1770,7 +1827,7 @@ function StartJourneyScreen({ onNav, onSave }: { onNav: (s: Screen) => void; onS
           </p>
         </div>
 
-        <form onSubmit={create} className="space-y-5 text-left">
+        <form onSubmit={create} className="space-y-4 text-left">
           <div>
             <label className="text-xs font-black uppercase text-[var(--text-muted)] tracking-wider">Choose Avatar</label>
             <div className="flex flex-wrap gap-2.5 mt-2 justify-center">
@@ -1829,6 +1886,17 @@ function StartJourneyScreen({ onNav, onSave }: { onNav: (s: Screen) => void; onS
           </div>
 
           <div>
+            <label className="text-xs font-black uppercase text-[var(--text-muted)] tracking-wider">{t.profile.location}</label>
+            <input
+              type="text"
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
+              placeholder="e.g. Jorhat, Assam"
+              className="w-full p-3.5 mt-1 rounded-xl border border-[var(--border)] bg-[var(--bg-input)] font-bold text-base text-[var(--text-primary)]"
+            />
+          </div>
+
+          <div>
             <label className="text-xs font-black uppercase text-[var(--text-muted)] tracking-wider">{t.profile.phone}</label>
             <input
               type="tel"
@@ -1839,9 +1907,40 @@ function StartJourneyScreen({ onNav, onSave }: { onNav: (s: Screen) => void; onS
             />
           </div>
 
+          <div className="pt-2 border-t border-[var(--border)]">
+            <label className="text-xs font-black uppercase text-[var(--oxblood-dark)] tracking-wider">{t.profile.familyContact}</label>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-1">
+              <input
+                type="text"
+                value={familyContactName}
+                onChange={(e) => setFamilyContactName(e.target.value)}
+                placeholder="Contact Name (e.g. Daughter)"
+                className="w-full p-3 rounded-xl border border-[var(--border)] bg-[var(--bg-input)] font-bold text-sm text-[var(--text-primary)]"
+              />
+              <input
+                type="tel"
+                value={familyContactPhone}
+                onChange={(e) => setFamilyContactPhone(e.target.value)}
+                placeholder="Contact Phone Number"
+                className="w-full p-3 rounded-xl border border-[var(--border)] bg-[var(--bg-input)] font-bold text-sm text-[var(--text-primary)]"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="text-xs font-black uppercase text-[var(--text-muted)] tracking-wider">{t.profile.address}</label>
+            <textarea
+              rows={2}
+              value={address}
+              onChange={(e) => setAddress(e.target.value)}
+              placeholder="Full residence address..."
+              className="w-full p-3 mt-1 rounded-xl border border-[var(--border)] bg-[var(--bg-input)] font-bold text-sm text-[var(--text-primary)]"
+            />
+          </div>
+
           <div className="pt-3">
-            <Btn type="submit" variant="primary" fullWidth className="py-4 text-base">
-              🚀 {t.profile.startJourney}
+            <Btn type="submit" variant="primary" fullWidth className="py-4 text-base flex items-center justify-center gap-2">
+              <span>🚀</span> {t.profile.startJourney}
             </Btn>
           </div>
         </form>
@@ -1856,7 +1955,7 @@ function ProfileCreatedScreen({ active, onNav }: { active: Profile | null; onNav
       <div className="max-w-md space-y-6">
         <div className="text-8xl">🎉</div>
         <h1 className="text-3xl font-black text-[var(--text-primary)]">Welcome, {active?.name}!</h1>
-        <Btn onClick={() => onNav("home")} variant="primary" fullWidth>Go to Homepage →</Btn>
+        <Btn onClick={() => onNav("home")} variant="primary" fullWidth className="flex items-center justify-center gap-2">Go to Homepage →</Btn>
       </div>
     </div>
   );
@@ -1900,11 +1999,11 @@ function ProfileHomeScreen({
               </p>
             </div>
             <div className="space-y-3 max-w-sm mx-auto pt-2">
-              <Btn onClick={onCreateNewAccount} variant="primary" fullWidth className="py-4 text-base">
-                ✨ {t.profile.createProfile}
+              <Btn onClick={onCreateNewAccount} variant="primary" fullWidth className="py-4 text-base flex items-center justify-center gap-2">
+                <span>✨</span> {t.profile.createProfile}
               </Btn>
-              <Btn onClick={onLoadDemo} variant="secondary" fullWidth className="py-3.5 text-sm">
-                👵 Load Demo Profile (Kamla Devi)
+              <Btn onClick={onLoadDemo} variant="secondary" fullWidth className="py-3.5 text-sm flex items-center justify-center gap-2">
+                <span>👵</span> Load Demo Profile (Kamla Devi)
               </Btn>
             </div>
           </Card>
@@ -1922,41 +2021,79 @@ function ProfileHomeScreen({
           <p className="text-base text-[var(--text-secondary)] font-medium">{t.profile.subtitle}</p>
         </div>
 
-        {/* Profile Card */}
+        {/* Profile Photo & Name Card */}
         <Card level={2} className="p-6 sm:p-8 space-y-6 bg-[var(--bg-card)] border border-[var(--border)] shadow-lg">
-          <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 pb-6 border-b border-[var(--border)]">
+          <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
             <div className="w-24 h-24 rounded-full bg-[var(--oxblood-light)] border-2 border-[var(--brass)] flex items-center justify-center text-5xl shadow-md shrink-0">
               {profile.avatar}
             </div>
             <div className="space-y-2 text-center sm:text-left flex-1">
-              <h2 className="text-2xl sm:text-3xl font-black text-[var(--text-primary)]">{profile.name}</h2>
-              <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 text-xs font-extrabold text-[var(--text-secondary)]">
-                <span className="px-3 py-1 rounded-full bg-[var(--bg-section)] border border-[var(--border)]">🎂 Age {profile.age}</span>
-                {profile.gender && <span className="px-3 py-1 rounded-full bg-[var(--bg-section)] border border-[var(--border)]">👤 {profile.gender}</span>}
-                <span className="px-3 py-1 rounded-full bg-[var(--bg-section)] border border-[var(--border)]">📍 {profile.region}</span>
-                <span className="px-3 py-1 rounded-full bg-[var(--bg-section)] border border-[var(--border)]">🌐 {profile.language}</span>
-              </div>
-              {profile.phone && (
-                <div className="text-sm font-bold text-[var(--text-primary)] pt-1 flex items-center justify-center sm:justify-start gap-2">
-                  <span>📞</span> {profile.phone}
-                </div>
-              )}
+              <h2 className="text-3xl font-black text-[var(--text-primary)]">{profile.name}</h2>
+              <p className="text-sm font-semibold text-[var(--text-secondary)]">Senior Profile · Language: {profile.language}</p>
             </div>
           </div>
+        </Card>
 
-          {/* Quick Metrics */}
-          <div className="grid grid-cols-3 gap-4 pt-1">
-            <div className="p-4 rounded-2xl bg-[var(--bg-section)] text-center border border-[var(--border)]">
-              <div className="text-2xl font-black text-[var(--oxblood-dark)]">{profile.activities.completed}</div>
-              <div className="text-[11px] font-bold text-[var(--text-muted)] uppercase tracking-wider mt-1">{t.progress.activitiesCompleted}</div>
+        {/* Personal Details */}
+        <Card level={2} className="p-6 sm:p-8 space-y-4 bg-[var(--bg-card)] border border-[var(--border)] shadow-sm">
+          <h3 className="text-xl font-black text-[var(--text-primary)] border-b border-[var(--border)] pb-3 flex items-center gap-2">
+            <span>👤</span> Personal Details
+          </h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-left pt-1">
+            <div>
+              <div className="text-xs font-black uppercase text-[var(--text-muted)] tracking-wider">Full Name</div>
+              <div className="text-lg font-black text-[var(--text-primary)] mt-0.5">{profile.name}</div>
             </div>
-            <div className="p-4 rounded-2xl bg-[var(--bg-section)] text-center border border-[var(--border)]">
-              <div className="text-2xl font-black text-[var(--oxblood-dark)]">Level {profile.activities.level}</div>
-              <div className="text-[11px] font-bold text-[var(--text-muted)] uppercase tracking-wider mt-1">{t.progress.currentLevel}</div>
+            <div>
+              <div className="text-xs font-black uppercase text-[var(--text-muted)] tracking-wider">Age</div>
+              <div className="text-lg font-black text-[var(--text-primary)] mt-0.5">{profile.age} years old</div>
             </div>
-            <div className="p-4 rounded-2xl bg-[var(--bg-section)] text-center border border-[var(--border)]">
-              <div className="text-2xl font-black text-[var(--oxblood-dark)]">{profile.memories.length}</div>
-              <div className="text-[11px] font-bold text-[var(--text-muted)] uppercase tracking-wider mt-1">Saved Memories</div>
+            <div>
+              <div className="text-xs font-black uppercase text-[var(--text-muted)] tracking-wider">Gender</div>
+              <div className="text-lg font-black text-[var(--text-primary)] mt-0.5">{profile.gender || "Not specified"}</div>
+            </div>
+            <div>
+              <div className="text-xs font-black uppercase text-[var(--text-muted)] tracking-wider">Location</div>
+              <div className="text-lg font-black text-[var(--text-primary)] mt-0.5">{profile.location || profile.region || "India"}</div>
+            </div>
+          </div>
+        </Card>
+
+        {/* Contact Details */}
+        <Card level={2} className="p-6 sm:p-8 space-y-4 bg-[var(--bg-card)] border border-[var(--border)] shadow-sm">
+          <h3 className="text-xl font-black text-[var(--text-primary)] border-b border-[var(--border)] pb-3 flex items-center gap-2">
+            <span>📞</span> Contact Details
+          </h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-left pt-1">
+            <div>
+              <div className="text-xs font-black uppercase text-[var(--text-muted)] tracking-wider">Phone Number</div>
+              <div className="text-lg font-black text-[var(--text-primary)] mt-0.5">{profile.phone || "Not provided"}</div>
+            </div>
+            <div>
+              <div className="text-xs font-black uppercase text-[var(--text-muted)] tracking-wider">Family / Emergency Contact</div>
+              <div className="text-lg font-black text-[var(--oxblood-dark)] mt-0.5">
+                {profile.familyContactName ? (
+                  <>
+                    <div>{profile.familyContactName}</div>
+                    <div className="text-sm font-bold text-[var(--text-secondary)]">{profile.familyContactPhone}</div>
+                  </>
+                ) : (
+                  "Not configured"
+                )}
+              </div>
+            </div>
+          </div>
+        </Card>
+
+        {/* Address */}
+        <Card level={2} className="p-6 sm:p-8 space-y-4 bg-[var(--bg-card)] border border-[var(--border)] shadow-sm">
+          <h3 className="text-xl font-black text-[var(--text-primary)] border-b border-[var(--border)] pb-3 flex items-center gap-2">
+            <span>🏡</span> Address
+          </h3>
+          <div className="text-left pt-1">
+            <div className="text-xs font-black uppercase text-[var(--text-muted)] tracking-wider">Full Address</div>
+            <div className="text-base font-bold text-[var(--text-primary)] mt-1 leading-relaxed">
+              {profile.address || "No address entered."}
             </div>
           </div>
         </Card>
@@ -1969,10 +2106,27 @@ function ProfileHomeScreen({
               <span>✏️</span> {t.profile.editProfile}
             </Btn>
             <Btn onClick={onCreateNewAccount} variant="secondary" className="py-4 text-sm flex items-center justify-center gap-2">
-              <span>👤</span> {t.profile.createProfile}
+              <span>👤</span> {t.profile.createNewProfile}
             </Btn>
             <Btn onClick={onLogout} variant="danger" className="py-4 text-sm flex items-center justify-center gap-2">
               <span>🚪</span> {t.profile.logout}
+            </Btn>
+          </div>
+        </Card>
+
+        {/* Settings Access Card inside Profile */}
+        <Card level={2} className="p-6 sm:p-8 space-y-4 bg-[var(--bg-card)] border border-[var(--brass)] shadow-md">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="space-y-1 text-left">
+              <h3 className="text-xl font-black text-[var(--text-primary)] flex items-center gap-2">
+                <span>⚙️</span> Application Settings
+              </h3>
+              <p className="text-xs font-semibold text-[var(--text-secondary)]">
+                Configure interface language ({profile.language}), audio guidance, text sizing, and high contrast options.
+              </p>
+            </div>
+            <Btn onClick={() => onNav("more")} variant="secondary" className="py-3 px-6 text-sm flex items-center gap-2 shrink-0">
+              <span>⚙️</span> Open Settings
             </Btn>
           </div>
         </Card>
