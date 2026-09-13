@@ -606,6 +606,102 @@ export const TRANSLATIONS: Record<string, TranslationSchema> = {
     memories: { ...baseEnglish.memories, title: "ഓർമ്മ ആൽബം", addMemory: "➕ പുതിയ ഓർമ്മ ചേർക്കുക" },
     reminders: { ...baseEnglish.reminders, title: "ദിനചര്യ സമയം", todaySchedule: "ഇന്നത്തെ സമയം" },
   },
+
+  // ─── DOGRI ─────────────────────────────────────────────────────────────
+  Dogri: {
+    ...baseEnglish,
+    nav: { home: "मुक्ख पन्ना", activities: "गतिविधियां", myMemories: "मेरी यादें", reminders: "स्मरण पत्र", progress: "प्रगति", aboutDementia: "डिमेंशिया बारै", profile: "प्रोफाइल", settings: "सेटिंग्स", switchProfile: "प्रोफाइल बदलो" },
+    home: { ...baseEnglish.home, title: "जित्थै यादें", titleAccent: "सनेह कन्नै अमर र‍हंदियां न", exploreActivities: "🧠 गतिविधियां देक्खो", caregiverGuide: "📖 देखभालकर्ता मार्गदर्शिका" },
+    activities: { ...baseEnglish.activities, title: "मानसिक अभ्यास", playNow: "शुरू करो" },
+    games: { ...baseEnglish.games, memoryMatchTitle: "स्मृति फोटो रलाओ", flipCard: "कार्ड पलटो", moves: "प्रयास", matches: "जोड़े", congrats: "शाबाश! तुस्सां सारे जोड़े मिलाई ले!" },
+    memories: { ...baseEnglish.memories, title: "स्मृति एल्बम", addMemory: "➕ नवी याद जोड़ो", family: "परिवार", places: "स्थान", moments: "विशेष पल" },
+    reminders: { ...baseEnglish.reminders, title: "दैनिक दिनचर्या", newReminder: "➕ नया स्मरण जोड़ो", add: "जोड़ो", todaySchedule: "अज्ज दी सूची", delete: "हटाओ" },
+    aboutDementia: { ...baseEnglish.aboutDementia, title: "डिमेंशिया ते याददाश्ता दी देखभाल", whatIsDementia: "डिमेंशिया क्या ए?", keySigns: "शुरुआती लक्षण", caregiverTips: "देखभालकर्ता सलाह" },
+  },
+
+  // ─── KASHMIRI ──────────────────────────────────────────────────────────
+  Kashmiri: {
+    ...baseEnglish,
+    nav: { home: "اہم صفحہ", activities: "سرگرمیاں", myMemories: "میانی یاوہ", reminders: "یاد دہانی", progress: "ترقی", aboutDementia: "ڈیماینشیا متعلق", profile: "پروفائل", settings: "سیٹنگز", switchProfile: "پروفائل تبدیل کریں" },
+    home: { ...baseEnglish.home, title: "یتھ جائے یادیں", titleAccent: "محبت سیت زندا روزان", exploreActivities: "🧠 سرگرمیاں وچھو", caregiverGuide: "📖 دیکھ بھال راہنمائی" },
+    activities: { ...baseEnglish.activities, title: "دماغی مشق", playNow: "شروع کرو" },
+    games: { ...baseEnglish.games, memoryMatchTitle: "یاد فوٹو ملاو", flipCard: "کارڈ الٹاو", moves: "کوشش", matches: "جوڑے", congrats: "واریاہ خوب! توہِ رلاو سأری فوٹو!" },
+    memories: { ...baseEnglish.memories, title: "یادین البم", addMemory: "➕ نٔو یاد تھوو", family: "خاندان", places: "جائے", moments: "خاص لمحہ" },
+    reminders: { ...baseEnglish.reminders, title: "روزانہ کاوش", newReminder: "➕ نٔو یاد دہانی", add: "شامل کرو", todaySchedule: "ازوک وقت", delete: "مٹاو" },
+    aboutDementia: { ...baseEnglish.aboutDementia, title: "ڈیماینشیا تدابیر", whatIsDementia: "ڈیماینشیا کیا گو؟", keySigns: "ابتدائی نشانی", caregiverTips: "نگہداشت مشورے" },
+  },
+
+  // ─── KONKANI ───────────────────────────────────────────────────────────
+  Konkani: {
+    ...baseEnglish,
+    nav: { home: "मुखेल पान", activities: "वावर", myMemories: "म्हज्यो यादो", reminders: "उगडास", progress: "प्रगती", aboutDementia: "डिमेंशिया विशीं", profile: "प्रोफाइल", settings: "सेटिंग्स", switchProfile: "प्रोफाइल बदला" },
+    home: { ...baseEnglish.home, title: "जंय यादो", titleAccent: "मोगान ताज्यो उरतात", exploreActivities: "🧠 वावर पळेयात", caregiverGuide: "📖 सांबाळपी मार्गदर्शक" },
+    activities: { ...baseEnglish.activities, title: "मातयेच्यो कसरती", playNow: "सुरू करात" },
+    games: { ...baseEnglish.games, memoryMatchTitle: "यादो तसवीर मेळयात", flipCard: "कार्ड उलटयात", moves: "प्रयत्न", matches: "जोड्यो", congrats: "शाब्बास! तुमी सगळ्यो जोड्यो मेळयल्यो!" },
+    memories: { ...baseEnglish.memories, title: "यादींचो अल्बम", addMemory: "➕ नवी याद जोडात", family: "कुटुंब", places: "जागो", moments: "खाशेल क्षण" },
+    reminders: { ...baseEnglish.reminders, title: "दिसपट्टे वेळापत्रक", newReminder: "➕ नवो उगडास जोडात", add: "जोडात", todaySchedule: "आयचें वेळापत्रक", delete: "काडून उडयात" },
+    aboutDementia: { ...baseEnglish.aboutDementia, title: "डिमेंशिया आणी याददाश्त", whatIsDementia: "डिमेंशिया म्हणजे कितें?", keySigns: "सुरवेच्यो कुरयो", caregiverTips: "सांबाळपी सल्लो" },
+  },
+
+  // ─── MAITHILI ──────────────────────────────────────────────────────────
+  Maithili: {
+    ...baseEnglish,
+    nav: { home: "मुख्य पृष्ठ", activities: "गतिविधि सभ", myMemories: "हमर सम्झौना", reminders: "स्मरणपत्र", progress: "प्रगति", aboutDementia: "डिमेंशिया विषयमे", profile: "प्रोफाइल", settings: "सेटिंग्स", switchProfile: "प्रोफाइल बदलू" },
+    home: { ...baseEnglish.home, title: "जतए याद सभ", titleAccent: "स्नेह सँ जीवंत रहैत अछि", exploreActivities: "🧠 गतिविधि देखू", caregiverGuide: "📖 देखरेखकर्ता मार्गदर्शिका" },
+    activities: { ...baseEnglish.activities, title: "मानसिक अभ्यास", playNow: "शुरू करू" },
+    games: { ...baseEnglish.games, memoryMatchTitle: "स्मृति फोटो मिलाऊ", flipCard: "कार्ड उलटू", moves: "प्रयास", matches: "जोड़ा", congrats: "अति सुंदर! अहाँ सब जोड़ा मिला देलियौ!" },
+    memories: { ...baseEnglish.memories, title: "यादगार एल्बम", addMemory: "➕ नव याद जोड़ू", family: "परिवार", places: "ठाम", moments: "विशेष क्षण" },
+    reminders: { ...baseEnglish.reminders, title: "दैनिक तालिका", newReminder: "➕ नव स्मरण जोड़ू", add: "जोड़ू", todaySchedule: "आजुक तालिका", delete: "हटाऊ" },
+    aboutDementia: { ...baseEnglish.aboutDementia, title: "डिमेंशिया आ ध्यान", whatIsDementia: "डिमेंशिया कि अछि?", keySigns: "शुरुआती लक्षण", caregiverTips: "देखरेखकर्ता सुझाव" },
+  },
+
+  // ─── SANSKRIT ──────────────────────────────────────────────────────────
+  Sanskrit: {
+    ...baseEnglish,
+    nav: { home: "मुख्यपृष्ठम्", activities: "गतिविधयः", myMemories: "मम स्मृतयः", reminders: "स्मरणपत्राणि", progress: "प्रगतिः", aboutDementia: "स्मृतिभ्रंशविषये", profile: "प्रोफाइल", settings: "विन्यासाः", switchProfile: "प्रोफाइलं परिवर्तयतु" },
+    home: { ...baseEnglish.home, title: "यत्र स्मृतयः", titleAccent: "स्नेहेन जीवन्त्यः तिष्ठन्ति", exploreActivities: "🧠 गतिविधयः पश्यतु", caregiverGuide: "📖 रक्षकदर्शकः" },
+    activities: { ...baseEnglish.activities, title: "मानसिक-अभ्यासाः", playNow: "आरभताम्" },
+    games: { ...baseEnglish.games, memoryMatchTitle: "स्मृतिचित्रं मेलयतु", flipCard: "पत्रं परावर्तयतु", moves: "प्रयत्नाः", matches: "युग्मानि", congrats: "साधु! भवद्भिः सर्वाणि युग्मानि मेलितानि!" },
+    memories: { ...baseEnglish.memories, title: "स्मृति-संग्रहः", addMemory: "➕ नूतनस्मृतिं योजयतु", family: "कुटुम्बम्", places: "स्थानानि", moments: "विशेषक्षणाः" },
+    reminders: { ...baseEnglish.reminders, title: "दैनिकसारणी", newReminder: "➕ नूतनस्मरणं योजयतु", add: "योजयतु", todaySchedule: "अद्यतनसारणी", delete: "निवारयतु" },
+    aboutDementia: { ...baseEnglish.aboutDementia, title: "स्मृतिभ्रंश-संरक्षणम्", whatIsDementia: "स्मृतिभ्रंशः किम्?", keySigns: "प्राथमिकलक्षणाानि", caregiverTips: "रक्षकपरामर्शाः" },
+  },
+
+  // ─── SANTALI ───────────────────────────────────────────────────────────
+  Santali: {
+    ...baseEnglish,
+    nav: { home: "ᱢᱩᱬᱩᱛ ᱥᱟᱠᱟᱢ", activities: "ᱠᱟᱹᱢᱤᱦᱚᱨᱟ", myMemories: "ᱤᱧᱟᱜ ᱫᱤᱥᱟᱹ", reminders: "ᱩᱭᱦᱟᱹᱨ", progress: "ᱞᱟᱦᱟᱱᱛᱤ", aboutDementia: "ᱰᱤᱢᱮᱱᱥᱤᱭᱟ ᱵᱟᱵᱚᱛ", profile: "ᱯᱨᱳᱯᱷᱟᱭᱤᱞ", settings: "ᱥᱮᱴᱤᱝᱥ", switchProfile: "ᱯᱨᱳᱯᱷᱟᱭᱤᱞ ᱵᱚᱫᱚᱞ" },
+    home: { ...baseEnglish.home, title: "ᱡᱟᱦᱟᱸᱨᱮ ᱫᱤᱥᱟᱹ", titleAccent: "ᱫᱩᱞᱟᱹᱲ ᱛᱮ ᱡᱤᱣᱤᱫ ᱛᱟᱦᱮᱸᱱᱟ", exploreActivities: "🧠 ᱠᱟᱹᱢᱤᱦᱚᱨᱟ ᱧᱮᱞᱢᱮ", caregiverGuide: "📖 ᱡᱚᱛᱚᱱᱤᱭᱟᱹ ᱩᱫᱩᱜ" },
+    activities: { ...baseEnglish.activities, title: "ᱢᱚᱱᱮ ᱵᱤᱰᱟᱹᱣ", playNow: "ᱮᱦᱚᱵᱽ ᱢᱮ" },
+    games: { ...baseEnglish.games, memoryMatchTitle: "ᱫᱤᱥᱟᱹ ᱪᱤᱛᱟᱹᱨ ᱢᱤᱞᱟᱹᱣ", flipCard: "ᱠᱟᱨᱰ ᱩᱞᱴᱟᱹᱣ ᱢᱮ", moves: "ᱠᱩᱨᱩᱢᱩᱴᱩ", matches: "ᱡᱳᱲᱟ", congrats: "ᱵᱮᱥ ᱠᱟᱹᱢᱤ! ᱟᱢ ᱡᱚᱛᱚ ᱡᱳᱲᱟᱢ ᱢᱤᱞᱟᱹᱣ ᱠᱮᱫᱟ!" },
+    memories: { ...baseEnglish.memories, title: "ᱫᱤᱥᱟᱹ ᱟᱞᱵᱚᱢ", addMemory: "➕ ᱱᱟᱣᱟ ᱫᱤᱥᱟᱹ ᱥᱮᱞᱮᱫᱽ ᱢᱮ", family: "ᱜᱷᱟᱸᱡᱽ", places: "ᱴᱷᱟᱶ", moments: "ᱵᱤᱥᱮᱥ ᱚᱠᱛᱚ" },
+    reminders: { ...baseEnglish.reminders, title: "ᱫᱤᱱᱟᱹᱢ ᱠᱟᱹᱢᱤ", newReminder: "➕ ᱱᱟᱣᱟ ᱩᱭᱦᱟᱹᱨ ᱥᱮᱞᱮᱫᱽ ᱢᱮ", add: "ᱥᱮᱞᱮᱫᱽ ᱢᱮ", todaySchedule: "ᱛᱮᱦᱮᱧᱟᱜ ᱚᱠᱛᱚ", delete: "ᱢᱮᱴᱟᱣ ᱢᱮ" },
+    aboutDementia: { ...baseEnglish.aboutDementia, title: "ᱰᱤᱢᱮᱱᱥᱤᱭᱟ ᱡᱚᱛᱚᱱ", whatIsDementia: "ᱰᱤᱢᱮᱱᱥᱤᱭᱟ ᱫᱚ ᱪᱮᱫ?", keySigns: "ᱮᱛᱚᱦᱚᱵ ᱪᱤᱱᱦᱟᱹ", caregiverTips: "ᱡᱚᱛᱚᱱᱤᱭᱟᱹ ᱩᱭᱦᱟᱹᱨ" },
+  },
+
+  // ─── SINDHI ────────────────────────────────────────────────────────────
+  Sindhi: {
+    ...baseEnglish,
+    nav: { home: "خاص صفحو", activities: "سرگرميون", myMemories: "منهنجيون يادون", reminders: "يادگيريون", progress: "ترقي", aboutDementia: "ڊيمينشيا بابت", profile: "پروفائل", settings: "سيٽنگون", switchProfile: "پروفائل تبديل ڪريو" },
+    home: { ...baseEnglish.home, title: "جتي يادون", titleAccent: "پيار سان زنده رهن ٿيون", exploreActivities: "🧠 سرگرميون ڏسو", caregiverGuide: "📖 سنڀاليندڙ رهنمائي" },
+    activities: { ...baseEnglish.activities, title: "دماغي مشقون", playNow: "شروع ڪريو" },
+    games: { ...baseEnglish.games, memoryMatchTitle: "يادگار تصويرون ملايو", flipCard: "ڪارڊ مٽايو", moves: "ڪوششون", matches: "جوڙا", congrats: "شاباش! توهان سڀ جوڙا ملائي ورتا!" },
+    memories: { ...baseEnglish.memories, title: "يادن جو البم", addMemory: "➕ نئين ياد شامل ڪريو", family: "خاندان", places: "جايون", moments: "خاص لمحات" },
+    reminders: { ...baseEnglish.reminders, title: "روزاني ڏينهن جي رٿا", newReminder: "➕ نئين يادگيري", add: "شامل ڪريو", todaySchedule: "اڄ جي رٿا", delete: "خارج ڪريو" },
+    aboutDementia: { ...baseEnglish.aboutDementia, title: "ڊيمينشيا سنڀال", whatIsDementia: "ڊيمينشيا ڇا آهي؟", keySigns: "ابتدائي نشانيون", caregiverTips: "سنڀاليندڙ مشورا" },
+  },
+
+  // ─── URDU ──────────────────────────────────────────────────────────────
+  Urdu: {
+    ...baseEnglish,
+    nav: { home: "صفحہ اول", activities: "سرگرمیاں", myMemories: "میری یادیں", reminders: "یاد دہانی", progress: "پیش رفت", aboutDementia: "ڈیمینشیا کے بارے میں", profile: "پروفائل", settings: "سیٹنگز", switchProfile: "پروفائل تبدیل کریں" },
+    home: { ...baseEnglish.home, title: "جہاں یادیں", titleAccent: "محبت سے زندہ رہتی ہیں", subtitle: "بزرگ شہریوں کے لیے یادداشت کا ساتھی", exploreActivities: "🧠 سرگرمیاں دیکھیں", caregiverGuide: "📖 دیکھ بھال کرنے والے کی رہنمائی" },
+    activities: { ...baseEnglish.activities, title: "دماغي مشقیں", subtitle: "یادداشت اور توجہ کے لیے روزانہ کی آسان مشقیں۔", playNow: "شروع کریں" },
+    games: { ...baseEnglish.games, memoryMatchTitle: "یادداشت کی تصاویر ملائیں", flipCard: "کارڈ پلٹیں", moves: "کوششیں", matches: "جوڑے", congrats: "بہت خوب! آپ نے تمام جوڑے ملا لیے!", playAgain: "دوبارہ کھیلیں", backToActivities: "← واپس جائیں" },
+    memories: { ...baseEnglish.memories, title: "یادوں کا البم", addMemory: "➕ نئی یاد شامل کریں", family: "خاندان", places: "مقامات", moments: "خاص لمحات" },
+    reminders: { ...baseEnglish.reminders, title: "روزمرہ کا شیڈول", newReminder: "➕ نئی یاد دہانی", add: "شامل کریں", todaySchedule: "آج کا شیڈول", delete: "حذف کریں" },
+    aboutDementia: { ...baseEnglish.aboutDementia, title: "ڈیمینشیا اور یادداشت کی دیکھ بھال", whatIsDementia: "ڈیمینشیا کیا ہے؟", keySigns: "ابتدائی علامات", caregiverTips: "دیکھ بھال کے مشورے" },
+  },
 };
 
 /**

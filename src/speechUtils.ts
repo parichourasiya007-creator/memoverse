@@ -1,4 +1,4 @@
-// ─── MemoVerse Speech Synthesis & Capability Engine (18 Languages) ───────────
+// ─── MemoVerse Speech Synthesis & Capability Engine (22 Scheduled Languages) ───
 
 export interface LanguageVoiceInfo {
   code: string;
@@ -7,24 +7,32 @@ export interface LanguageVoiceInfo {
 }
 
 export const LANGUAGE_METADATA: Record<string, LanguageVoiceInfo> = {
+  Assamese:  { code: "as-IN", fallbacks: ["as"], nativeName: "অসমীয়া" },
+  Bengali:   { code: "bn-IN", fallbacks: ["bn"], nativeName: "বাংলা" },
+  Bodo:      { code: "brx-IN", fallbacks: ["brx"], nativeName: "बड़ो / बर’" },
+  Dogri:     { code: "doi-IN", fallbacks: ["doi"], nativeName: "डोगरी" },
+  Gujarati:  { code: "gu-IN", fallbacks: ["gu"], nativeName: "ગુજરાતી" },
+  Hindi:     { code: "hi-IN", fallbacks: ["hi"], nativeName: "हिन्दी" },
+  Kannada:   { code: "kn-IN", fallbacks: ["kn"], nativeName: "ಕನ್ನಡ" },
+  Kashmiri:  { code: "ks-IN", fallbacks: ["ks"], nativeName: "कॉशुर / کٲشُر" },
+  Konkani:   { code: "kok-IN", fallbacks: ["kok"], nativeName: "कोंकणी" },
+  Maithili:  { code: "mai-IN", fallbacks: ["mai"], nativeName: "मैथिली" },
+  Malayalam: { code: "ml-IN", fallbacks: ["ml"], nativeName: "മലയാളം" },
+  Manipuri:  { code: "mni-IN", fallbacks: ["mni"], nativeName: "মৈতৈলোন / ꯃꯤꯇꯩ ꯂꯣᓐ" },
+  Marathi:   { code: "mr-IN", fallbacks: ["mr"], nativeName: "मराठी" },
+  Nepali:    { code: "ne-NP",  fallbacks: ["ne-IN", "ne"], nativeName: "नेपाली" },
+  Odia:      { code: "or-IN",  fallbacks: ["or"], nativeName: "ଓଡ଼ିଆ" },
+  Punjabi:   { code: "pa-IN",  fallbacks: ["pa"], nativeName: "ਪੰਜਾਬੀ" },
+  Sanskrit:  { code: "sa-IN",  fallbacks: ["sa"], nativeName: "संस्कृतम्" },
+  Santali:   { code: "sat-IN", fallbacks: ["sat"], nativeName: "ᱥᱟᱱᱛᱟᱲᱤ" },
+  Sindhi:    { code: "sd-IN",  fallbacks: ["sd"], nativeName: "सिन्धी / سنڌي" },
+  Tamil:     { code: "ta-IN",  fallbacks: ["ta"], nativeName: "தமிழ்" },
+  Telugu:    { code: "te-IN",  fallbacks: ["te"], nativeName: "తెలుగు" },
+  Urdu:      { code: "ur-IN",  fallbacks: ["ur"], nativeName: "اردو" },
   English:   { code: "en-IN", fallbacks: ["en-GB", "en-US", "en"], nativeName: "English" },
-  Assamese:  { code: "as-IN", fallbacks: ["as"], nativeName: "অসমীয়া (Assamese)" },
-  Manipuri:  { code: "mni-IN", fallbacks: ["mni"], nativeName: "মৈতৈলোন্ (Manipuri)" },
   Khasi:     { code: "kha-IN", fallbacks: ["kha"], nativeName: "Ka Ktien Khasi" },
   Garo:      { code: "grt-IN", fallbacks: ["grt"], nativeName: "A·chik Kku" },
   Mizo:      { code: "lus-IN", fallbacks: ["lus"], nativeName: "Mizo Ṭawng" },
-  Bodo:      { code: "brx-IN", fallbacks: ["brx"], nativeName: "बर' राव (Bodo)" },
-  Nepali:    { code: "ne-NP",  fallbacks: ["ne-IN", "ne"], nativeName: "नेपाली (Nepali)" },
-  Hindi:     { code: "hi-IN",  fallbacks: ["hi"], nativeName: "हिन्दी (Hindi)" },
-  Bengali:   { code: "bn-IN",  fallbacks: ["bn"], nativeName: "বাংলা (Bengali)" },
-  Odia:      { code: "or-IN",  fallbacks: ["or"], nativeName: "ଓଡ଼ିଆ (Odia)" },
-  Marathi:   { code: "mr-IN",  fallbacks: ["mr"], nativeName: "मराठी (Marathi)" },
-  Gujarati:  { code: "gu-IN",  fallbacks: ["gu"], nativeName: "ગુજરાતી (Gujarati)" },
-  Punjabi:   { code: "pa-IN",  fallbacks: ["pa"], nativeName: "ਪੰਜਾਬੀ (Punjabi)" },
-  Tamil:     { code: "ta-IN",  fallbacks: ["ta"], nativeName: "தமிழ் (Tamil)" },
-  Telugu:    { code: "te-IN",  fallbacks: ["te"], nativeName: "తెలుగు (Telugu)" },
-  Kannada:   { code: "kn-IN",  fallbacks: ["kn"], nativeName: "ಕನ್ನಡ (Kannada)" },
-  Malayalam: { code: "ml-IN",  fallbacks: ["ml"], nativeName: "മലയാളം (Malayalam)" },
 };
 
 /**

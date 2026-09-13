@@ -878,9 +878,9 @@ function MoreScreen({
           </div>
         </Card>
 
-        {/* 18-Language Selection Grid */}
+        {/* 22 Scheduled Languages Selection Grid */}
         <Card className="p-6 space-y-5">
-          <h2 className="text-xl font-black text-[var(--text-primary)]">{t.settings.language} (18 Available)</h2>
+          <h2 className="text-xl font-black text-[var(--text-primary)]">{t.settings.language} ({Object.keys(LANGUAGE_METADATA).length} Available)</h2>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
             {Object.entries(LANGUAGE_METADATA).map(([key, meta]) => {
               const isSelected = lang === key;

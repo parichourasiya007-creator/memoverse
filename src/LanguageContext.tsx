@@ -11,6 +11,7 @@ interface LanguageContextType {
   voiceStatus: VoiceStatus;
   notice: string | null;
   clearNotice: () => void;
+  isRtl: boolean;
 }
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
@@ -34,10 +35,20 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const [lang, setLangState] = useState<string>(() => storageGet("mv_lang", "Assamese"));
   const [notice, setNotice] = useState<string | null>(null);
 
+  const isRtl = ["Urdu", "Sindhi", "Kashmiri"].includes(lang);
+
   useEffect(() => {
     storageSet("mv_lang", lang);
     stopSpeech(); // Stop speech when language changes
-  }, [lang]);
+
+    if (typeof document !== "undefined") {
+      document.documentElement.dir = isRtl ? "rtl" : "ltr";
+      const meta = LANGUAGE_METADATA[lang];
+      if (meta) {
+        document.documentElement.lang = meta.code;
+      }
+    }
+  }, [lang, isRtl]);
 
   function setLang(newLang: string) {
     if (LANGUAGE_METADATA[newLang]) {
@@ -74,7 +85,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const voiceStatus = getVoiceStatus(lang);
 
   return (
-    <LanguageContext.Provider value={{ lang, setLang, t, speakText, stopText, voiceStatus, notice, clearNotice }}>
+    <LanguageContext.Provider value={{ lang, setLang, t, speakText, stopText, voiceStatus, notice, clearNotice, isRtl }}>
       {children}
     </LanguageContext.Provider>
   );
