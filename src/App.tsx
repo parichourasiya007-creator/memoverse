@@ -264,8 +264,35 @@ function useDarkTheme() {
 }
 
 // ═══════════════════════════════════════════════════════════════════
-//  UI COMPONENTS
+//  UI COMPONENTS & NAVIGATION SYSTEM
 // ═══════════════════════════════════════════════════════════════════
+
+const TOP_LEVEL_SCREENS = new Set<Screen>([
+  "home",
+  "activities",
+  "about-dementia",
+  "my-memories",
+  "reminders",
+  "progress",
+  "profile-home",
+]);
+
+function BackButton({ onClick, label }: { onClick: () => void; label?: string }) {
+  return (
+    <button
+      type="button"
+      onClick={() => {
+        tone("flip");
+        onClick();
+      }}
+      className="inline-flex items-center gap-2.5 px-4 py-2.5 rounded-2xl text-xs font-extrabold transition-all cursor-pointer border border-[var(--brass)] bg-[var(--oxblood-light)] text-[var(--oxblood-dark)] hover:bg-[var(--brass-light)] shadow-sm active:scale-95 focus:outline-none focus:ring-2 focus:ring-[var(--oxblood)]"
+      aria-label="Go back to previous page"
+    >
+      <span className="text-base font-black leading-none">←</span>
+      <span>{label || "Back"}</span>
+    </button>
+  );
+}
 
 function Btn({
   children,
@@ -397,7 +424,7 @@ function NavBar({
   toggleOffline,
 }: {
   screen: Screen;
-  onNav: (s: Screen) => void;
+  onNav: (s: Screen, source?: "navbar" | "user") => void;
   active: Profile | null;
   onOpenLockModal: (feature: "memories" | "reminders" | "progress") => void;
   dark: boolean;
@@ -433,7 +460,7 @@ function NavBar({
       onOpenLockModal(featureKey || "memories");
       return;
     }
-    onNav(s);
+    onNav(s, "navbar");
   }
 
   const currentNativeName = LANGUAGE_METADATA[lang]?.nativeName || lang;
@@ -507,7 +534,7 @@ function NavBar({
 
           {/* Profile control button (Always shows "Profile", never "Kamla") */}
           <button
-            onClick={() => onNav("profile-home")}
+            onClick={() => onNav("profile-home", "navbar")}
             className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-extrabold border transition-all cursor-pointer ${
               screen === "profile-home"
                 ? "bg-[var(--oxblood)] text-white border-[var(--brass)] shadow-md"
@@ -982,7 +1009,7 @@ function MoreScreen({
 //  OTHER SCREENS (GameMemory, GameSounds, Memories, Reminders, Progress)
 // ═══════════════════════════════════════════════════════════════════
 
-function GameMemoryScreen({ onNav, active, onProgress }: { onNav: (s: Screen) => void; active: Profile | null; onProgress: () => void }) {
+function GameMemoryScreen({ onNav, onBack, active, onProgress }: { onNav: (s: Screen) => void; onBack?: () => void; active: Profile | null; onProgress: () => void }) {
   const { t } = useLanguage();
   const CARD_ITEMS = [
     { id: "1", emoji: "🫖", label: "Tea Cup" },
@@ -1053,7 +1080,7 @@ function GameMemoryScreen({ onNav, active, onProgress }: { onNav: (s: Screen) =>
           <p className="text-sm font-bold text-[var(--text-muted)]">{t.games.moves}: {moves}</p>
           <div className="flex gap-3 justify-center">
             <Btn onClick={initGame} variant="primary">{t.games.playAgain}</Btn>
-            <Btn onClick={() => onNav("activities")} variant="secondary">Back</Btn>
+            <Btn onClick={onBack || (() => onNav("activities"))} variant="secondary">Back</Btn>
           </div>
           {!active && <StartYourJourneyCTA onNav={onNav} />}
         </div>
@@ -1065,7 +1092,7 @@ function GameMemoryScreen({ onNav, active, onProgress }: { onNav: (s: Screen) =>
     <div className="min-h-screen pb-24 pt-6">
       <div className="max-w-xl mx-auto px-4 space-y-6">
         <div className="space-y-2 text-center">
-          <button onClick={() => onNav("activities")} className="text-sm font-bold text-[var(--text-muted)] cursor-pointer hover:underline">
+          <button onClick={onBack || (() => onNav("activities"))} className="text-sm font-bold text-[var(--text-muted)] cursor-pointer hover:underline">
             {t.games.backToActivities}
           </button>
           <h1 className="text-3xl font-black text-[var(--text-primary)]">{t.games.memoryMatchTitle}</h1>
@@ -1108,7 +1135,7 @@ function GameMemoryScreen({ onNav, active, onProgress }: { onNav: (s: Screen) =>
   );
 }
 
-function GameSoundsScreen({ onNav, active, onProgress }: { onNav: (s: Screen) => void; active: Profile | null; onProgress: () => void }) {
+function GameSoundsScreen({ onNav, onBack, active, onProgress }: { onNav: (s: Screen) => void; onBack?: () => void; active: Profile | null; onProgress: () => void }) {
   const { t, speakText } = useLanguage();
   const [playing, setPlaying] = useState<string | null>(null);
 
@@ -1131,7 +1158,7 @@ function GameSoundsScreen({ onNav, active, onProgress }: { onNav: (s: Screen) =>
     <div className="min-h-screen pb-24 pt-6">
       <div className="max-w-4xl mx-auto px-4 space-y-8">
         <div className="space-y-2 text-center">
-          <button onClick={() => onNav("activities")} className="text-sm font-bold text-[var(--text-muted)] cursor-pointer hover:underline">
+          <button onClick={onBack || (() => onNav("activities"))} className="text-sm font-bold text-[var(--text-muted)] cursor-pointer hover:underline">
             {t.games.backToActivities}
           </button>
           <h1 className="text-3xl sm:text-5xl font-black text-[var(--text-primary)]">{t.sounds.title}</h1>
@@ -1161,7 +1188,7 @@ function GameSoundsScreen({ onNav, active, onProgress }: { onNav: (s: Screen) =>
   );
 }
 
-function GameMarketScreen({ onNav, active, onProgress }: { onNav: (s: Screen) => void; active: Profile | null; onProgress: () => void }) {
+function GameMarketScreen({ onNav, onBack, active, onProgress }: { onNav: (s: Screen) => void; onBack?: () => void; active: Profile | null; onProgress: () => void }) {
   const { t } = useLanguage();
   const [basket, setBasket] = useState<string[]>([]);
   const items = [t.games.itemTea, t.games.itemBamboo, t.games.itemLemon, t.games.itemSweets, t.games.itemOil, t.games.itemFish];
@@ -1175,7 +1202,7 @@ function GameMarketScreen({ onNav, active, onProgress }: { onNav: (s: Screen) =>
   return (
     <div className="min-h-screen pb-24 pt-6">
       <div className="max-w-2xl mx-auto px-4 space-y-6 text-center">
-        <button onClick={() => onNav("activities")} className="text-sm font-bold text-[var(--text-muted)] cursor-pointer hover:underline">
+        <button onClick={onBack || (() => onNav("activities"))} className="text-sm font-bold text-[var(--text-muted)] cursor-pointer hover:underline">
           {t.games.backToActivities}
         </button>
         <h1 className="text-3xl font-black text-[var(--text-primary)]">{t.games.marketTitle}</h1>
@@ -1211,7 +1238,7 @@ function GameMarketScreen({ onNav, active, onProgress }: { onNav: (s: Screen) =>
   );
 }
 
-function GameStoryScreen({ onNav, active, onProgress }: { onNav: (s: Screen) => void; active: Profile | null; onProgress: () => void }) {
+function GameStoryScreen({ onNav, onBack, active, onProgress }: { onNav: (s: Screen) => void; onBack?: () => void; active: Profile | null; onProgress: () => void }) {
   const { t } = useLanguage();
   const [ans, setAns] = useState<string | null>(null);
 
@@ -1229,7 +1256,7 @@ function GameStoryScreen({ onNav, active, onProgress }: { onNav: (s: Screen) => 
     <div className="min-h-screen pb-24 pt-6">
       <div className="max-w-2xl mx-auto px-4 space-y-6">
         <div className="space-y-2 text-center">
-          <button onClick={() => onNav("activities")} className="text-sm font-bold text-[var(--text-muted)] cursor-pointer hover:underline">
+          <button onClick={onBack || (() => onNav("activities"))} className="text-sm font-bold text-[var(--text-muted)] cursor-pointer hover:underline">
             {t.games.backToActivities}
           </button>
           <h1 className="text-3xl font-black text-[var(--text-primary)]">{t.games.storyTitle}</h1>
@@ -2225,9 +2252,10 @@ function Footer({ onNav }: { onNav: (s: Screen) => void }) {
 function MainAppContent() {
   const { profiles, active, saveProfile, logout, switchTo } = useProfiles();
   const { dark, toggleDark } = useDarkTheme();
-  const { notice, clearNotice } = useLanguage();
+  const { notice, clearNotice, t } = useLanguage();
 
   const [screen, setScreen] = useState<Screen>("home");
+  const [historyStack, setHistoryStack] = useState<Screen[]>(["home"]);
   const [isOffline, setIsOffline] = useState(false);
   const [profileModalOpen, setProfileModalOpen] = useState(false);
   const [editProfileOpen, setEditProfileOpen] = useState(false);
@@ -2237,9 +2265,74 @@ function MainAppContent() {
     document.title = "MEMOVERSE";
   }, []);
 
-  function nav(s: Screen) {
+  useEffect(() => {
+    function handlePopState(e: PopStateEvent) {
+      if (e.state && e.state.screen) {
+        setScreen(e.state.screen);
+        setHistoryStack((prev) => {
+          if (prev.length > 1) {
+            return prev.slice(0, -1);
+          }
+          return [e.state.screen];
+        });
+      }
+    }
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, []);
+
+  function nav(s: Screen, source?: "navbar" | "user") {
     window.scrollTo({ top: 0, behavior: "smooth" });
+    if (s === screen) return;
+
+    if (source === "navbar" || TOP_LEVEL_SCREENS.has(s)) {
+      setHistoryStack([s]);
+    } else {
+      setHistoryStack((prev) => [...prev, s]);
+    }
+
     setScreen(s);
+    try {
+      window.history.pushState({ screen: s }, "", `#${s}`);
+    } catch {
+      // Ignore if pushState unsupported
+    }
+  }
+
+  function goBack() {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    if (historyStack.length > 1) {
+      const nextStack = historyStack.slice(0, -1);
+      const prevScreen = nextStack[nextStack.length - 1];
+      setHistoryStack(nextStack);
+      setScreen(prevScreen);
+      try {
+        window.history.pushState({ screen: prevScreen }, "", `#${prevScreen}`);
+      } catch {
+        // Ignore fallback
+      }
+    } else {
+      const fallbackMap: Record<string, Screen> = {
+        more: "profile-home",
+        "game-memory": "activities",
+        "game-sounds": "activities",
+        "game-market": "activities",
+        "game-story": "activities",
+        "start-journey": "profile-home",
+        "profiles-select": "profile-home",
+        "profile-created": "profile-home",
+        gate: "home",
+        play: "activities",
+      };
+      const target = fallbackMap[screen] || "home";
+      setHistoryStack([target]);
+      setScreen(target);
+      try {
+        window.history.pushState({ screen: target }, "", `#${target}`);
+      } catch {
+        // Ignore fallback
+      }
+    }
   }
 
   function recordProgress() {
@@ -2276,15 +2369,21 @@ function MainAppContent() {
       />
 
       <main>
+        {!TOP_LEVEL_SCREENS.has(screen) && (
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-4 pb-0 flex items-center justify-start">
+            <BackButton onClick={goBack} label={t.nav.back || "Back"} />
+          </div>
+        )}
+
         {screen === "home" && <HomeScreen onNav={nav} active={active} onSwitchProfile={() => setProfileModalOpen(true)} />}
         {screen === "more" && <MoreScreen onNav={nav} active={active} onSwitchProfile={() => setProfileModalOpen(true)} isOffline={isOffline} toggleOffline={() => setIsOffline((v) => !v)} />}
         {screen === "about-dementia" && <AboutDementiaScreen onNav={nav} />}
         {screen === "activities"     && <ActivitiesScreen onNav={nav} />}
 
-        {screen === "game-memory" && <GameMemoryScreen onNav={nav} active={active} onProgress={recordProgress} />}
-        {screen === "game-sounds" && <GameSoundsScreen onNav={nav} active={active} onProgress={recordProgress} />}
-        {screen === "game-market" && <GameMarketScreen onNav={nav} active={active} onProgress={recordProgress} />}
-        {screen === "game-story"  && <GameStoryScreen onNav={nav} active={active} onProgress={recordProgress} />}
+        {screen === "game-memory" && <GameMemoryScreen onNav={nav} onBack={goBack} active={active} onProgress={recordProgress} />}
+        {screen === "game-sounds" && <GameSoundsScreen onNav={nav} onBack={goBack} active={active} onProgress={recordProgress} />}
+        {screen === "game-market" && <GameMarketScreen onNav={nav} onBack={goBack} active={active} onProgress={recordProgress} />}
+        {screen === "game-story"  && <GameStoryScreen onNav={nav} onBack={goBack} active={active} onProgress={recordProgress} />}
 
         {screen === "profiles-select" && (
           <ProfilesSelectScreen

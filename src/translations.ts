@@ -11,6 +11,7 @@ export interface TranslationSchema {
     profile: string;
     settings: string;
     switchProfile: string;
+    back: string;
   };
   home: {
     title: string;
@@ -239,6 +240,7 @@ const baseEnglish: TranslationSchema = {
     profile: "Profile",
     settings: "Settings",
     switchProfile: "Switch Profile",
+    back: "Back",
   },
   home: {
     title: "Where Memories",
