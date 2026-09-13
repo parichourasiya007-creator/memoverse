@@ -1,7 +1,8 @@
 {
-  "description": "This web application streamlines project management by enabling teams to collaborate, track progress, and manage tasks efficiently, enhancing productivity.",
+  "title": "MEMOVERSE",
+  "description": "MEMOVERSE — AI-Powered Memory & Cognitive Support for Seniors",
   "robots": {
-    "index": false
+    "index": true
   },
   "accessibility": {
     "addBypassLinks": false,

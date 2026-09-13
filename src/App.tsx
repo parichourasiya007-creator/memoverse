@@ -81,7 +81,7 @@ const DEFAULT_PROFILES: Profile[] = [
         category: "family",
         emoji: "👨‍👩‍👧",
         date: "2 days ago",
-        image: "/elderly_family.png",
+        image: import.meta.env.BASE_URL + "elderly_family.png",
       },
       {
         id: "m2",
@@ -99,7 +99,7 @@ const DEFAULT_PROFILES: Profile[] = [
         category: "moments",
         emoji: "🎵",
         date: "2 weeks ago",
-        image: "/elderly_radio.png",
+        image: import.meta.env.BASE_URL + "elderly_radio.png",
       },
     ],
     reminders: [
@@ -594,7 +594,7 @@ function HomeScreen({ onNav, active, onSwitchProfile }: { onNav: (s: Screen) => 
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start relative z-10">
             <div className="lg:col-span-8 rounded-3xl overflow-hidden border border-[var(--border)] shadow-xl relative group min-h-[360px] sm:min-h-[440px]">
-              <img src="/hero_elderly.png" alt="Senior elder" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+              <img src={import.meta.env.BASE_URL + "hero_elderly.png"} alt="Senior elder" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
               <div className="absolute inset-0 bg-gradient-to-t from-[rgba(37,44,48,0.88)] via-[rgba(37,44,48,0.2)] to-transparent" />
               <div className="absolute bottom-6 left-6 right-6 text-white space-y-2">
                 <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-xs font-extrabold bg-black/50 backdrop-blur-md border border-white/30 text-[var(--brass)]">
@@ -1186,7 +1186,7 @@ function MyMemoriesScreen({ profile, onUpdate }: { profile: Profile; onUpdate: (
       category: cat,
       emoji: cat === "family" ? "👨‍👩‍👧" : cat === "places" ? "🏡" : "🎵",
       date: "Just now",
-      image: "/elderly_family.png",
+      image: import.meta.env.BASE_URL + "elderly_family.png",
     };
     onUpdate({ ...profile, memories: [newM, ...profile.memories] });
     setTitle(""); setDesc(""); setShowAdd(false);
@@ -1559,6 +1559,10 @@ function MainAppContent() {
   const [screen, setScreen] = useState<Screen>("home");
   const [isOffline, setIsOffline] = useState(false);
   const [profileModalOpen, setProfileModalOpen] = useState(false);
+
+  useEffect(() => {
+    document.title = "MEMOVERSE";
+  }, []);
 
   function nav(s: Screen) {
     window.scrollTo({ top: 0, behavior: "smooth" });
