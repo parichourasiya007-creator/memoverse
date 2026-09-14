@@ -110,6 +110,7 @@ html {
   --nav-bg:         var(--glass-nav-bg);
   --nav-border:     var(--border);
   --nav-text:       var(--text-primary);
+  --rec-level-badge-color: var(--oxblood-dark);
 }
 
 .dark {
@@ -198,6 +199,7 @@ html {
   --nav-bg:         var(--glass-nav-bg);
   --nav-border:     var(--border);
   --nav-text:       var(--text-primary);
+  --rec-level-badge-color: #000000;
 }
 
 /* ─── Base Typography & Reset ────────────────────────────────────────────────── */
