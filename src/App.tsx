@@ -1086,14 +1086,21 @@ function MoreScreen({
 
 function GameMemoryScreen({ onNav, onBack, active, onProgress }: { onNav: (s: Screen) => void; onBack?: () => void; active: Profile | null; onProgress: () => void }) {
   const { t } = useLanguage();
-  const CARD_ITEMS = [
-    { id: "1", emoji: "🫖", label: "Tea Cup" },
-    { id: "2", emoji: "🌸", label: "Orchid" },
-    { id: "3", emoji: "🦏", label: "Rhino" },
-    { id: "4", emoji: "🪘", label: "Drum" },
-    { id: "5", emoji: "🏡", label: "Home" },
-    { id: "6", emoji: "🌾", label: "Flora" },
+  const [difficulty, setDifficulty] = useState<"Easy" | "Medium" | "Hard">("Easy");
+
+  const ALL_ITEMS = [
+    { id: "1", emoji: "🍃", label: "Tea Leaf" },
+    { id: "2", emoji: "🦏", label: "Rhino" },
+    { id: "3", emoji: "🎋", label: "Bamboo" },
+    { id: "4", emoji: "🛶", label: "Boat" },
+    { id: "5", emoji: "🧶", label: "Eri Silk" },
+    { id: "6", emoji: "🌸", label: "Orchid" },
+    { id: "7", emoji: "🫖", label: "Tea Pot" },
+    { id: "8", emoji: "🧺", label: "Basket" },
   ];
+
+  const targetPairCount = difficulty === "Easy" ? 3 : difficulty === "Medium" ? 5 : 8;
+  const activeItems = ALL_ITEMS.slice(0, targetPairCount);
 
   const [cards, setCards] = useState<{ id: number; itemId: string; emoji: string; label: string; flipped: boolean; matched: boolean }[]>([]);
   const [flipped, setFlipped] = useState<number[]>([]);
@@ -1102,7 +1109,7 @@ function GameMemoryScreen({ onNav, onBack, active, onProgress }: { onNav: (s: Sc
   const [won, setWon] = useState(false);
 
   const initGame = useCallback(() => {
-    const doubled = [...CARD_ITEMS, ...CARD_ITEMS].map((item, idx) => ({
+    const doubled = [...activeItems, ...activeItems].map((item, idx) => ({
       id: idx, itemId: item.id, emoji: item.emoji, label: item.label, flipped: false, matched: false,
     }));
     for (let i = doubled.length - 1; i > 0; i--) {
@@ -1110,7 +1117,7 @@ function GameMemoryScreen({ onNav, onBack, active, onProgress }: { onNav: (s: Sc
       [doubled[i], doubled[j]] = [doubled[j], doubled[i]];
     }
     setCards(doubled); setFlipped([]); setMoves(0); setMatched(0); setWon(false);
-  }, []);
+  }, [difficulty]);
 
   useEffect(() => { initGame(); }, [initGame]);
 
@@ -1122,7 +1129,8 @@ function GameMemoryScreen({ onNav, onBack, active, onProgress }: { onNav: (s: Sc
     setFlipped(nextFlipped);
 
     if (nextFlipped.length === 2) {
-      setMoves((m) => m + 1);
+      const nextMoves = moves + 1;
+      setMoves(nextMoves);
       const [first, second] = nextFlipped;
       const c1 = cards.find((c) => c.id === first);
       const c2 = cards.find((c) => c.id === second);
@@ -1132,7 +1140,17 @@ function GameMemoryScreen({ onNav, onBack, active, onProgress }: { onNav: (s: Sc
         setCards((prev) => prev.map((c) => (c.id === first || c.id === second ? { ...c, matched: true } : c)));
         setMatched((m) => {
           const nextVal = m + 1;
-          if (nextVal === CARD_ITEMS.length) { setWon(true); onProgress(); }
+          if (nextVal === activeItems.length) {
+            setWon(true);
+            saveGameRecord({
+              gameId: "game-memory",
+              gameTitle: "Memory Photo Match",
+              category: "Memory",
+              score: `${nextMoves} moves`,
+              difficulty,
+            });
+            onProgress();
+          }
           return nextVal;
         });
         setFlipped([]);
@@ -1149,13 +1167,13 @@ function GameMemoryScreen({ onNav, onBack, active, onProgress }: { onNav: (s: Sc
   if (won) {
     return (
       <div className="min-h-screen flex items-center justify-center p-6">
-        <div className="w-full max-w-md text-center space-y-6">
+        <div className="w-full max-w-md text-center space-y-6 bg-[var(--bg-card)] p-8 rounded-3xl border border-[var(--brass)] shadow-2xl">
           <div className="text-8xl">🎉</div>
           <h1 className="text-3xl font-black text-[var(--text-primary)]">{t.games.congrats}</h1>
-          <p className="text-sm font-bold text-[var(--text-muted)]">{t.games.moves}: {moves}</p>
-          <div className="flex gap-3 justify-center">
+          <p className="text-base font-bold text-[var(--text-secondary)]">{t.games.moves}: {moves} attempts ({difficulty} difficulty)</p>
+          <div className="flex gap-3 justify-center pt-2">
             <Btn onClick={initGame} variant="primary">{t.games.playAgain}</Btn>
-            <Btn onClick={onBack || (() => onNav("activities"))} variant="secondary">Back</Btn>
+            <Btn onClick={onBack || (() => onNav("activities"))} variant="secondary">Back to Activities</Btn>
           </div>
           {!active && <StartYourJourneyCTA onNav={onNav} />}
         </div>
@@ -1164,26 +1182,43 @@ function GameMemoryScreen({ onNav, onBack, active, onProgress }: { onNav: (s: Sc
   }
 
   return (
-    <div className="min-h-screen pb-24 pt-6">
+    <div className="min-h-screen pb-24 pt-6 space-y-6">
       <div className="max-w-xl mx-auto px-4 space-y-6">
         <div className="space-y-2 text-center">
-          <button onClick={onBack || (() => onNav("activities"))} className="text-sm font-bold text-[var(--text-muted)] cursor-pointer hover:underline">
-            {t.games.backToActivities}
-          </button>
+          <div className="flex items-center justify-between">
+            <button onClick={onBack || (() => onNav("activities"))} className="text-sm font-bold text-[var(--text-muted)] cursor-pointer hover:underline">
+              {t.games.backToActivities}
+            </button>
+            <div className="flex items-center gap-1 bg-[var(--bg-card)] border border-[var(--border)] p-1 rounded-xl text-xs font-bold">
+              {(["Easy", "Medium", "Hard"] as const).map((d) => (
+                <button
+                  key={d}
+                  onClick={() => setDifficulty(d)}
+                  className={`px-2.5 py-1 rounded-lg transition-all cursor-pointer ${
+                    difficulty === d
+                      ? "bg-[var(--oxblood)] text-white font-black shadow-sm"
+                      : "text-[var(--text-muted)] hover:text-[var(--text-primary)]"
+                  }`}
+                >
+                  {d}
+                </button>
+              ))}
+            </div>
+          </div>
           <h1 className="text-3xl font-black text-[var(--text-primary)]">{t.games.memoryMatchTitle}</h1>
           <p className="text-base text-[var(--text-secondary)] font-medium">{t.games.memoryMatchDesc}</p>
         </div>
 
         <div className="flex items-center justify-between">
           <Card className="px-4 py-2 text-sm font-bold text-[var(--text-primary)]">
-            {t.games.matches}: {matched} / {CARD_ITEMS.length}
+            {t.games.matches}: {matched} / {activeItems.length}
           </Card>
           <Btn onClick={initGame} variant="ghost" className="text-sm py-2 min-h-[38px]">
             {t.games.restart}
           </Btn>
         </div>
 
-        <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
+        <div className={`grid ${targetPairCount <= 3 ? "grid-cols-3" : targetPairCount <= 5 ? "grid-cols-4" : "grid-cols-4 sm:grid-cols-4"} gap-3`}>
           {cards.map((card) => (
             <button
               key={card.id}

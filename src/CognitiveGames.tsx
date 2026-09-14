@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useLanguage } from "./LanguageContext";
-import { speakInLanguage, stopSpeech } from "./speechUtils";
 
 // ═══════════════════════════════════════════════════════════════════
 //  GAME RECORD & PROGRESS TRACKING ENGINE
@@ -194,7 +193,7 @@ function GameVictoryModal({
           <p className="text-base text-[var(--text-secondary)] font-semibold leading-relaxed">{message}</p>
           {score !== undefined && (
             <div className="inline-block px-4 py-2 bg-[var(--oxblood-light)] border border-[var(--oxblood)] text-[var(--oxblood-dark)] font-black text-lg rounded-2xl mt-2">
-              Performance Metric: {score}
+              Performance Score: {score}
             </div>
           )}
         </div>
@@ -218,24 +217,24 @@ function GameVictoryModal({
 }
 
 // ═══════════════════════════════════════════════════════════════════
-//  1. WORD PUZZLES GAME (Word Search, Anagram, Crossword Riddle)
+//  1. WORD PUZZLES GAME (Anagram Scramble, Word Search, Culture Riddles)
 // ═══════════════════════════════════════════════════════════════════
 
 export function GameWordPuzzlesScreen({ onNav, onBack, onProgress }: CommonGameProps) {
-  const [mode, setMode] = useState<"anagram" | "crossword">("anagram");
+  const [mode, setMode] = useState<"anagram" | "wordsearch" | "riddle">("anagram");
   const [difficulty, setDifficulty] = useState<"Easy" | "Medium" | "Hard">("Easy");
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [userAnswer, setUserAnswer] = useState("");
+  const [constructedLetters, setConstructedLetters] = useState<string[]>([]);
   const [score, setScore] = useState(0);
   const [won, setWon] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
 
   const ANAGRAMS = [
-    { scrambled: "T E A", target: "TEA", hint: "Popular morning warm drink in Assam" },
-    { scrambled: "R H I N O", target: "RHINO", hint: "Famous one-horned animal in Kaziranga" },
-    { scrambled: "B I H U", target: "BIHU", hint: "Spring harvest festival of Assam" },
-    { scrambled: "B A M B O O", target: "BAMBOO", hint: "Tall green plant used to make baskets" },
-    { scrambled: "R I V E R", target: "RIVER", hint: "Brahmaputra flowing through Northeast" },
+    { target: "TEA", hint: "Popular morning warm drink in Assam", letters: ["A", "T", "E"] },
+    { target: "RHINO", hint: "Famous one-horned animal in Kaziranga", letters: ["N", "R", "I", "O", "H"] },
+    { target: "BIHU", hint: "Spring harvest festival of Assam", letters: ["H", "B", "I", "U"] },
+    { target: "BAMBOO", hint: "Tall green plant used to make baskets", letters: ["O", "B", "M", "A", "B", "O"] },
+    { target: "RIVER", hint: "Brahmaputra flowing through Northeast", letters: ["V", "R", "E", "R", "I"] },
   ];
 
   const RIDDLES = [
@@ -245,17 +244,41 @@ export function GameWordPuzzlesScreen({ onNav, onBack, onProgress }: CommonGameP
     { question: "Which island in Assam is known as the world's largest river island?", options: ["Majuli", "Goa", "Lakshadweep"], correct: "Majuli" },
   ];
 
+  // Word Search grid setup
+  const SEARCH_WORDS = ["TEA", "BIHU", "RHINO", "SILK"];
+  const [foundWords, setFoundWords] = useState<string[]>([]);
+  const [gridSelected, setGridSelected] = useState<string>("");
+
+  const WORD_SEARCH_GRID = [
+    ["T", "E", "A", "X"],
+    ["B", "I", "H", "U"],
+    ["R", "H", "I", "N"],
+    ["O", "S", "I", "L"],
+  ];
+
   const currentAnagram = ANAGRAMS[currentIndex % ANAGRAMS.length];
   const currentRiddle = RIDDLES[currentIndex % RIDDLES.length];
 
-  function handleAnagramSubmit(selectedWord: string) {
-    if (selectedWord.toUpperCase() === currentAnagram.target) {
+  function handleLetterTap(letter: string, letterIdx: number) {
+    playSoundTone("flip");
+    setConstructedLetters((prev) => [...prev, letter]);
+  }
+
+  function handleClearLetters() {
+    playSoundTone("flip");
+    setConstructedLetters([]);
+  }
+
+  function handleAnagramCheck() {
+    const spelled = constructedLetters.join("");
+    if (spelled === currentAnagram.target) {
       playSoundTone("correct");
       setFeedback("✨ Correct!");
       const nextScore = score + 10;
       setScore(nextScore);
       setTimeout(() => {
         setFeedback(null);
+        setConstructedLetters([]);
         if (currentIndex + 1 >= (difficulty === "Easy" ? 3 : 5)) {
           setWon(true);
           saveGameRecord({
@@ -272,8 +295,8 @@ export function GameWordPuzzlesScreen({ onNav, onBack, onProgress }: CommonGameP
       }, 1000);
     } else {
       playSoundTone("wrong");
-      setFeedback("Try again!");
-      setTimeout(() => setFeedback(null), 1200);
+      setFeedback(`Incorrect spelling ("${spelled}"). Try again!`);
+      setTimeout(() => setFeedback(null), 1400);
     }
   }
 
@@ -306,23 +329,53 @@ export function GameWordPuzzlesScreen({ onNav, onBack, onProgress }: CommonGameP
     }
   }
 
+  function handleWordSearchLetter(char: string) {
+    playSoundTone("flip");
+    const nextStr = gridSelected + char;
+    setGridSelected(nextStr);
+
+    const match = SEARCH_WORDS.find((w) => w === nextStr);
+    if (match && !foundWords.includes(match)) {
+      playSoundTone("correct");
+      const nextFound = [...foundWords, match];
+      setFoundWords(nextFound);
+      setGridSelected("");
+      setFeedback(`✨ Found "${match}"!`);
+      setTimeout(() => setFeedback(null), 1000);
+
+      if (nextFound.length === SEARCH_WORDS.length) {
+        setWon(true);
+        saveGameRecord({
+          gameId: "game-word",
+          gameTitle: "Word Search Puzzle",
+          category: "Logic & Categorization",
+          score: "All Words Found",
+          difficulty,
+        });
+        onProgress();
+      }
+    }
+  }
+
   function restart() {
     setCurrentIndex(0);
-    setUserAnswer("");
+    setConstructedLetters([]);
+    setFoundWords([]);
+    setGridSelected("");
     setScore(0);
     setWon(false);
     setFeedback(null);
   }
 
   if (won) {
-    return <GameVictoryModal score={`${score} points`} onReplay={restart} onBack={onBack} onNav={onNav} />;
+    return <GameVictoryModal score={`${score || 40} points`} onReplay={restart} onBack={onBack} onNav={onNav} />;
   }
 
   return (
     <div className="min-h-screen pb-24 pt-6 space-y-6">
       <GameHeader
         title="Word Puzzles"
-        subtitle="Unscramble letters and answer simple nature & culture riddles."
+        subtitle="Tap large letter buttons to spell words, search letter grids, and solve culture riddles."
         onBack={onBack}
         onNav={onNav}
         difficulty={difficulty}
@@ -330,22 +383,30 @@ export function GameWordPuzzlesScreen({ onNav, onBack, onProgress }: CommonGameP
       />
 
       <div className="max-w-xl mx-auto px-4 space-y-6">
-        <div className="flex justify-center gap-2 bg-[var(--bg-section)] p-1.5 rounded-2xl border border-[var(--border)]">
+        <div className="flex justify-center gap-1.5 bg-[var(--bg-section)] p-1.5 rounded-2xl border border-[var(--border)] text-xs font-bold">
           <button
             onClick={() => { setMode("anagram"); restart(); }}
-            className={`flex-1 py-2.5 rounded-xl font-extrabold text-sm transition-all cursor-pointer ${
-              mode === "anagram" ? "bg-[var(--oxblood)] text-white shadow-md" : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+            className={`flex-1 py-2 rounded-xl transition-all cursor-pointer ${
+              mode === "anagram" ? "bg-[var(--oxblood)] text-white font-black shadow-md" : "text-[var(--text-secondary)]"
             }`}
           >
-            🔤 Anagram Word Search
+            🔤 Letter Scramble
           </button>
           <button
-            onClick={() => { setMode("crossword"); restart(); }}
-            className={`flex-1 py-2.5 rounded-xl font-extrabold text-sm transition-all cursor-pointer ${
-              mode === "crossword" ? "bg-[var(--oxblood)] text-white shadow-md" : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+            onClick={() => { setMode("wordsearch"); restart(); }}
+            className={`flex-1 py-2 rounded-xl transition-all cursor-pointer ${
+              mode === "wordsearch" ? "bg-[var(--oxblood)] text-white font-black shadow-md" : "text-[var(--text-secondary)]"
             }`}
           >
-            🧩 Culture Riddles
+            🔍 Word Search
+          </button>
+          <button
+            onClick={() => { setMode("riddle"); restart(); }}
+            className={`flex-1 py-2 rounded-xl transition-all cursor-pointer ${
+              mode === "riddle" ? "bg-[var(--oxblood)] text-white font-black shadow-md" : "text-[var(--text-secondary)]"
+            }`}
+          >
+            🧩 Riddles
           </button>
         </div>
 
@@ -356,26 +417,50 @@ export function GameWordPuzzlesScreen({ onNav, onBack, onProgress }: CommonGameP
             </div>
 
             <div className="space-y-2">
-              <div className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider">Unscramble these letters:</div>
-              <div className="text-4xl sm:text-5xl font-black tracking-widest text-[var(--oxblood-dark)] bg-[var(--bg-section)] py-4 rounded-2xl border border-[var(--border)]">
-                {currentAnagram.scrambled}
-              </div>
-              <p className="text-sm font-semibold text-[var(--text-secondary)] pt-2">💡 Hint: {currentAnagram.hint}</p>
+              <p className="text-sm font-bold text-[var(--text-secondary)]">💡 Hint: {currentAnagram.hint}</p>
             </div>
 
-            <div className="space-y-4">
-              <input
-                type="text"
-                value={userAnswer}
-                onChange={(e) => setUserAnswer(e.target.value.toUpperCase())}
-                placeholder="Type word here..."
-                className="w-full text-center text-xl font-black px-4 py-3.5 rounded-2xl border-2 border-[var(--brass)] bg-[var(--bg-input)] text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--oxblood)]"
-              />
+            {/* Answer Display Box */}
+            <div className="min-h-[64px] p-3 rounded-2xl border-2 border-dashed border-[var(--brass)] bg-[var(--bg-section)] flex items-center justify-center gap-2">
+              {constructedLetters.length === 0 ? (
+                <span className="text-sm font-bold text-[var(--text-muted)]">Tap letter buttons below to spell the word...</span>
+              ) : (
+                constructedLetters.map((l, i) => (
+                  <span key={i} className="w-12 h-12 rounded-xl bg-[var(--oxblood)] text-white font-black text-2xl flex items-center justify-center shadow-md animate-fade">
+                    {l}
+                  </span>
+                ))
+              )}
+            </div>
+
+            {/* Tappable Scrambled Letter Buttons */}
+            <div className="space-y-3">
+              <div className="text-xs font-bold text-[var(--text-muted)] uppercase">Scrambled Letters:</div>
+              <div className="flex flex-wrap justify-center gap-3">
+                {currentAnagram.letters.map((char, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => handleLetterTap(char, idx)}
+                    className="w-14 h-14 rounded-2xl font-black text-2xl text-[var(--text-primary)] bg-[var(--bg-card)] border-2 border-[var(--brass)] shadow-md hover:bg-[var(--brass-light)] cursor-pointer active:scale-95 transition-all"
+                  >
+                    {char}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="flex gap-3 pt-2">
               <button
-                onClick={() => handleAnagramSubmit(userAnswer)}
-                className="w-full py-3.5 rounded-2xl font-black text-lg text-white bg-[var(--oxblood)] hover:bg-[var(--oxblood-dark)] border border-[var(--brass)] shadow-md cursor-pointer transition-all"
+                onClick={handleClearLetters}
+                className="py-3 px-5 rounded-2xl font-bold text-sm text-[var(--text-secondary)] bg-[var(--bg-section)] border border-[var(--border)] cursor-pointer"
               >
-                Check Answer ✨
+                Clear ✕
+              </button>
+              <button
+                onClick={handleAnagramCheck}
+                className="flex-1 py-3 px-5 rounded-2xl font-black text-base text-white bg-[var(--oxblood)] hover:bg-[var(--oxblood-dark)] border border-[var(--brass)] shadow-md cursor-pointer"
+              >
+                Submit Word ✨
               </button>
             </div>
 
@@ -387,7 +472,55 @@ export function GameWordPuzzlesScreen({ onNav, onBack, onProgress }: CommonGameP
           </div>
         )}
 
-        {mode === "crossword" && (
+        {mode === "wordsearch" && (
+          <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-3xl p-6 sm:p-8 space-y-6 text-center shadow-lg">
+            <div className="space-y-1">
+              <div className="text-xs font-bold text-[var(--text-muted)] uppercase">Words to Find:</div>
+              <div className="flex justify-center gap-2">
+                {SEARCH_WORDS.map((w) => (
+                  <span
+                    key={w}
+                    className={`px-3 py-1 rounded-xl text-xs font-black border ${
+                      foundWords.includes(w) ? "bg-green-100 text-green-800 border-green-400 line-through" : "bg-[var(--bg-section)] text-[var(--text-secondary)] border-[var(--border)]"
+                    }`}
+                  >
+                    {w}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            <div className="p-3 bg-[var(--bg-section)] rounded-2xl border border-[var(--border)] text-sm font-bold min-h-[44px] flex items-center justify-center">
+              Selected: <span className="font-black text-lg ml-2 text-[var(--oxblood-dark)]">{gridSelected || "(Tap grid letters)"}</span>
+              {gridSelected && (
+                <button onClick={() => setGridSelected("")} className="ml-3 text-xs text-amber-700 underline">Reset</button>
+              )}
+            </div>
+
+            {/* Grid */}
+            <div className="grid grid-cols-4 gap-2 max-w-xs mx-auto">
+              {WORD_SEARCH_GRID.map((row, rIdx) =>
+                row.map((char, cIdx) => (
+                  <button
+                    key={`${rIdx}-${cIdx}`}
+                    onClick={() => handleWordSearchLetter(char)}
+                    className="w-16 h-16 rounded-2xl font-black text-2xl bg-[var(--bg-card)] border-2 border-[var(--border)] hover:border-[var(--oxblood)] text-[var(--text-primary)] cursor-pointer active:scale-95 transition-all flex items-center justify-center shadow-sm"
+                  >
+                    {char}
+                  </button>
+                ))
+              )}
+            </div>
+
+            {feedback && (
+              <div className="text-base font-black text-green-600 py-2 rounded-xl animate-pulse">
+                {feedback}
+              </div>
+            )}
+          </div>
+        )}
+
+        {mode === "riddle" && (
           <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-3xl p-6 sm:p-8 space-y-6 text-center shadow-lg">
             <div className="inline-block px-3.5 py-1 bg-[var(--brass-light)] text-[var(--brass-dark)] border border-[var(--brass)] font-extrabold text-xs rounded-xl">
               Riddle {currentIndex + 1} of {RIDDLES.length}
@@ -423,7 +556,7 @@ export function GameWordPuzzlesScreen({ onNav, onBack, onProgress }: CommonGameP
 }
 
 // ═══════════════════════════════════════════════════════════════════
-//  2. JIGSAW PUZZLE (Large-Piece 2x2 or 3x2 Grid)
+//  2. JIGSAW PUZZLE (2x2 Grid with Touch & Tap Support)
 // ═══════════════════════════════════════════════════════════════════
 
 export function GameJigsawScreen({ onNav, onBack, onProgress }: CommonGameProps) {
@@ -436,67 +569,83 @@ export function GameJigsawScreen({ onNav, onBack, onProgress }: CommonGameProps)
     { name: "Assam Tea Garden", emoji: "🍃", bg: "bg-teal-800", img: import.meta.env.BASE_URL + "tea_garden_memory.png" },
   ];
 
-  const pieceCount = difficulty === "Easy" ? 4 : 6;
-  const [grid, setGrid] = useState<(number | null)[]>(Array(pieceCount).fill(null));
+  const pieceCount = 4;
+  const [grid, setGrid] = useState<(number | null)[]>([null, null, null, null]);
   const [selectedTrayPiece, setSelectedTrayPiece] = useState<number | null>(null);
   const [trayPieces, setTrayPieces] = useState<number[]>([]);
   const [won, setWon] = useState(false);
 
   const initPuzzle = useCallback(() => {
-    const pieces = Array.from({ length: pieceCount }, (_, i) => i);
-    // Shuffle tray
+    const pieces = [0, 1, 2, 3];
     const shuffled = [...pieces].sort(() => Math.random() - 0.5);
     setTrayPieces(shuffled);
-    setGrid(Array(pieceCount).fill(null));
+    setGrid([null, null, null, null]);
     setSelectedTrayPiece(null);
     setWon(false);
-  }, [pieceCount]);
+  }, []);
 
   useEffect(() => { initPuzzle(); }, [initPuzzle, selectedTheme, difficulty]);
 
-  function handleSlotClick(slotIdx: number) {
-    if (selectedTrayPiece === null) return;
-
+  function placePiece(slotIdx: number, pieceIdx: number) {
     playSoundTone("flip");
     const nextGrid = [...grid];
     const oldOccupant = nextGrid[slotIdx];
-    nextGrid[slotIdx] = selectedTrayPiece;
+    nextGrid[slotIdx] = pieceIdx;
     setGrid(nextGrid);
 
-    // Remove placed piece from tray and put back old occupant if any
     setTrayPieces((prev) => {
-      const filtered = prev.filter((p) => p !== selectedTrayPiece);
+      const filtered = prev.filter((p) => p !== pieceIdx);
       if (oldOccupant !== null) filtered.push(oldOccupant);
       return filtered;
     });
 
     setSelectedTrayPiece(null);
 
-    // Check completion
-    const isComplete = nextGrid.every((p, idx) => p === idx);
-    if (isComplete) {
+    // Check complete
+    if (nextGrid.every((p, idx) => p === idx)) {
       playSoundTone("correct");
       setWon(true);
       saveGameRecord({
         gameId: "game-jigsaw",
         gameTitle: "Jigsaw Puzzle",
         category: "Visual-Spatial",
-        score: "100% Completed",
+        score: "100% Solved",
         difficulty,
       });
       onProgress();
     }
   }
 
+  function handleSlotClick(slotIdx: number) {
+    if (selectedTrayPiece !== null) {
+      placePiece(slotIdx, selectedTrayPiece);
+    }
+  }
+
+  // HTML5 Drag & Drop handlers for desktop
+  function handleDragStart(e: React.DragEvent, pieceIdx: number) {
+    e.dataTransfer.setData("text/plain", pieceIdx.toString());
+    setSelectedTrayPiece(pieceIdx);
+  }
+
+  function handleDrop(e: React.DragEvent, slotIdx: number) {
+    e.preventDefault();
+    const pieceIdxStr = e.dataTransfer.getData("text/plain");
+    const pieceIdx = Number(pieceIdxStr);
+    if (!isNaN(pieceIdx)) {
+      placePiece(slotIdx, pieceIdx);
+    }
+  }
+
   if (won) {
-    return <GameVictoryModal title="Puzzle Solved!" message={`You completed the ${THEMES[selectedTheme].name} jigsaw puzzle!`} score="100%" onReplay={initPuzzle} onBack={onBack} onNav={onNav} />;
+    return <GameVictoryModal title="Jigsaw Completed!" message={`You assembled the ${THEMES[selectedTheme].name} 4-piece puzzle!`} score="100%" onReplay={initPuzzle} onBack={onBack} onNav={onNav} />;
   }
 
   return (
     <div className="min-h-screen pb-24 pt-6 space-y-6">
       <GameHeader
         title="Large-Piece Jigsaw Puzzle"
-        subtitle="Select a piece from the tray and place it into the correct position."
+        subtitle="Drag or tap a piece from the tray into the 2x2 target board."
         onBack={onBack}
         onNav={onNav}
         difficulty={difficulty}
@@ -505,12 +654,12 @@ export function GameJigsawScreen({ onNav, onBack, onProgress }: CommonGameProps)
 
       <div className="max-w-xl mx-auto px-4 space-y-6">
         {/* Theme Picker */}
-        <div className="flex justify-center gap-2 overflow-x-auto pb-1">
+        <div className="flex justify-center gap-2">
           {THEMES.map((theme, idx) => (
             <button
               key={theme.name}
               onClick={() => setSelectedTheme(idx)}
-              className={`px-3.5 py-2 rounded-2xl font-bold text-xs flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap border ${
+              className={`px-3.5 py-2 rounded-2xl font-bold text-xs flex items-center gap-1.5 transition-all cursor-pointer border ${
                 selectedTheme === idx
                   ? "bg-[var(--oxblood)] text-white border-[var(--brass)] shadow-md"
                   : "bg-[var(--bg-card)] text-[var(--text-secondary)] border-[var(--border)]"
@@ -522,53 +671,62 @@ export function GameJigsawScreen({ onNav, onBack, onProgress }: CommonGameProps)
           ))}
         </div>
 
-        {/* Puzzle Target Board */}
-        <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-3xl p-5 space-y-4 shadow-lg text-center">
+        {/* Target 2x2 Grid */}
+        <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-3xl p-6 space-y-4 shadow-lg text-center">
           <div className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider">
-            Puzzle Target Grid ({pieceCount === 4 ? "2 × 2" : "3 × 2"})
+            2 × 2 Target Board (Tap slot or drop piece)
           </div>
 
-          <div className={`grid ${pieceCount === 4 ? "grid-cols-2" : "grid-cols-3"} gap-2 max-w-sm mx-auto aspect-square p-2 bg-[var(--bg-section)] rounded-2xl border-2 border-dashed border-[var(--brass)]`}>
+          <div className="grid grid-cols-2 gap-3 max-w-xs mx-auto aspect-square p-3 bg-[var(--bg-section)] rounded-2xl border-2 border-dashed border-[var(--brass)]">
             {grid.map((piece, slotIdx) => (
-              <button
+              <div
                 key={slotIdx}
                 onClick={() => handleSlotClick(slotIdx)}
-                className={`rounded-xl flex flex-col items-center justify-center font-black transition-all cursor-pointer relative overflow-hidden border-2 border-[var(--border)] ${
-                  piece !== null ? "bg-[var(--brass-light)] border-[var(--brass)]" : "bg-[var(--bg-card)] hover:bg-[var(--bg-hover)]"
+                onDragOver={(e) => e.preventDefault()}
+                onDrop={(e) => handleDrop(e, slotIdx)}
+                className={`rounded-2xl flex flex-col items-center justify-center font-black transition-all cursor-pointer relative overflow-hidden border-2 border-[var(--border)] ${
+                  piece !== null
+                    ? piece === slotIdx
+                      ? "bg-emerald-900/30 border-emerald-500 text-emerald-400"
+                      : "bg-amber-900/30 border-amber-500 text-amber-400"
+                    : "bg-[var(--bg-card)] hover:bg-[var(--bg-hover)] text-[var(--text-muted)]"
                 }`}
               >
                 {piece !== null ? (
                   <div className="flex flex-col items-center justify-center">
-                    <span className="text-3xl">{THEMES[selectedTheme].emoji}</span>
-                    <span className="text-[10px] font-black text-[var(--oxblood-dark)] uppercase">Piece {piece + 1}</span>
+                    <span className="text-4xl">{THEMES[selectedTheme].emoji}</span>
+                    <span className="text-[10px] font-black uppercase mt-1">Part {piece + 1} {piece === slotIdx ? "✓" : ""}</span>
                   </div>
                 ) : (
-                  <span className="text-xs font-bold text-[var(--text-muted)]">Slot {slotIdx + 1}</span>
+                  <span className="text-xs font-bold">Slot {slotIdx + 1}</span>
                 )}
-              </button>
+              </div>
             ))}
           </div>
         </div>
 
-        {/* Tray of Pieces */}
+        {/* Piece Tray */}
         <div className="bg-[var(--bg-section)] border border-[var(--border)] rounded-3xl p-5 space-y-3 text-center">
           <div className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">
             Piece Tray (Tap piece then tap slot)
           </div>
-          <div className="flex flex-wrap justify-center gap-3">
-            {trayPieces.map((piece) => (
-              <button
-                key={piece}
-                onClick={() => { playSoundTone("flip"); setSelectedTrayPiece(piece); }}
-                className={`w-20 h-20 rounded-2xl flex flex-col items-center justify-center font-black transition-all cursor-pointer border-2 shadow-sm ${
-                  selectedTrayPiece === piece
+
+          <div className="flex justify-center gap-3">
+            {trayPieces.map((pieceIdx) => (
+              <div
+                key={pieceIdx}
+                draggable
+                onDragStart={(e) => handleDragStart(e, pieceIdx)}
+                onClick={() => { playSoundTone("flip"); setSelectedTrayPiece(pieceIdx); }}
+                className={`w-20 h-20 rounded-2xl flex flex-col items-center justify-center font-black border-2 cursor-pointer transition-all active:scale-95 shadow-md ${
+                  selectedTrayPiece === pieceIdx
                     ? "bg-[var(--oxblood)] text-white border-[var(--brass)] ring-4 ring-[var(--brass-light)] scale-105"
                     : "bg-[var(--bg-card)] text-[var(--text-primary)] border-[var(--border)] hover:border-[var(--oxblood)]"
                 }`}
               >
-                <span className="text-2xl">{THEMES[selectedTheme].emoji}</span>
-                <span className="text-[10px] uppercase tracking-wide">Piece {piece + 1}</span>
-              </button>
+                <span className="text-3xl">{THEMES[selectedTheme].emoji}</span>
+                <span className="text-[10px] uppercase">Part {pieceIdx + 1}</span>
+              </div>
             ))}
           </div>
         </div>
@@ -578,16 +736,16 @@ export function GameJigsawScreen({ onNav, onBack, onProgress }: CommonGameProps)
 }
 
 // ═══════════════════════════════════════════════════════════════════
-//  3. DICE GAME (Counting, Memory, Decision Making)
+//  3. DICE GAME (Interactive Rolling & Recall Task)
 // ═══════════════════════════════════════════════════════════════════
 
 export function GameDiceScreen({ onNav, onBack, onProgress }: CommonGameProps) {
   const [difficulty, setDifficulty] = useState<"Easy" | "Medium" | "Hard">("Easy");
-  const [diceVal, setDiceVal] = useState<number | null>(null);
+  const [phase, setPhase] = useState<"roll" | "remember" | "question">("roll");
+  const [rolledVal, setRolledVal] = useState<number>(1);
   const [rolling, setRolling] = useState(false);
-  const [userSelected, setUserSelected] = useState<number>(0);
+  const [rounds, setRounds] = useState(0);
   const [score, setScore] = useState(0);
-  const [targetTask, setTargetTask] = useState<number>(0);
   const [won, setWon] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
 
@@ -597,34 +755,32 @@ export function GameDiceScreen({ onNav, onBack, onProgress }: CommonGameProps) {
     setFeedback(null);
     let count = 0;
     const interval = setInterval(() => {
-      const random = Math.floor(Math.random() * 6) + 1;
-      setDiceVal(random);
+      setRolledVal(Math.floor(Math.random() * 6) + 1);
       count++;
       if (count > 8) {
         clearInterval(interval);
         setRolling(false);
-        const finalVal = Math.floor(Math.random() * 6) + 1;
-        setDiceVal(finalVal);
-        setTargetTask(finalVal);
-        setUserSelected(0);
+        const finalNum = Math.floor(Math.random() * 6) + 1;
+        setRolledVal(finalNum);
+        setPhase("remember");
+
+        // Hide die after 2.5 seconds to memory question phase
+        setTimeout(() => {
+          setPhase("question");
+        }, 2500);
       }
     }, 80);
   }
 
-  function handleItemTap() {
-    playSoundTone("flip");
-    setUserSelected((prev) => prev + 1);
-  }
-
-  function verifyTask() {
-    if (userSelected === targetTask) {
+  function handleAnswer(ans: number) {
+    if (ans === rolledVal) {
       playSoundTone("correct");
-      setFeedback("✨ Perfect match!");
+      setFeedback("✨ Correct memory!");
       const nextScore = score + 10;
       setScore(nextScore);
       setTimeout(() => {
         setFeedback(null);
-        if (nextScore >= 30) {
+        if (rounds + 1 >= 3) {
           setWon(true);
           saveGameRecord({
             gameId: "game-dice",
@@ -635,24 +791,37 @@ export function GameDiceScreen({ onNav, onBack, onProgress }: CommonGameProps) {
           });
           onProgress();
         } else {
-          setDiceVal(null);
+          setRounds((r) => r + 1);
+          setPhase("roll");
         }
       }, 1000);
     } else {
       playSoundTone("wrong");
-      setFeedback(`You selected ${userSelected}. Need exactly ${targetTask}!`);
+      setFeedback(`You picked ${ans}. The rolled number was ${rolledVal}.`);
+      setTimeout(() => {
+        setFeedback(null);
+        setPhase("roll");
+      }, 1500);
     }
   }
 
+  function restart() {
+    setRounds(0);
+    setScore(0);
+    setPhase("roll");
+    setWon(false);
+    setFeedback(null);
+  }
+
   if (won) {
-    return <GameVictoryModal score={`${score} points`} onReplay={() => { setScore(0); setDiceVal(null); setWon(false); }} onBack={onBack} onNav={onNav} />;
+    return <GameVictoryModal score={`${score} points`} onReplay={restart} onBack={onBack} onNav={onNav} />;
   }
 
   return (
     <div className="min-h-screen pb-24 pt-6 space-y-6">
       <GameHeader
         title="Dice Activity"
-        subtitle="Roll the dice, observe the number, and tap the items to match the count!"
+        subtitle="Roll the die, remember the number, and answer the recall question."
         onBack={onBack}
         onNav={onNav}
         difficulty={difficulty}
@@ -660,58 +829,55 @@ export function GameDiceScreen({ onNav, onBack, onProgress }: CommonGameProps) {
       />
 
       <div className="max-w-md mx-auto px-4 space-y-6 text-center">
-        {/* Dice Rolling Area */}
         <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-3xl p-8 space-y-6 shadow-lg">
-          <div className="text-8xl select-none cursor-pointer transition-transform active:scale-95" onClick={rollDice}>
-            {rolling ? "🎲" : diceVal ? ["⚀", "⚁", "⚂", "⚃", "⚄", "⚅"][diceVal - 1] : "🎲"}
+          <div className="inline-block px-3.5 py-1 bg-[var(--brass-light)] text-[var(--brass-dark)] border border-[var(--brass)] font-extrabold text-xs rounded-xl">
+            Round {rounds + 1} of 3
           </div>
 
-          {!diceVal ? (
-            <button
-              onClick={rollDice}
-              className="w-full py-4 rounded-2xl text-xl font-black text-white bg-[var(--oxblood)] hover:bg-[var(--oxblood-dark)] border border-[var(--brass)] shadow-md cursor-pointer transition-all"
-            >
-              🎲 Roll the Dice
-            </button>
-          ) : (
-            <div className="space-y-4">
-              <div className="p-4 bg-[var(--brass-light)] border border-[var(--brass)] rounded-2xl text-[var(--brass-dark)] font-black text-lg">
-                Task: Tap exactly {targetTask} Tea Leaves!
-              </div>
-
-              {/* Tappable items grid */}
-              <div className="flex flex-wrap justify-center gap-3 p-4 bg-[var(--bg-section)] rounded-2xl border border-[var(--border)] min-h-[100px] items-center">
-                {Array.from({ length: userSelected }).map((_, i) => (
-                  <span key={i} className="text-3xl animate-fade">🍃</span>
-                ))}
-              </div>
-
-              <div className="flex gap-3">
-                <button
-                  onClick={handleItemTap}
-                  className="flex-1 py-3.5 rounded-2xl text-base font-black text-white bg-teal-700 hover:bg-teal-800 border border-teal-600 cursor-pointer"
-                >
-                  ➕ Add Leaf ({userSelected})
-                </button>
-                <button
-                  onClick={() => setUserSelected(0)}
-                  className="py-3.5 px-4 rounded-2xl text-base font-bold text-[var(--text-secondary)] bg-[var(--bg-section)] border border-[var(--border)] cursor-pointer"
-                >
-                  Reset
-                </button>
-              </div>
-
+          {phase === "roll" && (
+            <div className="space-y-6">
+              <div className="text-8xl select-none">{rolling ? "🎲" : "🎲"}</div>
               <button
-                onClick={verifyTask}
-                className="w-full py-3.5 rounded-2xl text-lg font-black text-white bg-[var(--oxblood)] hover:bg-[var(--oxblood-dark)] border border-[var(--brass)] shadow-md cursor-pointer"
+                onClick={rollDice}
+                disabled={rolling}
+                className="w-full py-4 rounded-2xl text-xl font-black text-white bg-[var(--oxblood)] hover:bg-[var(--oxblood-dark)] border border-[var(--brass)] shadow-md cursor-pointer transition-all disabled:opacity-50"
               >
-                Submit Count ✨
+                {rolling ? "Rolling..." : "🎲 Roll Dice"}
               </button>
             </div>
           )}
 
+          {phase === "remember" && (
+            <div className="space-y-4 animate-fade">
+              <div className="text-8xl select-none text-[var(--oxblood-dark)] font-black">
+                {["⚀", "⚁", "⚂", "⚃", "⚄", "⚅"][rolledVal - 1]}
+              </div>
+              <div className="p-3 bg-[var(--brass-light)] border border-[var(--brass)] rounded-2xl text-[var(--brass-dark)] font-black text-lg">
+                Remember this number: {rolledVal}!
+              </div>
+            </div>
+          )}
+
+          {phase === "question" && (
+            <div className="space-y-6 animate-fade">
+              <h3 className="text-2xl font-black text-[var(--text-primary)]">"What number did you roll?"</h3>
+
+              <div className="grid grid-cols-3 gap-3">
+                {[1, 2, 3, 4, 5, 6].map((num) => (
+                  <button
+                    key={num}
+                    onClick={() => handleAnswer(num)}
+                    className="h-16 rounded-2xl font-black text-2xl text-[var(--text-primary)] bg-[var(--bg-section)] hover:bg-[var(--oxblood-light)] hover:border-[var(--oxblood)] border-2 border-[var(--border)] cursor-pointer transition-all active:scale-95 shadow-sm"
+                  >
+                    {num}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
           {feedback && (
-            <div className={`text-base font-black py-2 rounded-xl animate-pulse ${feedback.includes("Perfect") ? "text-green-600" : "text-amber-600"}`}>
+            <div className={`text-base font-black py-2 rounded-xl animate-pulse ${feedback.includes("Correct") ? "text-green-600" : "text-amber-600"}`}>
               {feedback}
             </div>
           )}
@@ -722,25 +888,29 @@ export function GameDiceScreen({ onNav, onBack, onProgress }: CommonGameProps) {
 }
 
 // ═══════════════════════════════════════════════════════════════════
-//  4. BOARD GAME (Path Journey Cognitive Board Game)
+//  4. BOARD GAME (Mini 12-Space Path Journey Board)
 // ═══════════════════════════════════════════════════════════════════
 
 export function GameBoardScreen({ onNav, onBack, onProgress }: CommonGameProps) {
   const [position, setPosition] = useState(0);
   const [rolling, setRolling] = useState(false);
   const [lastRoll, setLastRoll] = useState<number | null>(null);
+  const [activePrompt, setActivePrompt] = useState<string | null>(null);
   const [won, setWon] = useState(false);
 
   const BOARD_STEPS = [
     { title: "Start", emoji: "🏁", prompt: "Welcome to the Journey!" },
-    { title: "Tea Estate", emoji: "🍃", prompt: "Take a deep breath of fresh mountain tea air." },
-    { title: "Village Stream", emoji: "🌊", prompt: "Listen to the gentle flowing river water." },
-    { title: "Banyan Tree", emoji: "🌳", prompt: "Count 3 green birds sitting on the branches." },
-    { title: "Kaziranga Park", emoji: "🦏", prompt: "Spot the magnificent one-horned rhino!" },
-    { title: "Silk Workshop", emoji: "🧶", prompt: "Feel the soft golden texture of Muga silk." },
-    { title: "Bihu Pavilion", emoji: "🥁", prompt: "Clap your hands to the rhythm of the Dhol beat!" },
-    { title: "Majuli Ghat", emoji: "🛶", prompt: "Enjoy the peaceful sunset over the river." },
-    { title: "Grand Finish", emoji: "🏆", prompt: "You reached the end of the board game!" },
+    { title: "Tea Estate", emoji: "🍃", prompt: "Count 3 fresh green tea leaves." },
+    { title: "Stream", emoji: "🌊", prompt: "Listen to the gentle mountain water sound." },
+    { title: "Banyan Tree", emoji: "🌳", prompt: "Spot 2 wild birds in the branches." },
+    { title: "Kaziranga", emoji: "🦏", prompt: "Remember the one-horned rhino!" },
+    { title: "Silk Mill", emoji: "🧶", prompt: "Touch the soft golden Muga silk." },
+    { title: "Bihu Ground", emoji: "🥁", prompt: "Clap to the Dhol beat rhythm." },
+    { title: "Majuli Ghat", emoji: "🛶", prompt: "Watch the ferry boat cross the river." },
+    { title: "Pine Forest", emoji: "🌲", prompt: "Enjoy the fresh pine hill breeze." },
+    { title: "Bazaar Market", emoji: "🛒", prompt: "Pick fresh lemons from the stall." },
+    { title: "Sunset View", emoji: "🌅", prompt: "Relax and watch the golden sky." },
+    { title: "Grand Finish", emoji: "🏆", prompt: "Congratulations on reaching the finish line!" },
   ];
 
   function rollAndMove() {
@@ -748,13 +918,14 @@ export function GameBoardScreen({ onNav, onBack, onProgress }: CommonGameProps) 
     playSoundTone("flip");
     setRolling(true);
 
-    const roll = Math.floor(Math.random() * 3) + 1; // 1 to 3 for gentle pacing
+    const roll = Math.floor(Math.random() * 3) + 1; // 1 to 3
     setLastRoll(roll);
 
     setTimeout(() => {
       setRolling(false);
       const nextPos = Math.min(position + roll, BOARD_STEPS.length - 1);
       setPosition(nextPos);
+      setActivePrompt(BOARD_STEPS[nextPos].prompt);
 
       if (nextPos === BOARD_STEPS.length - 1) {
         playSoundTone("correct");
@@ -763,7 +934,7 @@ export function GameBoardScreen({ onNav, onBack, onProgress }: CommonGameProps) 
           gameId: "game-board",
           gameTitle: "Cognitive Board Game",
           category: "Logic & Categorization",
-          score: "Reached Finish Line",
+          score: "Reached Space 12",
           difficulty: "Standard",
         });
         onProgress();
@@ -774,52 +945,51 @@ export function GameBoardScreen({ onNav, onBack, onProgress }: CommonGameProps) 
   function restart() {
     setPosition(0);
     setLastRoll(null);
+    setActivePrompt(null);
     setWon(false);
   }
 
   if (won) {
-    return <GameVictoryModal title="Journey Completed!" message="You navigated through all 9 landmark steps on the board!" score="Victory" onReplay={restart} onBack={onBack} onNav={onNav} />;
+    return <GameVictoryModal title="Board Journey Completed!" message="You navigated through all 12 landmark spaces on the board!" score="Victory" onReplay={restart} onBack={onBack} onNav={onNav} />;
   }
 
   return (
     <div className="min-h-screen pb-24 pt-6 space-y-6">
       <GameHeader
         title="Cognitive Board Game"
-        subtitle="Roll the dice to move your token forward through cultural landmark steps."
+        subtitle="Roll the dice to move your player token space-by-space along the path."
         onBack={onBack}
         onNav={onNav}
       />
 
       <div className="max-w-xl mx-auto px-4 space-y-6">
-        {/* Active Step Card */}
+        {/* Step Info Card */}
         <div className="bg-[var(--bg-card)] border border-[var(--brass)] rounded-3xl p-6 text-center space-y-4 shadow-lg">
           <div className="flex items-center justify-between text-xs font-black text-[var(--text-muted)] border-b border-[var(--border)] pb-3">
-            <span>Step {position + 1} of {BOARD_STEPS.length}</span>
-            <span>{lastRoll ? `Rolled: ${lastRoll}` : "Ready to Roll"}</span>
+            <span>Space {position + 1} of {BOARD_STEPS.length}</span>
+            <span>{lastRoll ? `Last Roll: +${lastRoll}` : "Ready"}</span>
           </div>
 
           <div className="text-6xl">{BOARD_STEPS[position].emoji}</div>
           <h2 className="text-2xl font-black text-[var(--text-primary)]">{BOARD_STEPS[position].title}</h2>
-          <p className="text-base text-[var(--text-secondary)] font-semibold leading-relaxed">
-            "{BOARD_STEPS[position].prompt}"
-          </p>
+          <p className="text-base text-[var(--text-secondary)] font-semibold italic">"{BOARD_STEPS[position].prompt}"</p>
 
           <button
             onClick={rollAndMove}
             disabled={rolling}
             className="w-full min-h-[52px] py-3.5 rounded-2xl text-lg font-black text-white bg-[var(--oxblood)] hover:bg-[var(--oxblood-dark)] border border-[var(--brass)] shadow-md cursor-pointer transition-all disabled:opacity-50"
           >
-            {rolling ? "Rolling..." : "🎲 Roll Dice & Move"}
+            {rolling ? "Moving Token..." : "🎲 Roll Dice & Move Forward"}
           </button>
         </div>
 
-        {/* Board Path Visualizer */}
-        <div className="bg-[var(--bg-section)] border border-[var(--border)] rounded-3xl p-6 space-y-3">
+        {/* 12-Space Board Grid */}
+        <div className="bg-[var(--bg-section)] border border-[var(--border)] rounded-3xl p-5 space-y-3">
           <div className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider text-center">
-            Board Progress Map
+            Board Path (12 Landmark Spaces)
           </div>
 
-          <div className="grid grid-cols-3 sm:grid-cols-3 gap-3">
+          <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
             {BOARD_STEPS.map((step, idx) => {
               const isCurrent = idx === position;
               const isPassed = idx < position;
@@ -828,15 +998,15 @@ export function GameBoardScreen({ onNav, onBack, onProgress }: CommonGameProps) 
                   key={step.title}
                   className={`p-3 rounded-2xl border text-center transition-all flex flex-col items-center justify-center space-y-1 ${
                     isCurrent
-                      ? "bg-[var(--oxblood)] text-white border-[var(--brass)] shadow-lg scale-105"
+                      ? "bg-[var(--oxblood)] text-white border-[var(--brass)] shadow-lg ring-4 ring-[var(--brass-light)] scale-105"
                       : isPassed
                       ? "bg-teal-900/20 text-teal-700 border-teal-600/30"
                       : "bg-[var(--bg-card)] text-[var(--text-muted)] border-[var(--border)]"
                   }`}
                 >
                   <span className="text-2xl">{step.emoji}</span>
-                  <span className="text-xs font-black truncate max-w-full">{step.title}</span>
-                  {isCurrent && <span className="text-[10px] font-black uppercase px-2 py-0.5 bg-[var(--brass)] text-black rounded-full">YOU HERE</span>}
+                  <span className="text-[11px] font-black truncate max-w-full">{step.title}</span>
+                  {isCurrent && <span className="text-[9px] font-black uppercase px-2 py-0.5 bg-[var(--brass)] text-black rounded-full">YOU HERE</span>}
                 </div>
               );
             })}
@@ -848,7 +1018,7 @@ export function GameBoardScreen({ onNav, onBack, onProgress }: CommonGameProps) 
 }
 
 // ═══════════════════════════════════════════════════════════════════
-//  5. INTERACTIVE COGNITIVE ACTIVITY / VIDEO GAME
+//  5. INTERACTIVE COGNITIVE VIDEO GAME (Target Object Tap)
 // ═══════════════════════════════════════════════════════════════════
 
 export function GameInteractiveScreen({ onNav, onBack, onProgress }: CommonGameProps) {
@@ -860,27 +1030,40 @@ export function GameInteractiveScreen({ onNav, onBack, onProgress }: CommonGameP
 
   const TASKS = [
     {
-      instruction: "Tap the RED Tea Pot",
+      instruction: "Tap the TEA LEAF 🍃",
+      target: "Tea Leaf",
       options: [
-        { emoji: "🫖", color: "red", isCorrect: true, label: "Red Tea Pot" },
-        { emoji: "🫖", color: "blue", isCorrect: false, label: "Blue Tea Pot" },
-        { emoji: "🫖", color: "green", isCorrect: false, label: "Green Tea Pot" },
+        { emoji: "🍃", label: "Tea Leaf", isCorrect: true },
+        { emoji: "🛶", label: "Boat", isCorrect: false },
+        { emoji: "🦏", label: "Rhino", isCorrect: false },
+        { emoji: "🧺", label: "Basket", isCorrect: false },
       ],
     },
     {
-      instruction: "Tap the LARGEST Rhino",
+      instruction: "Tap the RED TEA POT 🫖",
+      target: "Red Pot",
       options: [
-        { emoji: "🦏", size: "text-2xl", isCorrect: false, label: "Small Rhino" },
-        { emoji: "🦏", size: "text-6xl", isCorrect: true, label: "Large Rhino" },
-        { emoji: "🦏", size: "text-4xl", isCorrect: false, label: "Medium Rhino" },
+        { emoji: "🫖", color: "blue", label: "Blue Pot", isCorrect: false },
+        { emoji: "🫖", color: "red", label: "Red Pot", isCorrect: true },
+        { emoji: "🫖", color: "green", label: "Green Pot", isCorrect: false },
       ],
     },
     {
-      instruction: "Which object does NOT belong in nature?",
+      instruction: "Tap the LARGEST Rhino 🦏",
+      target: "Large Rhino",
       options: [
-        { emoji: "🌸", isCorrect: false, label: "Flower" },
-        { emoji: "🍃", isCorrect: false, label: "Leaf" },
-        { emoji: "✈️", isCorrect: true, label: "Airplane" },
+        { emoji: "🦏", size: "text-3xl", label: "Small Rhino", isCorrect: false },
+        { emoji: "🦏", size: "text-6xl", label: "Large Rhino", isCorrect: true },
+        { emoji: "🦏", size: "text-4xl", label: "Medium Rhino", isCorrect: false },
+      ],
+    },
+    {
+      instruction: "Which item does NOT belong in nature?",
+      target: "Airplane",
+      options: [
+        { emoji: "🌸", label: "Flower", isCorrect: false },
+        { emoji: "🍃", label: "Leaf", isCorrect: false },
+        { emoji: "✈️", label: "Airplane", isCorrect: true },
       ],
     },
   ];
@@ -930,7 +1113,7 @@ export function GameInteractiveScreen({ onNav, onBack, onProgress }: CommonGameP
     <div className="min-h-screen pb-24 pt-6 space-y-6">
       <GameHeader
         title="Interactive Cognitive Activity"
-        subtitle="Follow simple visual instructions at your own relaxed pace."
+        subtitle="Follow visual instructions and tap the requested target object."
         onBack={onBack}
         onNav={onNav}
         difficulty={difficulty}
@@ -947,15 +1130,15 @@ export function GameInteractiveScreen({ onNav, onBack, onProgress }: CommonGameP
             "{currentTask.instruction}"
           </h2>
 
-          <div className="grid grid-cols-3 gap-3 pt-2">
+          <div className="grid grid-cols-2 sm:grid-cols-2 gap-4 pt-2">
             {currentTask.options.map((opt, idx) => (
               <button
                 key={idx}
                 onClick={() => handleSelect(opt.isCorrect)}
-                className="aspect-square rounded-2xl border-2 border-[var(--border)] hover:border-[var(--oxblood)] bg-[var(--bg-section)] flex flex-col items-center justify-center p-3 cursor-pointer transition-all active:scale-95 shadow-sm"
+                className="aspect-square rounded-2xl border-2 border-[var(--border)] hover:border-[var(--oxblood)] bg-[var(--bg-section)] flex flex-col items-center justify-center p-4 cursor-pointer transition-all active:scale-95 shadow-sm"
               >
-                <span className={opt.size || "text-4xl"}>{opt.emoji}</span>
-                <span className="text-[11px] font-extrabold text-[var(--text-secondary)] mt-2">{opt.label}</span>
+                <span className={opt.size || "text-5xl"} style={{ color: opt.color || undefined }}>{opt.emoji}</span>
+                <span className="text-xs font-extrabold text-[var(--text-primary)] mt-2">{opt.label}</span>
               </button>
             ))}
           </div>
@@ -972,7 +1155,7 @@ export function GameInteractiveScreen({ onNav, onBack, onProgress }: CommonGameP
 }
 
 // ═══════════════════════════════════════════════════════════════════
-//  6. NER BAZAAR / TEA GARDEN SORT (Categorization Game)
+//  6. NER BAZAAR / TEA GARDEN SORT (Tap & Drag Categorization)
 // ═══════════════════════════════════════════════════════════════════
 
 export function GameBazaarScreen({ onNav, onBack, onProgress }: CommonGameProps) {
@@ -994,17 +1177,15 @@ export function GameBazaarScreen({ onNav, onBack, onProgress }: CommonGameProps)
   const [won, setWon] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
 
-  function handleCategoryChoice(targetCategory: "FOOD" | "HANDICRAFT") {
-    if (!selectedItem) return;
-
-    if (selectedItem.category === targetCategory) {
+  function sortItem(item: (typeof ITEMS)[0], targetCategory: "FOOD" | "HANDICRAFT") {
+    if (item.category === targetCategory) {
       playSoundTone("correct");
-      setFeedback(`✨ Correct! Stored ${selectedItem.name}`);
+      setFeedback(`✨ Sorted "${item.name}"!`);
 
-      if (targetCategory === "FOOD") setFoodBasket((prev) => [...prev, selectedItem]);
-      else setCraftBasket((prev) => [...prev, selectedItem]);
+      if (targetCategory === "FOOD") setFoodBasket((prev) => [...prev, item]);
+      else setCraftBasket((prev) => [...prev, item]);
 
-      const nextRemaining = remainingItems.filter((i) => i.name !== selectedItem.name);
+      const nextRemaining = remainingItems.filter((i) => i.name !== item.name);
       setRemainingItems(nextRemaining);
       setSelectedItem(null);
 
@@ -1023,9 +1204,30 @@ export function GameBazaarScreen({ onNav, onBack, onProgress }: CommonGameProps)
       }
     } else {
       playSoundTone("wrong");
-      setFeedback(`Oops! ${selectedItem.name} belongs to the other basket.`);
+      setFeedback(`"${item.name}" belongs in the other basket.`);
       setTimeout(() => setFeedback(null), 1200);
     }
+  }
+
+  function handleCategoryChoice(targetCategory: "FOOD" | "HANDICRAFT") {
+    if (selectedItem) {
+      sortItem(selectedItem, targetCategory);
+    }
+  }
+
+  // HTML5 Drag & Drop for Desktop
+  function handleDragStart(e: React.DragEvent, item: (typeof ITEMS)[0]) {
+    e.dataTransfer.setData("text/plain", JSON.stringify(item));
+    setSelectedItem(item);
+  }
+
+  function handleDrop(e: React.DragEvent, targetCategory: "FOOD" | "HANDICRAFT") {
+    e.preventDefault();
+    const raw = e.dataTransfer.getData("text/plain");
+    try {
+      const item = JSON.parse(raw);
+      sortItem(item, targetCategory);
+    } catch {}
   }
 
   function restart() {
@@ -1037,14 +1239,14 @@ export function GameBazaarScreen({ onNav, onBack, onProgress }: CommonGameProps)
   }
 
   if (won) {
-    return <GameVictoryModal title="Bazaar Sorted!" message="You correctly sorted all food & handicraft items!" score="100%" onReplay={restart} onBack={onBack} onNav={onNav} />;
+    return <GameVictoryModal title="Bazaar Sorted!" message="You correctly sorted all food & handicraft items into their baskets!" score="100%" onReplay={restart} onBack={onBack} onNav={onNav} />;
   }
 
   return (
     <div className="min-h-screen pb-24 pt-6 space-y-6">
       <GameHeader
         title="NER Bazaar Sorting Game"
-        subtitle="Tap an item card and select the correct basket category."
+        subtitle="Drag or tap items into the FOOD or HANDICRAFT basket."
         onBack={onBack}
         onNav={onNav}
         difficulty={difficulty}
@@ -1052,18 +1254,20 @@ export function GameBazaarScreen({ onNav, onBack, onProgress }: CommonGameProps)
       />
 
       <div className="max-w-xl mx-auto px-4 space-y-6">
-        {/* Items to Sort Tray */}
+        {/* Items Tray */}
         <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-3xl p-5 space-y-3 text-center shadow-md">
           <div className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider">
-            Unsorted Bazaar Items (Tap to Select)
+            Bazaar Items (Drag or Tap to Select)
           </div>
 
           <div className="flex flex-wrap justify-center gap-3">
             {remainingItems.map((item) => (
-              <button
+              <div
                 key={item.name}
+                draggable
+                onDragStart={(e) => handleDragStart(e, item)}
                 onClick={() => { playSoundTone("flip"); setSelectedItem(item); }}
-                className={`px-4 py-3 rounded-2xl border-2 flex items-center gap-2 font-black transition-all cursor-pointer ${
+                className={`px-4 py-3 rounded-2xl border-2 flex items-center gap-2 font-black cursor-pointer transition-all active:scale-95 ${
                   selectedItem?.name === item.name
                     ? "bg-[var(--oxblood)] text-white border-[var(--brass)] ring-4 ring-[var(--brass-light)] scale-105"
                     : "bg-[var(--bg-section)] text-[var(--text-primary)] border-[var(--border)] hover:border-[var(--oxblood)]"
@@ -1071,17 +1275,18 @@ export function GameBazaarScreen({ onNav, onBack, onProgress }: CommonGameProps)
               >
                 <span className="text-2xl">{item.emoji}</span>
                 <span className="text-xs">{item.name}</span>
-              </button>
+              </div>
             ))}
           </div>
         </div>
 
-        {/* Labeled Baskets */}
+        {/* Category Baskets */}
         <div className="grid sm:grid-cols-2 gap-4">
-          {/* Food Basket */}
-          <button
+          <div
             onClick={() => handleCategoryChoice("FOOD")}
-            className="p-6 rounded-3xl border-2 border-emerald-600/40 bg-emerald-950/20 hover:bg-emerald-950/40 text-center space-y-3 transition-all cursor-pointer min-h-[160px] flex flex-col items-center justify-between"
+            onDragOver={(e) => e.preventDefault()}
+            onDrop={(e) => handleDrop(e, "FOOD")}
+            className="p-6 rounded-3xl border-2 border-emerald-600/40 bg-emerald-950/20 hover:bg-emerald-950/40 text-center space-y-3 transition-all cursor-pointer min-h-[160px] flex flex-col items-center justify-between shadow-sm"
           >
             <div>
               <span className="text-4xl">🥗</span>
@@ -1090,12 +1295,13 @@ export function GameBazaarScreen({ onNav, onBack, onProgress }: CommonGameProps)
             <div className="text-xs font-bold text-[var(--text-muted)]">
               {foodBasket.length} stored ({foodBasket.map((i) => i.emoji).join(" ")})
             </div>
-          </button>
+          </div>
 
-          {/* Handicraft Basket */}
-          <button
+          <div
             onClick={() => handleCategoryChoice("HANDICRAFT")}
-            className="p-6 rounded-3xl border-2 border-amber-600/40 bg-amber-950/20 hover:bg-amber-950/40 text-center space-y-3 transition-all cursor-pointer min-h-[160px] flex flex-col items-center justify-between"
+            onDragOver={(e) => e.preventDefault()}
+            onDrop={(e) => handleDrop(e, "HANDICRAFT")}
+            className="p-6 rounded-3xl border-2 border-amber-600/40 bg-amber-950/20 hover:bg-amber-950/40 text-center space-y-3 transition-all cursor-pointer min-h-[160px] flex flex-col items-center justify-between shadow-sm"
           >
             <div>
               <span className="text-4xl">🏡</span>
@@ -1104,11 +1310,11 @@ export function GameBazaarScreen({ onNav, onBack, onProgress }: CommonGameProps)
             <div className="text-xs font-bold text-[var(--text-muted)]">
               {craftBasket.length} stored ({craftBasket.map((i) => i.emoji).join(" ")})
             </div>
-          </button>
+          </div>
         </div>
 
         {feedback && (
-          <div className={`text-center text-base font-black py-2 rounded-xl animate-pulse ${feedback.includes("Correct") ? "text-green-600" : "text-amber-600"}`}>
+          <div className={`text-center text-base font-black py-2 rounded-xl animate-pulse ${feedback.includes("Sorted") ? "text-green-600" : "text-amber-600"}`}>
             {feedback}
           </div>
         )}
@@ -1118,28 +1324,29 @@ export function GameBazaarScreen({ onNav, onBack, onProgress }: CommonGameProps)
 }
 
 // ═══════════════════════════════════════════════════════════════════
-//  7. MEMORY LANE: PURANA NORTH-EAST (Digital Reminiscence)
+//  7. MEMORY LANE: PURANA NORTH-EAST (Interactive Reminiscence)
 // ═══════════════════════════════════════════════════════════════════
 
 export function GameMemoryLaneScreen({ onNav, onBack, onProgress }: CommonGameProps) {
   const [activeIdx, setActiveIdx] = useState(0);
+  const [userChoice, setUserChoice] = useState<string | null>(null);
 
   const CARDS = [
     {
       title: "Guwahati River Ghat & Brahmaputra Ferries",
-      prompt: "Kya aapne kabhi river ferry par yatra ki hai? (Have you ever taken a river ferry ride?)",
+      prompt: "Kya aapne kabhi river ferry par yatra ki hai?",
       sound: "water",
       img: import.meta.env.BASE_URL + "vintage_radio_memory.png",
     },
     {
       title: "Traditional Assam Tea Estate House",
-      prompt: "Kya aapko chai ke baugon ki subah ki taaza thand yaad hai? (Do you remember cool tea garden mornings?)",
+      prompt: "Kya aapko chai ke baugon ki subah ki taaza thand yaad hai?",
       sound: "bird",
       img: import.meta.env.BASE_URL + "tea_garden_memory.png",
     },
     {
       title: "Bihu Festival & Spring Celebrations",
-      prompt: "Kya aapne Dhol ki taal par Bihu nritya dekha ya kiya hai? (Have you enjoyed Bihu dance & Dhol beats?)",
+      prompt: "Kya aapne Dhol ki taal par Bihu nritya dekha ya kiya hai?",
       sound: "dhol",
       img: import.meta.env.BASE_URL + "bihu_celebration_memory.png",
     },
@@ -1147,26 +1354,32 @@ export function GameMemoryLaneScreen({ onNav, onBack, onProgress }: CommonGamePr
 
   const current = CARDS[activeIdx];
 
-  function playAmbientSound(soundType: string) {
-    playSoundTone(soundType as any);
+  function handleResponse(choice: string) {
+    playSoundTone("flip");
+    setUserChoice(choice);
   }
 
-  function handleComplete() {
-    saveGameRecord({
-      gameId: "game-memory-lane",
-      gameTitle: "Memory Lane Reminiscence",
-      category: "Memory",
-      score: "Completed",
-      difficulty: "Standard",
-    });
-    onProgress();
+  function handleNext() {
+    setUserChoice(null);
+    const next = (activeIdx + 1) % CARDS.length;
+    setActiveIdx(next);
+    if (next === 0) {
+      saveGameRecord({
+        gameId: "game-memory-lane",
+        gameTitle: "Memory Lane Reminiscence",
+        category: "Memory",
+        score: "Completed Reminiscence",
+        difficulty: "Standard",
+      });
+      onProgress();
+    }
   }
 
   return (
     <div className="min-h-screen pb-24 pt-6 space-y-6">
       <GameHeader
         title="Memory Lane: Purana North-East"
-        subtitle="Digital reminiscence activity with nostalgic photos and ambient sounds."
+        subtitle="Interactive digital reminiscence photo cards with gentle prompts and audio."
         onBack={onBack}
         onNav={onNav}
       />
@@ -1184,22 +1397,38 @@ export function GameMemoryLaneScreen({ onNav, onBack, onProgress }: CommonGamePr
             <p className="text-base text-[var(--oxblood-dark)] font-bold italic">"{current.prompt}"</p>
           </div>
 
+          {/* User response buttons */}
+          <div className="space-y-3">
+            <div className="text-xs font-bold text-[var(--text-muted)] uppercase">Share Your Memory:</div>
+            <div className="flex justify-center gap-2">
+              {["Yes, I remember!", "Looks familiar", "New to me"].map((resp) => (
+                <button
+                  key={resp}
+                  onClick={() => handleResponse(resp)}
+                  className={`px-3.5 py-2.5 rounded-xl text-xs font-extrabold border transition-all cursor-pointer ${
+                    userChoice === resp
+                      ? "bg-[var(--oxblood)] text-white border-[var(--brass)] shadow-md"
+                      : "bg-[var(--bg-section)] text-[var(--text-primary)] border-[var(--border)] hover:border-[var(--oxblood)]"
+                  }`}
+                >
+                  {resp}
+                </button>
+              ))}
+            </div>
+          </div>
+
           <div className="flex flex-col sm:flex-row gap-3">
             <button
-              onClick={() => playAmbientSound(current.sound)}
+              onClick={() => playSoundTone(current.sound as any)}
               className="flex-1 py-3 px-4 rounded-2xl font-black text-sm text-[var(--brass-dark)] bg-[var(--brass-light)] border border-[var(--brass)] cursor-pointer"
             >
               🔊 Play Ambient Sound
             </button>
             <button
-              onClick={() => {
-                const next = (activeIdx + 1) % CARDS.length;
-                setActiveIdx(next);
-                if (next === 0) handleComplete();
-              }}
+              onClick={handleNext}
               className="flex-1 py-3 px-4 rounded-2xl font-black text-sm text-white bg-[var(--oxblood)] hover:bg-[var(--oxblood-dark)] border border-[var(--brass)] cursor-pointer"
             >
-              Next Photo →
+              Next Memory Card →
             </button>
           </div>
         </div>
@@ -1209,26 +1438,24 @@ export function GameMemoryLaneScreen({ onNav, onBack, onProgress }: CommonGamePr
 }
 
 // ═══════════════════════════════════════════════════════════════════
-//  8. KAZIRANGA 4-PIECE PUZZLE (2x2 Dedicated Puzzle)
+//  8. KAZIRANGA 4-PIECE PUZZLE (Dedicated 2x2 Assembly)
 // ═══════════════════════════════════════════════════════════════════
 
 export function GameKazirangaPuzzleScreen({ onNav, onBack, onProgress }: CommonGameProps) {
   const [grid, setGrid] = useState<(number | null)[]>([null, null, null, null]);
   const [selectedPiece, setSelectedPiece] = useState<number | null>(null);
-  const [tray, setTray] = useState<number[]>([2, 0, 3, 1]); // Shuffled
+  const [tray, setTray] = useState<number[]>([2, 0, 3, 1]);
   const [won, setWon] = useState(false);
 
-  function handleSlotClick(idx: number) {
-    if (selectedPiece === null) return;
+  function placePiece(slotIdx: number, pieceIdx: number) {
     playSoundTone("flip");
-
     const nextGrid = [...grid];
-    const old = nextGrid[idx];
-    nextGrid[idx] = selectedPiece;
+    const old = nextGrid[slotIdx];
+    nextGrid[slotIdx] = pieceIdx;
     setGrid(nextGrid);
 
     setTray((prev) => {
-      const filtered = prev.filter((p) => p !== selectedPiece);
+      const filtered = prev.filter((p) => p !== pieceIdx);
       if (old !== null) filtered.push(old);
       return filtered;
     });
@@ -1249,6 +1476,12 @@ export function GameKazirangaPuzzleScreen({ onNav, onBack, onProgress }: CommonG
     }
   }
 
+  function handleSlotClick(idx: number) {
+    if (selectedPiece !== null) {
+      placePiece(idx, selectedPiece);
+    }
+  }
+
   function restart() {
     setGrid([null, null, null, null]);
     setSelectedPiece(null);
@@ -1257,14 +1490,14 @@ export function GameKazirangaPuzzleScreen({ onNav, onBack, onProgress }: CommonG
   }
 
   if (won) {
-    return <GameVictoryModal title="Kaziranga Rhino Complete!" message="You assembled all 4 puzzle pieces correctly!" score="100%" onReplay={restart} onBack={onBack} onNav={onNav} />;
+    return <GameVictoryModal title="Kaziranga Rhino Complete!" message="You assembled all 4 pieces of the Kaziranga rhino image!" score="100%" onReplay={restart} onBack={onBack} onNav={onNav} />;
   }
 
   return (
     <div className="min-h-screen pb-24 pt-6 space-y-6">
       <GameHeader
         title="Kaziranga 4-Piece Visual Puzzle"
-        subtitle="Tap a piece from the tray and place it into its slot."
+        subtitle="Tap or drag a piece from the tray into the 2x2 target slots."
         onBack={onBack}
         onNav={onNav}
       />
@@ -1277,13 +1510,17 @@ export function GameKazirangaPuzzleScreen({ onNav, onBack, onProgress }: CommonG
                 key={slotIdx}
                 onClick={() => handleSlotClick(slotIdx)}
                 className={`rounded-xl flex flex-col items-center justify-center font-black transition-all cursor-pointer ${
-                  piece !== null ? "bg-emerald-800 text-white border-2 border-emerald-500" : "bg-[var(--bg-card)] text-[var(--text-muted)]"
+                  piece !== null
+                    ? piece === slotIdx
+                      ? "bg-emerald-800 text-white border-2 border-emerald-500"
+                      : "bg-amber-800 text-white border-2 border-amber-500"
+                    : "bg-[var(--bg-card)] text-[var(--text-muted)]"
                 }`}
               >
                 {piece !== null ? (
                   <div className="text-center">
                     <span className="text-4xl">🦏</span>
-                    <span className="text-[10px] block font-black uppercase">Part {piece + 1}</span>
+                    <span className="text-[10px] block font-black uppercase">Part {piece + 1} {piece === slotIdx ? "✓" : ""}</span>
                   </div>
                 ) : (
                   <span>Slot {slotIdx + 1}</span>
@@ -1300,7 +1537,7 @@ export function GameKazirangaPuzzleScreen({ onNav, onBack, onProgress }: CommonG
               <button
                 key={piece}
                 onClick={() => { playSoundTone("flip"); setSelectedPiece(piece); }}
-                className={`w-20 h-20 rounded-2xl flex flex-col items-center justify-center font-black border-2 cursor-pointer transition-all ${
+                className={`w-20 h-20 rounded-2xl flex flex-col items-center justify-center font-black border-2 cursor-pointer transition-all active:scale-95 ${
                   selectedPiece === piece
                     ? "bg-[var(--oxblood)] text-white border-[var(--brass)] ring-4 ring-[var(--brass-light)] scale-105"
                     : "bg-[var(--bg-card)] text-[var(--text-primary)] border-[var(--border)]"
@@ -1329,6 +1566,7 @@ export function GameWhatsMissingScreen({ onNav, onBack, onProgress }: CommonGame
   const [displayItems, setDisplayItems] = useState<{ name: string; emoji: string }[]>([]);
   const [options, setOptions] = useState<string[]>([]);
   const [score, setScore] = useState(0);
+  const [rounds, setRounds] = useState(0);
   const [won, setWon] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
 
@@ -1349,7 +1587,6 @@ export function GameWhatsMissingScreen({ onNav, onBack, onProgress }: CommonGame
     const missing = shuffled[Math.floor(Math.random() * shuffled.length)];
     setMissingItem(missing);
 
-    // Create 3 option choices
     const incorrect = ITEMS.filter((i) => i.name !== missing.name).map((i) => i.name);
     const opts = [missing.name, incorrect[0], incorrect[1]].sort(() => Math.random() - 0.5);
     setOptions(opts);
@@ -1378,7 +1615,7 @@ export function GameWhatsMissingScreen({ onNav, onBack, onProgress }: CommonGame
       const nextScore = score + 10;
       setScore(nextScore);
       setTimeout(() => {
-        if (nextScore >= 30) {
+        if (rounds + 1 >= 3) {
           setWon(true);
           saveGameRecord({
             gameId: "game-whats-missing",
@@ -1389,6 +1626,7 @@ export function GameWhatsMissingScreen({ onNav, onBack, onProgress }: CommonGame
           });
           onProgress();
         } else {
+          setRounds((r) => r + 1);
           startRound();
         }
       }, 1000);
@@ -1400,7 +1638,7 @@ export function GameWhatsMissingScreen({ onNav, onBack, onProgress }: CommonGame
   }
 
   if (won) {
-    return <GameVictoryModal score={`${score} points`} onReplay={() => { setScore(0); setWon(false); startRound(); }} onBack={onBack} onNav={onNav} />;
+    return <GameVictoryModal score={`${score} points`} onReplay={() => { setScore(0); setRounds(0); setWon(false); startRound(); }} onBack={onBack} onNav={onNav} />;
   }
 
   return (
@@ -1766,13 +2004,21 @@ export function GameSoundRecScreen({ onNav, onBack, onProgress }: CommonGameProp
 
       <div className="max-w-md mx-auto px-4 space-y-6 text-center">
         <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-3xl p-6 sm:p-8 space-y-6 shadow-lg">
-          <button
-            onClick={playSound}
-            className="w-full py-6 rounded-2xl border-2 border-[var(--brass)] bg-[var(--brass-light)] text-[var(--brass-dark)] font-black text-xl flex flex-col items-center justify-center gap-2 cursor-pointer shadow-md active:scale-95"
-          >
-            <span className="text-5xl">🔊</span>
-            <span>Tap to Play Sound</span>
-          </button>
+          <div className="flex gap-2">
+            <button
+              onClick={playSound}
+              className="flex-1 py-5 rounded-2xl border-2 border-[var(--brass)] bg-[var(--brass-light)] text-[var(--brass-dark)] font-black text-lg flex items-center justify-center gap-2 cursor-pointer shadow-md active:scale-95"
+            >
+              <span className="text-3xl">🔊</span>
+              <span>Tap to Play Sound</span>
+            </button>
+            <button
+              onClick={playSound}
+              className="px-4 py-5 rounded-2xl border border-[var(--border)] bg-[var(--bg-section)] text-sm font-bold text-[var(--text-secondary)] cursor-pointer"
+            >
+              🔁 Replay
+            </button>
+          </div>
 
           <div className="space-y-3">
             {current.options.map((opt) => (
