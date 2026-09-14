@@ -901,7 +901,7 @@ function HomeScreen({ onNav, active, onSwitchProfile }: { onNav: (s: Screen) => 
                 <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-xs font-extrabold bg-black/50 backdrop-blur-md border border-white/30 text-white dark:text-[var(--brass)]">
                   <span>📸</span> {t.home.heroBadge}
                 </div>
-                <h2 className="text-2xl sm:text-3xl font-black text-white leading-tight">{t.home.heroTagline}</h2>
+                <h2 className="text-2xl sm:text-3xl font-black !text-white leading-tight">{t.home.heroTagline}</h2>
               </div>
             </div>
 
