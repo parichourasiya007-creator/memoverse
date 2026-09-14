@@ -815,7 +815,7 @@ function AIRecommendationCard({ onNav }: { onNav: (s: Screen) => void }) {
           variant="primary"
           className="text-base px-7 py-3.5 shadow-lg group cursor-pointer whitespace-nowrap shrink-0"
         >
-          {t.ai?.playRecommended || "Play Recommended"} →
+          {t.ai?.playNow || "Play Now"} →
         </Btn>
       </div>
     </Card>
@@ -1376,13 +1376,6 @@ function GameMemoryScreen({ onNav, onBack, active, onProgress }: { onNav: (s: Sc
               timestamp: Date.now(),
               completed: true,
             });
-            saveGameRecord({
-              gameId: "game-memory",
-              gameTitle: "Memory Photo Match",
-              category: "Memory",
-              score: `${nextMoves} moves (${accuracy}% accuracy)`,
-              difficulty: `Level ${level}`,
-            });
             onProgress();
             setVictoryData({
               feedbackMessage: res.feedbackMessage,
@@ -1875,7 +1868,7 @@ function ProgressScreen({ profile }: { profile: Profile; onNav: (s: Screen) => v
                 <div key={sk.skill} className="space-y-2 p-3.5 rounded-2xl bg-[var(--bg-section)] border border-[var(--border)]">
                   <div className="flex items-center justify-between text-sm font-extrabold text-[var(--text-primary)]">
                     <span className="flex items-center gap-2">
-                      <span>{sk.label}</span>
+                      <span className="capitalize">{sk.skill}</span>
                       <span className={`text-[10px] px-2 py-0.5 rounded-full border font-black ${badge.bg}`}>
                         {badge.label}
                       </span>
@@ -2029,7 +2022,7 @@ function EditProfileModal({
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!name.trim()) return;
+    if (!name.trim() || !profile) return;
     onSave({
       ...profile,
       name: name.trim(),
@@ -2214,7 +2207,7 @@ function ProfilesSelectScreen({ profiles, active, onSelect, onCreateNew, onSkip 
             </button>
           ))}
         </div>
-        <Btn onClick={onCreateNew} variant="primary" fullWidth flex items-center justify-center gap-2><span>✨</span> {t.profile.createProfile}</Btn>
+        <Btn onClick={onCreateNew} variant="primary" fullWidth className="flex items-center justify-center gap-2"><span>✨</span> {t.profile.createProfile}</Btn>
         <Btn onClick={onSkip} variant="ghost" fullWidth>Continue Guest Mode</Btn>
       </Card>
     </div>
@@ -2878,7 +2871,7 @@ function MainAppContent() {
           active ? <RemindersScreen profile={active} onUpdate={saveProfile} /> : <GateScreen onNav={nav} onProfiles={openProfileModal} />
         )}
         {activeScreen === "progress" && (
-          active ? <ProgressScreen profile={active} onUpdate={saveProfile} /> : <GateScreen onNav={nav} onProfiles={openProfileModal} />
+          active ? <ProgressScreen profile={active} onNav={nav} /> : <GateScreen onNav={nav} onProfiles={openProfileModal} />
         )}
         {activeScreen === "gate" && <GateScreen onNav={nav} onProfiles={openProfileModal} />}
       </main>

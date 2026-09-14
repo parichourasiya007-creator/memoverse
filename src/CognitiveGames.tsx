@@ -641,7 +641,7 @@ export function GameWordPuzzlesScreen({ onNav, onBack, onProgress }: CommonGameP
         {mode === "anagram" && (
           <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-3xl p-6 sm:p-8 space-y-6 text-center shadow-lg">
             <div className="inline-block px-3.5 py-1 bg-[var(--brass-light)] text-[var(--brass-dark)] border border-[var(--brass)] font-extrabold text-xs rounded-xl">
-              Word {currentIndex + 1} of {difficulty === "Easy" ? 3 : 5}
+              Word {currentIndex + 1} of {level === 1 ? 3 : 5}
             </div>
 
             <div className="space-y-2">
@@ -668,7 +668,7 @@ export function GameWordPuzzlesScreen({ onNav, onBack, onProgress }: CommonGameP
                 {currentAnagram.letters.map((char, idx) => (
                   <button
                     key={idx}
-                    onClick={() => handleLetterTap(char, idx)}
+                    onClick={() => handleLetterTap(char)}
                     className="w-14 h-14 rounded-2xl font-black text-2xl text-[var(--text-primary)] bg-[var(--bg-card)] border-2 border-[var(--brass)] shadow-md hover:bg-[var(--brass-light)] cursor-pointer active:scale-95 transition-all"
                   >
                     {char}
@@ -1516,7 +1516,7 @@ export function GameInteractiveScreen({ onNav, onBack, onProgress }: CommonGameP
                 onClick={() => handleSelect(opt.isCorrect)}
                 className="aspect-square rounded-2xl border-2 border-[var(--border)] hover:border-[var(--oxblood)] bg-[var(--bg-section)] flex flex-col items-center justify-center p-4 cursor-pointer transition-all active:scale-95 shadow-sm"
               >
-                <span className={opt.size || "text-5xl"} style={{ color: opt.color || undefined }}>{opt.emoji}</span>
+                <span className={(opt as any).size || "text-5xl"} style={{ color: (opt as any).color || undefined }}>{opt.emoji}</span>
                 <span className="text-xs font-extrabold text-[var(--text-primary)] mt-2">{opt.label}</span>
               </button>
             ))}

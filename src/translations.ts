@@ -510,7 +510,7 @@ export const TRANSLATIONS: Record<string, TranslationSchema> = {
   // ─── ASSAMESE ─────────────────────────────────────────────────────────────
   Assamese: {
     ...baseEnglish,
-    nav: { home: "মুখ্য পৃষ্ঠা", activities: "কাৰ্যসূচী", myMemories: "মোৰ স্মৃতিসমূহ", reminders: "মনত পেলোৱা", progress: "অগ্ৰগতি", aboutDementia: "ডিমেঞ্চিয়া বিষয়ে", profile: "প্ৰফাইল", settings: "সংৰচনা", switchProfile: "প্ৰফাইল সলনি কৰক" },
+    nav: { ...baseEnglish.nav, home: "মুখ্য পৃষ্ঠা", activities: "কাৰ্যসূচী", myMemories: "মোৰ স্মৃতিসমূহ", reminders: "মনত পেলোৱা", progress: "অগ্ৰগতি", aboutDementia: "ডিমেঞ্চিয়া বিষয়ে", profile: "প্ৰফাইল", settings: "সংৰচনা", switchProfile: "প্ৰফাইল সলনি কৰক" },
     home: { ...baseEnglish.home, title: "য'ত স্মৃতিসমূহ", titleAccent: "মৰমেৰে সজীৱ হৈ থাকে", subtitle: "জ্যেষ্ঠসকলৰ বাবে সজোৱা স্মৃতি সংৰক্ষণ সংগী", exploreActivities: "🧠 কাৰ্যসূচী চাওক", caregiverGuide: "📖 সেৱাকাৰীৰ হাতপুথি", soundsCardTitle: "গৃহৰ চিনাকি শব্দ", keepsakeCardTitle: "স্মৃতিৰ এলবাম", remindersCardTitle: "দৈনিক সময়সূচী" },
     activities: { ...baseEnglish.activities, title: "মানসিক অনুশীলন", subtitle: "স্মৃতিশক্তি আৰু মনোযোগ বৃদ্ধিৰ বাবে দৈনিক কাৰ্যসূচী।", playNow: "আৰম্ভ কৰক" },
     games: { ...baseEnglish.games, memoryMatchTitle: "স্মৃতি ফটো মিলাওক", memoryMatchDesc: "কাৰ্ডসমূহত ক্লিক কৰি মিল থকা ফটো যোৰা বিচাৰি উলিয়াওক।", flipCard: "কাৰ্ড উলিয়াওক", moves: "চেষ্টা", matches: "মিলসমূহ", congrats: "বৰ ধুনীয়া! আপুনি সকলো ফটো মিলালে!", playAgain: "পুনৰ খেলক", backToActivities: "← পিছলৈ যান" },
@@ -522,7 +522,7 @@ export const TRANSLATIONS: Record<string, TranslationSchema> = {
   // ─── MANIPURI ────────────────────────────────────────────────────────────
   Manipuri: {
     ...baseEnglish,
-    nav: { home: "মায়াই অইবা", activities: "থৌরমশিং", myMemories: "ঐগী নিংশিংবা", reminders: "নিংশিংহনবা", progress: "মাংলোমদা", aboutDementia: "দিমেন্সিয়া অসিগী মতাংদা", profile: "প্রোফাইল", settings: "সেটিংস", switchProfile: "প্রোফাইল ওন্থোকপা" },
+    nav: { ...baseEnglish.nav, home: "মায়াই অইবা", activities: "থৌরমশিং", myMemories: "ঐগী নিংশিংবা", reminders: "নিংশিংহনবা", progress: "মাংলোমদা", aboutDementia: "দিমেন্সিয়া অসিগী মতাংদা", profile: "প্রোফাইল", settings: "সেটিংস", switchProfile: "প্রোফাইল ওন্থোকপা" },
     home: { ...baseEnglish.home, title: "নিংশিংবশিং অসি", titleAccent: "নুংশিনা নিংশিংহনবা", subtitle: "হনুবা-হনবীশিংগীদমক শেম্বা নিংশিং সংগী", exploreActivities: "🧠 থৌরমশিং য়েংবা", caregiverGuide: "📖 সেৱাকাৰী লমজিং", soundsCardTitle: "য়ুমগী খোঞ্জেল", keepsakeCardTitle: "নিংশিং এলবম", remindersCardTitle: "নুমিৎ খুদিংগী সময়সূচী" },
     activities: { ...baseEnglish.activities, title: "ৱাখলগী এক্সারসাইজ", subtitle: "নিংশিং শক্তি কাখনবগীদমক নুমিৎ খুদিংগী থৌরম।", playNow: "হৌবা" },
     games: { ...baseEnglish.games, memoryMatchTitle: "ফটো চান্নহনবা", memoryMatchDesc: "কার্ডশিং অসিদা নম্বিয়া মান্নবা ফটোশিং থিও।", congrats: "য়াম্না ফৈ! অদোম পুম্নমক চান্নহনখ্রে!", playAgain: "অমুক শানবা", backToActivities: "← মখা অদুদা" },
@@ -534,7 +534,7 @@ export const TRANSLATIONS: Record<string, TranslationSchema> = {
   // ─── KHASI ───────────────────────────────────────────────────────────────
   Khasi: {
     ...baseEnglish,
-    nav: { home: "Tymmen", activities: "Kam ba Man la Ka Sngi", myMemories: "Ki Jingkynmaw Jong Nga", reminders: "Jingpynkynmaw", progress: "Jingkiew", aboutDementia: "Shaphang ka Jingklet Jingmut", profile: "Pait Shaphang Jong Nga", settings: "Ki Jingjied", switchProfile: "Kylla ia ka Profile" },
+    nav: { ...baseEnglish.nav, home: "Tymmen", activities: "Kam ba Man la Ka Sngi", myMemories: "Ki Jingkynmaw Jong Nga", reminders: "Jingpynkynmaw", progress: "Jingkiew", aboutDementia: "Shaphang ka Jingklet Jingmut", profile: "Pait Shaphang Jong Nga", settings: "Ki Jingjied", switchProfile: "Kylla ia ka Profile" },
     home: { ...baseEnglish.home, title: "Haba Ki Jingkynmaw", titleAccent: "Ki Sah Im Barabor", subtitle: "Ka Jingkyrshan Jingkynmaw na ka Bynta ki Tymmen", exploreActivities: "🧠 Pule ia ki Kam", caregiverGuide: "📖 Ka Kot Lamphang Sumar" },
     activities: { ...baseEnglish.activities, title: "Ki Jingkilai Jingmut", playNow: "Sdang Mynta" },
     memories: { ...baseEnglish.memories, title: "Kot Dur Jingkynmaw", addMemory: "➕ Pyniasoh Jingkynmaw Thymmai" },
@@ -544,7 +544,7 @@ export const TRANSLATIONS: Record<string, TranslationSchema> = {
   // ─── GARO ────────────────────────────────────────────────────────────────
   Garo: {
     ...baseEnglish,
-    nav: { home: "A·bachenga", activities: "Kamrang", myMemories: "Angni Gisik Ra·ani", reminders: "Gisik Ra·atani", progress: "Sil-roroani", aboutDementia: "Dementia-ni Gimin", profile: "Profile", settings: "Settings", switchProfile: "Profile-ko Srestani" },
+    nav: { ...baseEnglish.nav, home: "A·bachenga", activities: "Kamrang", myMemories: "Angni Gisik Ra·ani", reminders: "Gisik Ra·atani", progress: "Sil-roroani", aboutDementia: "Dementia-ni Gimin", profile: "Profile", settings: "Settings", switchProfile: "Profile-ko Srestani" },
     home: { ...baseEnglish.home, title: "Gisik Ra·anirang", titleAccent: "Tangkanyingna Man·a", exploreActivities: "🧠 Kamrangko Nibo", caregiverGuide: "📖 Simsakgipani Kitap" },
     activities: { ...baseEnglish.activities, title: "Gisikni Kal·anirang", playNow: "A·bachenkbo" },
     memories: { ...baseEnglish.memories, title: "Gisik Ra·ani Photo Album", addMemory: "➕ Gital Gisik Ra·aniko Gapbo" },
@@ -554,7 +554,7 @@ export const TRANSLATIONS: Record<string, TranslationSchema> = {
   // ─── MIZO ────────────────────────────────────────────────────────────────
   Mizo: {
     ...baseEnglish,
-    nav: { home: "Bul Ṭanuka", activities: "Thiltih Turte", myMemories: "Ka Hriatrengte", reminders: "Hriattirnah", progress: "Hmasawnna", aboutDementia: "Dementia Chungchang", profile: "Profile", settings: "Duhthlante", switchProfile: "Profile Thlakna" },
+    nav: { ...baseEnglish.nav, home: "Bul Ṭanuka", activities: "Thiltih Turte", myMemories: "Ka Hriatrengte", reminders: "Hriattirnah", progress: "Hmasawnna", aboutDementia: "Dementia Chungchang", profile: "Profile", settings: "Duhthlante", switchProfile: "Profile Thlakna" },
     home: { ...baseEnglish.home, title: "Hriatrengte Chu", titleAccent: "Vawnduh leh Nunau a Ni", exploreActivities: "🧠 Thiltih Turte Enna", caregiverGuide: "📖 Enkawltu Kaihhruaina" },
     activities: { ...baseEnglish.activities, title: "Relhruai Inkte", playNow: "Ṭan Rawh" },
     memories: { ...baseEnglish.memories, title: "Hriatrengna Album", addMemory: "➕ Hriatrengna Thar Belhna" },
@@ -564,7 +564,7 @@ export const TRANSLATIONS: Record<string, TranslationSchema> = {
   // ─── BODO ────────────────────────────────────────────────────────────────
   Bodo: {
     ...baseEnglish,
-    nav: { home: "गाहाय बिलाइ", activities: "हाबाफारिफोर", myMemories: "आंनि गोसोखांथिफोर", reminders: "गोसोखांहोंगोन", progress: "जौगानाय", aboutDementia: "दिमेन्सियानि सोमोन्दै", profile: "प्रफाइल", settings: "सेटिंसफोर", switchProfile: "प्रफाइल सोलायनाय" },
+    nav: { ...baseEnglish.nav, home: "गाहाय बिलाइ", activities: "हाबाफारिफोर", myMemories: "आंनि गोसोखांथिफोर", reminders: "गोसोखांहोंगोन", progress: "जौगानाय", aboutDementia: "दिमेन्सियानि सोमोन्दै", profile: "प्रफाइल", settings: "सेटिंसफोर", switchProfile: "प्रफाइल सोलायनाय" },
     home: { ...baseEnglish.home, title: "जेराव गोसोखांथिफोरा", titleAccent: "मोजांै सोजिना थायो", exploreActivities: "🧠 हाबाफारिफोर नायनो", caregiverGuide: "📖 नायफिनग्रा बिजाब" },
     activities: { ...baseEnglish.activities, title: "गोसोनि सोलोफोर", playNow: "जाउनाव दाना" },
     memories: { ...baseEnglish.memories, title: "गोसोखांथि एलबाम", addMemory: "➕ गोदान गोसोखांथि सोदेरनाय" },
@@ -574,7 +574,7 @@ export const TRANSLATIONS: Record<string, TranslationSchema> = {
   // ─── NEPALI ──────────────────────────────────────────────────────────────
   Nepali: {
     ...baseEnglish,
-    nav: { home: "गृह पृष्ठ", activities: "गतिविधिहरू", myMemories: "मेरा सम्झनाहरू", reminders: "स्मरण गराउने", progress: "प्रगति", aboutDementia: "डिमेन्सिया बारे", profile: "प्रोफाइल", settings: "सेटिङहरू", switchProfile: "प्रोफाइल फेर्नुहोस्" },
+    nav: { ...baseEnglish.nav, home: "गृह पृष्ठ", activities: "गतिविधिहरू", myMemories: "मेरा सम्झनाहरू", reminders: "स्मरण गराउने", progress: "प्रगति", aboutDementia: "डिमेन्सिया बारे", profile: "प्रोफाइल", settings: "सेटिङहरू", switchProfile: "प्रोफाइल फेर्नुहोस्" },
     home: { ...baseEnglish.home, title: "जहाँ सम्झनाहरू", titleAccent: "मायाले ताजा रहन्छन्", exploreActivities: "🧠 गतिविधिहरू हेर्नुहोस्", caregiverGuide: "📖 हेरचाहकर्ता मार्गदर्शिका" },
     activities: { ...baseEnglish.activities, title: "मानसिक अभ्यासहरू", playNow: "सुरु गर्नुहोस्" },
     memories: { ...baseEnglish.memories, title: "सम्झनाको एल्बम", addMemory: "➕ नयाँ सम्झना थप्नुहोस्" },
@@ -584,7 +584,7 @@ export const TRANSLATIONS: Record<string, TranslationSchema> = {
   // ─── HINDI ───────────────────────────────────────────────────────────────
   Hindi: {
     ...baseEnglish,
-    nav: { home: "मुख्य पृष्ठ", activities: "गतिविधियाँ", myMemories: "मेरी यादें", reminders: "स्मरणपत्र", progress: "प्रगति", aboutDementia: "डिमेंशिया के बारे में", profile: "प्रोफ़ाइल", settings: "सेटिंग्स", switchProfile: "प्रोफ़ाइल बदलें" },
+    nav: { ...baseEnglish.nav, home: "मुख्य पृष्ठ", activities: "गतिविधियाँ", myMemories: "मेरी यादें", reminders: "स्मरणपत्र", progress: "प्रगति", aboutDementia: "डिमेंशिया के बारे में", profile: "प्रोफ़ाइल", settings: "सेटिंग्स", switchProfile: "प्रोफ़ाइल बदलें" },
     home: { ...baseEnglish.home, title: "जहाँ यादें", titleAccent: "स्नेह से जीवंत रहती हैं", subtitle: "वरिष्ठ नागरिकों के लिए स्मृति संरक्षण साथी", exploreActivities: "🧠 गतिविधियाँ देखें", caregiverGuide: "📖 देखभालकर्ता मार्गदर्शिका", soundsCardTitle: "आत्मीय धुनें", keepsakeCardTitle: "यादों का एल्बम", remindersCardTitle: "दैनिक दिनचर्या" },
     activities: { ...baseEnglish.activities, title: "मानसिक अभ्यास", subtitle: "स्मरणशक्ति और ध्यान को सक्रिय रखने के लिए दैनिक सरल अभ्यास।", playNow: "शुरू करें" },
     games: { ...baseEnglish.games, memoryMatchTitle: "स्मृति फ़ोटो मिलाएँ", memoryMatchDesc: "कार्डों पर क्लिक करके उस्मानी तस्वीरों के जोड़े ढूँढें।", flipCard: "कार्ड पलटें", moves: "प्रयास", matches: "जोड़े", congrats: "बहुत बढ़िया! आपने सभी जोड़े मिला लिए!", playAgain: "पुनः खेलें", backToActivities: "← गतिविधियों पर लौटें" },
@@ -596,7 +596,7 @@ export const TRANSLATIONS: Record<string, TranslationSchema> = {
   // ─── BENGALI ─────────────────────────────────────────────────────────────
   Bengali: {
     ...baseEnglish,
-    nav: { home: "মূল পাতা", activities: "কার্যক্রম", myMemories: "আমার স্মৃতিমালা", reminders: "স্মারকসূচি", progress: "অগ্রগতি", aboutDementia: "ডিমেনশিয়া তথ্য", profile: "প্রোফাইল", settings: "সেটিংস", switchProfile: "প্রোফাইল পরিবর্তন" },
+    nav: { ...baseEnglish.nav, home: "মূল পাতা", activities: "কার্যক্রম", myMemories: "আমার স্মৃতিমালা", reminders: "স্মারকসূচি", progress: "অগ্রগতি", aboutDementia: "ডিমেনশিয়া তথ্য", profile: "প্রোফাইল", settings: "সেটিংস", switchProfile: "প্রোফাইল পরিবর্তন" },
     home: { ...baseEnglish.home, title: "যেখানে স্মৃতিরা", titleAccent: "মমতায় সজীব থাকে", subtitle: "বয়োজ্যেষ্ঠদের জন্য স্মৃতি সংরক্ষণ সঙ্গী", exploreActivities: "🧠 কার্যক্রম দেখুন", caregiverGuide: "📖 পরিচর্যাকারী নির্দেশিকা", soundsCardTitle: "চেনা সুর", keepsakeCardTitle: "স্মৃতি অ্যালবাম", remindersCardTitle: "দৈনিক সময়সূচী" },
     activities: { ...baseEnglish.activities, title: "মানসিক শরীরচর্চা", subtitle: "স্মৃতিশক্তি ও মনোযোগ বৃদ্ধির জন্য দৈনিক অনুশীলন।", playNow: "শুরু করুন" },
     games: { ...baseEnglish.games, memoryMatchTitle: "স্মৃতি ফটো মেলান", memoryMatchDesc: "কার্ডে ক্লিক করে মেলানো ছবি জোড়া খুঁজুন।", flipCard: "কার্ড উল্টান", moves: "চেষ্টা", matches: "জোড়া", congrats: "চমৎকার! আপনি সব ছবি মিলিয়েছেন!", playAgain: "পুনরায় খেলুন", backToActivities: "← ফিরুন" },
@@ -608,7 +608,7 @@ export const TRANSLATIONS: Record<string, TranslationSchema> = {
   // ─── ODIA ────────────────────────────────────────────────────────────────
   Odia: {
     ...baseEnglish,
-    nav: { home: "ମୁଖ୍ୟ ପୃଷ୍ଠା", activities: "କାର୍ଯ୍ୟକ୍ରମ", myMemories: "ମୋର ସ୍ମୃତି", reminders: "ମନେରଖିବା ସୂଚୀ", progress: "ଅଗ୍ରଗତି", aboutDementia: "ଡିମେନ୍ସିଆ ବିଷୟରେ", profile: "ପ୍ରୋଫାଇଲ୍", settings: "ସେଟିଂସ", switchProfile: "ପ୍ରୋଫାଇଲ୍ ବଦଳାନ୍ତୁ" },
+    nav: { ...baseEnglish.nav, home: "ମୁଖ୍ୟ ପୃଷ୍ଠା", activities: "କାର୍ଯ୍ୟକ୍ରମ", myMemories: "ମୋର ସ୍ମୃତି", reminders: "ମନେରଖିବା ସୂଚୀ", progress: "ଅଗ୍ରଗତି", aboutDementia: "ଡିମେନ୍ସିଆ ବିଷୟରେ", profile: "ପ୍ରୋଫାଇଲ୍", settings: "ସେଟିଂସ", switchProfile: "ପ୍ରୋଫାଇଲ୍ ବଦଳାନ୍ତୁ" },
     home: { ...baseEnglish.home, title: "ଯେଉଁଠି ସ୍ମୃତିସବୁ", titleAccent: "ଆଦରରେ ସଜୀବ ରହେ", exploreActivities: "🧠 କାର୍ଯ୍ୟକ୍ରମ ଦେଖନ୍ତୁ", caregiverGuide: "📖 ଯତ୍ନଗ୍ରହଣକାରୀ ମାର୍ଗଦର୍ଶିକା" },
     activities: { ...baseEnglish.activities, title: "ମାନସିକ ଅଭ୍ୟାସ", playNow: "ଆରମ୍ଭ କରନ୍ତୁ" },
     memories: { ...baseEnglish.memories, title: "ସ୍ମୃତି ଆଲବମ୍", addMemory: "➕ ନୂତନ ସ୍ମୃତି ଯୋଡ଼ନ୍ତୁ" },
@@ -618,7 +618,7 @@ export const TRANSLATIONS: Record<string, TranslationSchema> = {
   // ─── MARATHI ─────────────────────────────────────────────────────────────
   Marathi: {
     ...baseEnglish,
-    nav: { home: "मुख्य पृष्ठ", activities: "उपक्रम", myMemories: "माझ्या आठवणी", reminders: "आठवणपत्र", progress: "प्रगती", aboutDementia: "डिमेंशिया बद्दल", profile: "प्रोफाइल", settings: "सेटिंग्ज", switchProfile: "प्रोफाइल बदला" },
+    nav: { ...baseEnglish.nav, home: "मुख्य पृष्ठ", activities: "उपक्रम", myMemories: "माझ्या आठवणी", reminders: "आठवणपत्र", progress: "प्रगती", aboutDementia: "डिमेंशिया बद्दल", profile: "प्रोफाइल", settings: "सेटिंग्ज", switchProfile: "प्रोफाइल बदला" },
     home: { ...baseEnglish.home, title: "जिथे आठवणी", titleAccent: "जुलमाने ताज्या राहतात", exploreActivities: "🧠 उपक्रम पहा", caregiverGuide: "📖 काळजीवाहू मार्गदर्शिका" },
     activities: { ...baseEnglish.activities, title: "मानसिक व्यायाम", playNow: "सुरू करा" },
     memories: { ...baseEnglish.memories, title: "आठवणींचा अल्बम", addMemory: "➕ नवीन आठवण जोडा" },
@@ -628,7 +628,7 @@ export const TRANSLATIONS: Record<string, TranslationSchema> = {
   // ─── GUJARATI ────────────────────────────────────────────────────────────
   Gujarati: {
     ...baseEnglish,
-    nav: { home: "મુખ્ય પૃષ્ઠ", activities: "પ્રવૃત્તિઓ", myMemories: "મારી યાદો", reminders: "યાદ અપાવનાર", progress: "પ્રગતિ", aboutDementia: "ડિમેન્શિયા વિશે", profile: "પ્રોફાઇલ", settings: "સેટિંગ્સ", switchProfile: "પ્રોફાઇલ બદલો" },
+    nav: { ...baseEnglish.nav, home: "મુખ્ય પૃષ્ઠ", activities: "પ્રવૃત્તિઓ", myMemories: "મારી યાદો", reminders: "યાદ અપાવનાર", progress: "પ્રગતિ", aboutDementia: "ડિમેન્શિયા વિશે", profile: "પ્રોફાઇલ", settings: "સેટિંગ્સ", switchProfile: "પ્રોફાઇલ બદલો" },
     home: { ...baseEnglish.home, title: "જ્યાં યાદો", titleAccent: "પ્રેમથી જીવંત રહે છે", exploreActivities: "🧠 પ્રવૃત્તિઓ જુઓ", caregiverGuide: "📖 સંભાળ રાખનાર માર્ગદર્શિકા" },
     activities: { ...baseEnglish.activities, title: "માનસિક કસરત", playNow: "શરૂ કરો" },
     memories: { ...baseEnglish.memories, title: "યાદોનું આલ્બમ", addMemory: "➕ નવી યાદ ઉમેરો" },
@@ -638,7 +638,7 @@ export const TRANSLATIONS: Record<string, TranslationSchema> = {
   // ─── PUNJABI ────────────────────────────────────────────────────────────
   Punjabi: {
     ...baseEnglish,
-    nav: { home: "ਮੁੱਖ ਸਫ਼ਾ", activities: "ਗਤੀਵਿਧੀਆਂ", myMemories: "ਮੇਰੀਆਂ ਯਾਦਾਂ", reminders: "ਯਾਦ-ਦਹਾਨੀ", progress: "ਤਰੱਕੀ", aboutDementia: "ਡੀਮੈਂਸ਼ੀਆ ਬਾਰੇ", profile: "ਪ੍ਰੋਫਾਈਲ", settings: "ਸੈਟਿੰਗਾਂ", switchProfile: "ਪ੍ਰੋਫਾਈਲ ਬਦਲੋ" },
+    nav: { ...baseEnglish.nav, home: "ਮੁੱਖ ਸਫ਼ਾ", activities: "ਗਤੀਵਿਧੀਆਂ", myMemories: "ਮੇਰੀਆਂ ਯਾਦਾਂ", reminders: "ਯਾਦ-ਦਹਾਨੀ", progress: "ਤਰੱਕੀ", aboutDementia: "ਡੀਮੈਂਸ਼ੀਆ ਬਾਰੇ", profile: "ਪ੍ਰੋਫਾਈਲ", settings: "ਸੈਟਿੰਗਾਂ", switchProfile: "ਪ੍ਰੋਫਾਈਲ ਬਦਲੋ" },
     home: { ...baseEnglish.home, title: "ਜਿੱਥੇ ਯਾਦਾਂ", titleAccent: "ਪਿਆਰ ਨਾਲ ਜਿਊਂਦੀਆਂ ਰਹਿੰਦੀਆਂ ਹਨ", exploreActivities: "🧠 ਗਤੀਵਿਧੀਆਂ ਵੇਖੋ", caregiverGuide: "📖 ਦੇਖਭਾਲ ਗਾਈਡ" },
     activities: { ...baseEnglish.activities, title: "ਮਾਨਸਿਕ ਅਭਿਆਸ", playNow: "ਸ਼ੁਰੂ ਕਰੋ" },
     memories: { ...baseEnglish.memories, title: "ਯਾਦਾਂ ਦਾ ਐਲਬਮ", addMemory: "➕ ਨਵੀਂ ਯਾਦ ਜੋੜੋ" },
@@ -648,7 +648,7 @@ export const TRANSLATIONS: Record<string, TranslationSchema> = {
   // ─── TAMIL ───────────────────────────────────────────────────────────────
   Tamil: {
     ...baseEnglish,
-    nav: { home: "முகப்பு", activities: "செயல்பாடுகள்", myMemories: "என் நினைவுகள்", reminders: "நினைவூட்டல்கள்", progress: "முன்னேற்றம்", aboutDementia: "டிமென்ஷியா பற்றி", profile: "சுயவிவரம்", settings: "அமைப்புகள்", switchProfile: "சுயவிவரம் மாற்று" },
+    nav: { ...baseEnglish.nav, home: "முகப்பு", activities: "செயல்பாடுகள்", myMemories: "என் நினைவுகள்", reminders: "நினைவூட்டல்கள்", progress: "முன்னேற்றம்", aboutDementia: "டிமென்ஷியா பற்றி", profile: "சுயவிவரம்", settings: "அமைப்புகள்", switchProfile: "சுயவிவரம் மாற்று" },
     home: { ...baseEnglish.home, title: "நினைவுகள்", titleAccent: "அன்போடு வாழும் இடம்", exploreActivities: "🧠 செயல்பாடுகளைப் பார்க்க", caregiverGuide: "📖 பராமரிப்பாளர் வழிகாட்டி" },
     activities: { ...baseEnglish.activities, title: "மனப் பயிற்சிகள்", playNow: "தொடங்கவும்" },
     memories: { ...baseEnglish.memories, title: "நினைவுப் பேழை", addMemory: "➕ புதிய நினைவு சேர்க்க" },
@@ -658,7 +658,7 @@ export const TRANSLATIONS: Record<string, TranslationSchema> = {
   // ─── TELUGU ──────────────────────────────────────────────────────────────
   Telugu: {
     ...baseEnglish,
-    nav: { home: "ముఖ్య పుట", activities: "కార్యకలాపాలు", myMemories: "నా జ్ఞాపకాలు", reminders: "జ్ఞాపికలు", progress: "పురోగతి", aboutDementia: "డిమెన్షియా గురించి", profile: "ప్రొఫైల్", settings: "సెట్టింగ్‌లు", switchProfile: "ప్రొఫైల్ మార్చు" },
+    nav: { ...baseEnglish.nav, home: "ముఖ్య పుట", activities: "కార్యకలాపాలు", myMemories: "నా జ్ఞాపకాలు", reminders: "జ్ఞాపికలు", progress: "పురోగతి", aboutDementia: "డిమెన్షియా గురించి", profile: "ప్రొఫైల్", settings: "సెట్టింగ్‌లు", switchProfile: "ప్రొఫైల్ మార్చు" },
     home: { ...baseEnglish.home, title: "జ్ఞాపకాలు", titleAccent: "ప్రేమతో పదిలంగా ఉండే చోటు", exploreActivities: "🧠 కార్యకలాపాలు చూడండి", caregiverGuide: "📖 సంరక్షకుల మార్గదర్శి" },
     activities: { ...baseEnglish.activities, title: "మానసిక వ్యాయామాలు", playNow: "ప్రారంభించు" },
     memories: { ...baseEnglish.memories, title: "జ్ఞాపకాల ఆల్బమ్", addMemory: "➕ కొత్త జ్ఞాపకం జోడించు" },
@@ -668,7 +668,7 @@ export const TRANSLATIONS: Record<string, TranslationSchema> = {
   // ─── KANNADA ─────────────────────────────────────────────────────────────
   Kannada: {
     ...baseEnglish,
-    nav: { home: "ಮುಖ್ಯ ಪುಟ", activities: "ಚಟುವಟಿಕೆಗಳು", myMemories: "ನನ್ನ ನೆನಪುಗಳು", reminders: "ನೆನಪೂಲೆಗಳು", progress: "ಪ್ರಗತಿ", aboutDementia: "ಡಿಮೆನ್ಷಿಯಾ ಬಗ್ಗೆ", profile: "ಪ್ರೊಫೈಲ್", settings: "ಸರಿಹೊಂದಿಕೆಗಳು", switchProfile: "ಪ್ರೊಫೈಲ್ ಬದಲಾಯಿಸಿ" },
+    nav: { ...baseEnglish.nav, home: "ಮುಖ್ಯ ಪುಟ", activities: "ಚಟುವಟಿಕೆಗಳು", myMemories: "ನನ್ನ ನೆನಪುಗಳು", reminders: "ನೆನಪೂಲೆಗಳು", progress: "ಪ್ರಗತಿ", aboutDementia: "ಡಿಮೆನ್ಷಿಯಾ ಬಗ್ಗೆ", profile: "ಪ್ರೊಫೈಲ್", settings: "ಸರಿಹೊಂದಿಕೆಗಳು", switchProfile: "ಪ್ರೊಫೈಲ್ ಬದಲಾಯಿಸಿ" },
     home: { ...baseEnglish.home, title: "ನೆನಪುಗಳು", titleAccent: "ಪ್ರೀತಿಯಿಂದ ಜೀವಂತವಾಗಿರುವ ಸ್ಥಳ", exploreActivities: "🧠 ಚಟುವಟಿಕೆಗಳನ್ನು ನೋಡಿ", caregiverGuide: "📖 ಆರೈಕೆದಾರ ಮಾರ್ಗದರ್ಶಿ" },
     activities: { ...baseEnglish.activities, title: "ಮಾನಸಿಕ ಅಭ್ಯಾಸಗಳು", playNow: "ಪ್ರಾರಂಭಿಸಿ" },
     memories: { ...baseEnglish.memories, title: "ನೆನಪಿನ ಆಲ್ಬಮ್", addMemory: "➕ ಹೊಸ ನೆನಪು ಸೇರಿಸಿ" },
@@ -678,7 +678,7 @@ export const TRANSLATIONS: Record<string, TranslationSchema> = {
   // ─── MALAYALAM ─────────────────────────────────────────────────────────
   Malayalam: {
     ...baseEnglish,
-    nav: { home: "പ്രധാന താൾ", activities: "പ്രവർത്തനങ്ങൾ", myMemories: "എന്റെ ഓർമ്മകൾ", reminders: "ഓർമ്മപ്പെടുത്തലുകൾ", progress: "പുരോഗതി", aboutDementia: "ഡിമെൻഷ്യയെക്കുറിച്ച്", profile: "പ്രൊഫൈൽ", settings: "ക്രമീകരണങ്ങൾ", switchProfile: "പ്രൊഫൈൽ മാറ്റുക" },
+    nav: { ...baseEnglish.nav, home: "പ്രധാന താൾ", activities: "പ്രവർത്തനങ്ങൾ", myMemories: "എന്റെ ഓർമ്മകൾ", reminders: "ഓർമ്മപ്പെടുത്തലുകൾ", progress: "പുരോഗതി", aboutDementia: "ഡിമെൻഷ്യയെക്കുറിച്ച്", profile: "പ്രൊഫൈൽ", settings: "ക്രമീകരണങ്ങൾ", switchProfile: "പ്രൊഫൈൽ മാറ്റുക" },
     home: { ...baseEnglish.home, title: "ഓർമ്മകൾ", titleAccent: "സ്നേഹത്തോടെ ജീവിക്കുന്ന ഇടം", exploreActivities: "🧠 പ്രവർത്തനങ്ങൾ കാണുക", caregiverGuide: "📖 പരിചരണ ഗൈഡ്" },
     activities: { ...baseEnglish.activities, title: "മാനസിക വ്യായാമങ്ങൾ", playNow: "ആരംഭിക്കുക" },
     memories: { ...baseEnglish.memories, title: "ഓർമ്മ ആൽബം", addMemory: "➕ പുതിയ ഓർമ്മ ചേർക്കുക" },
@@ -688,7 +688,7 @@ export const TRANSLATIONS: Record<string, TranslationSchema> = {
   // ─── DOGRI ─────────────────────────────────────────────────────────────
   Dogri: {
     ...baseEnglish,
-    nav: { home: "मुक्ख पन्ना", activities: "गतिविधियां", myMemories: "मेरी यादें", reminders: "स्मरण पत्र", progress: "प्रगति", aboutDementia: "डिमेंशिया बारै", profile: "प्रोफाइल", settings: "सेटिंग्स", switchProfile: "प्रोफाइल बदलो" },
+    nav: { ...baseEnglish.nav, home: "मुक्ख पन्ना", activities: "गतिविधियां", myMemories: "मेरी यादें", reminders: "स्मरण पत्र", progress: "प्रगति", aboutDementia: "डिमेंशिया बारै", profile: "प्रोफाइल", settings: "सेटिंग्स", switchProfile: "प्रोफाइल बदलो" },
     home: { ...baseEnglish.home, title: "जित्थै यादें", titleAccent: "सनेह कन्नै अमर र‍हंदियां न", exploreActivities: "🧠 गतिविधियां देक्खो", caregiverGuide: "📖 देखभालकर्ता मार्गदर्शिका" },
     activities: { ...baseEnglish.activities, title: "मानसिक अभ्यास", playNow: "शुरू करो" },
     games: { ...baseEnglish.games, memoryMatchTitle: "स्मृति फोटो रलाओ", flipCard: "कार्ड पलटो", moves: "प्रयास", matches: "जोड़े", congrats: "शाबाश! तुस्सां सारे जोड़े मिलाई ले!" },
@@ -700,7 +700,7 @@ export const TRANSLATIONS: Record<string, TranslationSchema> = {
   // ─── KASHMIRI ──────────────────────────────────────────────────────────
   Kashmiri: {
     ...baseEnglish,
-    nav: { home: "اہم صفحہ", activities: "سرگرمیاں", myMemories: "میانی یاوہ", reminders: "یاد دہانی", progress: "ترقی", aboutDementia: "ڈیماینشیا متعلق", profile: "پروفائل", settings: "سیٹنگز", switchProfile: "پروفائل تبدیل کریں" },
+    nav: { ...baseEnglish.nav, home: "اہم صفحہ", activities: "سرگرمیاں", myMemories: "میانی یاوہ", reminders: "یاد دہانی", progress: "ترقی", aboutDementia: "ڈیماینشیا متعلق", profile: "پروفائل", settings: "سیٹنگز", switchProfile: "پروفائل تبدیل کریں" },
     home: { ...baseEnglish.home, title: "یتھ جائے یادیں", titleAccent: "محبت سیت زندا روزان", exploreActivities: "🧠 سرگرمیاں وچھو", caregiverGuide: "📖 دیکھ بھال راہنمائی" },
     activities: { ...baseEnglish.activities, title: "دماغی مشق", playNow: "شروع کرو" },
     games: { ...baseEnglish.games, memoryMatchTitle: "یاد فوٹو ملاو", flipCard: "کارڈ الٹاو", moves: "کوشش", matches: "جوڑے", congrats: "واریاہ خوب! توہِ رلاو سأری فوٹو!" },
@@ -712,7 +712,7 @@ export const TRANSLATIONS: Record<string, TranslationSchema> = {
   // ─── KONKANI ───────────────────────────────────────────────────────────
   Konkani: {
     ...baseEnglish,
-    nav: { home: "मुखेल पान", activities: "वावर", myMemories: "म्हज्यो यादो", reminders: "उगडास", progress: "प्रगती", aboutDementia: "डिमेंशिया विशीं", profile: "प्रोफाइल", settings: "सेटिंग्स", switchProfile: "प्रोफाइल बदला" },
+    nav: { ...baseEnglish.nav, home: "मुखेल पान", activities: "वावर", myMemories: "म्हज्यो यादो", reminders: "उगडास", progress: "प्रगती", aboutDementia: "डिमेंशिया विशीं", profile: "प्रोफाइल", settings: "सेटिंग्स", switchProfile: "प्रोफाइल बदला" },
     home: { ...baseEnglish.home, title: "जंय यादो", titleAccent: "मोगान ताज्यो उरतात", exploreActivities: "🧠 वावर पळेयात", caregiverGuide: "📖 सांबाळपी मार्गदर्शक" },
     activities: { ...baseEnglish.activities, title: "मातयेच्यो कसरती", playNow: "सुरू करात" },
     games: { ...baseEnglish.games, memoryMatchTitle: "यादो तसवीर मेळयात", flipCard: "कार्ड उलटयात", moves: "प्रयत्न", matches: "जोड्यो", congrats: "शाब्बास! तुमी सगळ्यो जोड्यो मेळयल्यो!" },
@@ -724,7 +724,7 @@ export const TRANSLATIONS: Record<string, TranslationSchema> = {
   // ─── MAITHILI ──────────────────────────────────────────────────────────
   Maithili: {
     ...baseEnglish,
-    nav: { home: "मुख्य पृष्ठ", activities: "गतिविधि सभ", myMemories: "हमर सम्झौना", reminders: "स्मरणपत्र", progress: "प्रगति", aboutDementia: "डिमेंशिया विषयमे", profile: "प्रोफाइल", settings: "सेटिंग्स", switchProfile: "प्रोफाइल बदलू" },
+    nav: { ...baseEnglish.nav, home: "मुख्य पृष्ठ", activities: "गतिविधि सभ", myMemories: "हमर सम्झौना", reminders: "स्मरणपत्र", progress: "प्रगति", aboutDementia: "डिमेंशिया विषयमे", profile: "प्रोफाइल", settings: "सेटिंग्स", switchProfile: "प्रोफाइल बदलू" },
     home: { ...baseEnglish.home, title: "जतए याद सभ", titleAccent: "स्नेह सँ जीवंत रहैत अछि", exploreActivities: "🧠 गतिविधि देखू", caregiverGuide: "📖 देखरेखकर्ता मार्गदर्शिका" },
     activities: { ...baseEnglish.activities, title: "मानसिक अभ्यास", playNow: "शुरू करू" },
     games: { ...baseEnglish.games, memoryMatchTitle: "स्मृति फोटो मिलाऊ", flipCard: "कार्ड उलटू", moves: "प्रयास", matches: "जोड़ा", congrats: "अति सुंदर! अहाँ सब जोड़ा मिला देलियौ!" },
@@ -736,7 +736,7 @@ export const TRANSLATIONS: Record<string, TranslationSchema> = {
   // ─── SANSKRIT ──────────────────────────────────────────────────────────
   Sanskrit: {
     ...baseEnglish,
-    nav: { home: "मुख्यपृष्ठम्", activities: "गतिविधयः", myMemories: "मम स्मृतयः", reminders: "स्मरणपत्राणि", progress: "प्रगतिः", aboutDementia: "स्मृतिभ्रंशविषये", profile: "प्रोफाइल", settings: "विन्यासाः", switchProfile: "प्रोफाइलं परिवर्तयतु" },
+    nav: { ...baseEnglish.nav, home: "मुख्यपृष्ठम्", activities: "गतिविधयः", myMemories: "मम स्मृतयः", reminders: "स्मरणपत्राणि", progress: "प्रगतिः", aboutDementia: "स्मृतिभ्रंशविषये", profile: "प्रोफाइल", settings: "विन्यासाः", switchProfile: "प्रोफाइलं परिवर्तयतु" },
     home: { ...baseEnglish.home, title: "यत्र स्मृतयः", titleAccent: "स्नेहेन जीवन्त्यः तिष्ठन्ति", exploreActivities: "🧠 गतिविधयः पश्यतु", caregiverGuide: "📖 रक्षकदर्शकः" },
     activities: { ...baseEnglish.activities, title: "मानसिक-अभ्यासाः", playNow: "आरभताम्" },
     games: { ...baseEnglish.games, memoryMatchTitle: "स्मृतिचित्रं मेलयतु", flipCard: "पत्रं परावर्तयतु", moves: "प्रयत्नाः", matches: "युग्मानि", congrats: "साधु! भवद्भिः सर्वाणि युग्मानि मेलितानि!" },
@@ -748,7 +748,7 @@ export const TRANSLATIONS: Record<string, TranslationSchema> = {
   // ─── SANTALI ───────────────────────────────────────────────────────────
   Santali: {
     ...baseEnglish,
-    nav: { home: "ᱢᱩᱬᱩᱛ ᱥᱟᱠᱟᱢ", activities: "ᱠᱟᱹᱢᱤᱦᱚᱨᱟ", myMemories: "ᱤᱧᱟᱜ ᱫᱤᱥᱟᱹ", reminders: "ᱩᱭᱦᱟᱹᱨ", progress: "ᱞᱟᱦᱟᱱᱛᱤ", aboutDementia: "ᱰᱤᱢᱮᱱᱥᱤᱭᱟ ᱵᱟᱵᱚᱛ", profile: "ᱯᱨᱳᱯᱷᱟᱭᱤᱞ", settings: "ᱥᱮᱴᱤᱝᱥ", switchProfile: "ᱯᱨᱳᱯᱷᱟᱭᱤᱞ ᱵᱚᱫᱚᱞ" },
+    nav: { ...baseEnglish.nav, home: "ᱢᱩᱬᱩᱛ ᱥᱟᱠᱟᱢ", activities: "ᱠᱟᱹᱢᱤᱦᱚᱨᱟ", myMemories: "ᱤᱧᱟᱜ ᱫᱤᱥᱟᱹ", reminders: "ᱩᱭᱦᱟᱹᱨ", progress: "ᱞᱟᱦᱟᱱᱛᱤ", aboutDementia: "ᱰᱤᱢᱮᱱᱥᱤᱭᱟ ᱵᱟᱵᱚᱛ", profile: "ᱯᱨᱳᱯᱷᱟᱭᱤᱞ", settings: "ᱥᱮᱴᱤᱝᱥ", switchProfile: "ᱯᱨᱳᱯᱷᱟᱭᱤᱞ ᱵᱚᱫᱚᱞ" },
     home: { ...baseEnglish.home, title: "ᱡᱟᱦᱟᱸᱨᱮ ᱫᱤᱥᱟᱹ", titleAccent: "ᱫᱩᱞᱟᱹᱲ ᱛᱮ ᱡᱤᱣᱤᱫ ᱛᱟᱦᱮᱸᱱᱟ", exploreActivities: "🧠 ᱠᱟᱹᱢᱤᱦᱚᱨᱟ ᱧᱮᱞᱢᱮ", caregiverGuide: "📖 ᱡᱚᱛᱚᱱᱤᱭᱟᱹ ᱩᱫᱩᱜ" },
     activities: { ...baseEnglish.activities, title: "ᱢᱚᱱᱮ ᱵᱤᱰᱟᱹᱣ", playNow: "ᱮᱦᱚᱵᱽ ᱢᱮ" },
     games: { ...baseEnglish.games, memoryMatchTitle: "ᱫᱤᱥᱟᱹ ᱪᱤᱛᱟᱹᱨ ᱢᱤᱞᱟᱹᱣ", flipCard: "ᱠᱟᱨᱰ ᱩᱞᱴᱟᱹᱣ ᱢᱮ", moves: "ᱠᱩᱨᱩᱢᱩᱴᱩ", matches: "ᱡᱳᱲᱟ", congrats: "ᱵᱮᱥ ᱠᱟᱹᱢᱤ! ᱟᱢ ᱡᱚᱛᱚ ᱡᱳᱲᱟᱢ ᱢᱤᱞᱟᱹᱣ ᱠᱮᱫᱟ!" },
@@ -760,7 +760,7 @@ export const TRANSLATIONS: Record<string, TranslationSchema> = {
   // ─── SINDHI ────────────────────────────────────────────────────────────
   Sindhi: {
     ...baseEnglish,
-    nav: { home: "خاص صفحو", activities: "سرگرميون", myMemories: "منهنجيون يادون", reminders: "يادگيريون", progress: "ترقي", aboutDementia: "ڊيمينشيا بابت", profile: "پروفائل", settings: "سيٽنگون", switchProfile: "پروفائل تبديل ڪريو" },
+    nav: { ...baseEnglish.nav, home: "خاص صفحو", activities: "سرگرميون", myMemories: "منهنجيون يادون", reminders: "يادگيريون", progress: "ترقي", aboutDementia: "ڊيمينشيا بابت", profile: "پروفائل", settings: "سيٽنگون", switchProfile: "پروفائل تبديل ڪريو" },
     home: { ...baseEnglish.home, title: "جتي يادون", titleAccent: "پيار سان زنده رهن ٿيون", exploreActivities: "🧠 سرگرميون ڏسو", caregiverGuide: "📖 سنڀاليندڙ رهنمائي" },
     activities: { ...baseEnglish.activities, title: "دماغي مشقون", playNow: "شروع ڪريو" },
     games: { ...baseEnglish.games, memoryMatchTitle: "يادگار تصويرون ملايو", flipCard: "ڪارڊ مٽايو", moves: "ڪوششون", matches: "جوڙا", congrats: "شاباش! توهان سڀ جوڙا ملائي ورتا!" },
@@ -772,7 +772,7 @@ export const TRANSLATIONS: Record<string, TranslationSchema> = {
   // ─── URDU ──────────────────────────────────────────────────────────────
   Urdu: {
     ...baseEnglish,
-    nav: { home: "صفحہ اول", activities: "سرگرمیاں", myMemories: "میری یادیں", reminders: "یاد دہانی", progress: "پیش رفت", aboutDementia: "ڈیمینشیا کے بارے میں", profile: "پروفائل", settings: "سیٹنگز", switchProfile: "پروفائل تبدیل کریں" },
+    nav: { ...baseEnglish.nav, home: "صفحہ اول", activities: "سرگرمیاں", myMemories: "میری یادیں", reminders: "یاد دہانی", progress: "پیش رفت", aboutDementia: "ڈیمینشیا کے بارے میں", profile: "پروفائل", settings: "سیٹنگز", switchProfile: "پروفائل تبدیل کریں" },
     home: { ...baseEnglish.home, title: "جہاں یادیں", titleAccent: "محبت سے زندہ رہتی ہیں", subtitle: "بزرگ شہریوں کے لیے یادداشت کا ساتھی", exploreActivities: "🧠 سرگرمیاں دیکھیں", caregiverGuide: "📖 دیکھ بھال کرنے والے کی رہنمائی" },
     activities: { ...baseEnglish.activities, title: "دماغي مشقیں", subtitle: "یادداشت اور توجہ کے لیے روزانہ کی آسان مشقیں۔", playNow: "شروع کریں" },
     games: { ...baseEnglish.games, memoryMatchTitle: "یادداشت کی تصاویر ملائیں", flipCard: "کارڈ پلٹیں", moves: "کوششیں", matches: "جوڑے", congrats: "بہت خوب! آپ نے تمام جوڑے ملا لیے!", playAgain: "دوبارہ کھیلیں", backToActivities: "← واپس جائیں" },
