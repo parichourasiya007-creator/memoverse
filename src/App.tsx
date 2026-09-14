@@ -25,6 +25,21 @@ import {
   recordGamePerformance,
 } from "./adaptiveEngine";
 
+import heroElderlyImg from "./assets/images/hero_elderly.png";
+import bihuCelebrationImg from "./assets/images/bihu_celebration_memory.png";
+import teaGardenImg from "./assets/images/tea_garden_memory.png";
+import vintageRadioImg from "./assets/images/vintage_radio_memory.png";
+import caregiverSupportImg from "./assets/images/caregiver_support.png";
+import defaultMemoryCoverImg from "./assets/images/default_memory_cover.png";
+
+const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+  const target = e.currentTarget;
+  if (!target.dataset.failed) {
+    target.dataset.failed = "true";
+    target.src = defaultMemoryCoverImg;
+  }
+};
+
 // ═══════════════════════════════════════════════════════════════════
 //  TYPES
 // ═══════════════════════════════════════════════════════════════════
@@ -128,7 +143,7 @@ const DEFAULT_PROFILES: Profile[] = [
         category: "family",
         emoji: "👨‍👩‍👧",
         date: "2 days ago",
-        image: import.meta.env.BASE_URL + "bihu_celebration_memory.png",
+        image: bihuCelebrationImg,
       },
       {
         id: "m2",
@@ -137,7 +152,7 @@ const DEFAULT_PROFILES: Profile[] = [
         category: "places",
         emoji: "🏡",
         date: "1 week ago",
-        image: import.meta.env.BASE_URL + "tea_garden_memory.png",
+        image: teaGardenImg,
       },
       {
         id: "m3",
@@ -146,7 +161,7 @@ const DEFAULT_PROFILES: Profile[] = [
         category: "moments",
         emoji: "🎵",
         date: "2 weeks ago",
-        image: import.meta.env.BASE_URL + "vintage_radio_memory.png",
+        image: vintageRadioImg,
       },
     ],
     reminders: [
@@ -767,7 +782,7 @@ function HomeScreen({ onNav, active, onSwitchProfile }: { onNav: (s: Screen) => 
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start relative z-10">
             <div className="lg:col-span-8 rounded-3xl overflow-hidden border border-[var(--border)] shadow-xl relative group min-h-[360px] sm:min-h-[440px]">
-              <img src={import.meta.env.BASE_URL + "hero_elderly.png"} alt="Senior elder" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+              <img src={heroElderlyImg} alt="Senior elder in peaceful morning home setting" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" onError={handleImageError} />
               <div className="absolute inset-0 bg-gradient-to-t from-[rgba(37,44,48,0.88)] via-[rgba(37,44,48,0.2)] to-transparent" />
               <div className="absolute bottom-6 left-6 right-6 text-white space-y-2">
                 <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-xs font-extrabold bg-black/50 backdrop-blur-md border border-white/30 text-[var(--brass)]">
@@ -863,21 +878,21 @@ function HomeScreen({ onNav, active, onSwitchProfile }: { onNav: (s: Screen) => 
               {
                 title: "Bihu Celebration in Jorhat",
                 desc: "Dancing Bihu with my family near our village mustard fields. The dhol beats filled the warm spring air.",
-                image: import.meta.env.BASE_URL + "bihu_celebration_memory.png",
+                image: bihuCelebrationImg,
                 tag: "Family Celebration",
                 emoji: "👨‍👩‍👧",
               },
               {
                 title: "Our Ancestral Tea Garden",
                 desc: "The wooden tea estate house where I grew up in Upper Assam. Morning mist and fresh brewed chai.",
-                image: import.meta.env.BASE_URL + "tea_garden_memory.png",
+                image: teaGardenImg,
                 tag: "Heritage Places",
                 emoji: "🏡",
               },
               {
                 title: "Bhupen Hazarika on the Radio",
                 desc: "Listening to the golden voice of Bhupen da on the morning radio every Sunday with my parents.",
-                image: import.meta.env.BASE_URL + "vintage_radio_memory.png",
+                image: vintageRadioImg,
                 tag: "Cultural Moments",
                 emoji: "🎵",
               },
@@ -885,7 +900,7 @@ function HomeScreen({ onNav, active, onSwitchProfile }: { onNav: (s: Screen) => 
               <div key={m.title} onClick={() => onNav("my-memories")} className="clay-card rounded-3xl p-5 space-y-4 border border-[var(--border)] bg-[var(--bg-card)] flex flex-col justify-between cursor-pointer hover:border-[var(--oxblood)] transition-all group shadow-sm">
                 <div className="space-y-3">
                   <div className="h-48 sm:h-52 rounded-2xl overflow-hidden border border-[var(--border)] relative">
-                    <img src={m.image} alt={m.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                    <img src={m.image} alt={m.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onError={handleImageError} />
                     <div className="absolute top-3 left-3 px-3 py-1 rounded-full text-xs font-black bg-black/60 backdrop-blur-md text-white border border-white/20 flex items-center gap-1.5">
                       <span>{m.emoji}</span> {m.tag}
                     </div>
@@ -1014,7 +1029,7 @@ function AboutDementiaScreen({ onNav }: { onNav: (s: Screen) => void }) {
 
       <section className="max-w-3xl mx-auto px-4 sm:px-6 space-y-10">
         <div className="rounded-3xl overflow-hidden border border-[var(--border)] shadow-md h-56 sm:h-72 relative">
-          <img src={import.meta.env.BASE_URL + "caregiver_support.png"} alt="Caregiver support" className="w-full h-full object-cover" />
+          <img src={caregiverSupportImg} alt="Empathetic Care & Daily Companionship" className="w-full h-full object-cover" onError={handleImageError} />
           <div className="absolute inset-0 bg-gradient-to-t from-[rgba(21,27,30,0.75)] via-transparent to-transparent flex items-end p-6">
             <span className="text-white font-extrabold text-lg sm:text-xl">Empathetic Care &amp; Daily Companionship</span>
           </div>
@@ -1534,7 +1549,7 @@ function MyMemoriesScreen({ profile, onUpdate }: { profile: Profile; onUpdate: (
       category: cat,
       emoji: cat === "family" ? "👨‍👩‍👧" : cat === "places" ? "🏡" : "🎵",
       date: "Just now",
-      image: import.meta.env.BASE_URL + "default_memory_cover.png",
+      image: defaultMemoryCoverImg,
     };
     onUpdate({ ...profile, memories: [newM, ...profile.memories] });
     setTitle(""); setDesc(""); setShowAdd(false);
@@ -1585,7 +1600,7 @@ function MyMemoriesScreen({ profile, onUpdate }: { profile: Profile; onUpdate: (
                 </div>
                 {m.image && (
                   <div className="h-40 rounded-2xl overflow-hidden border border-[var(--border)]">
-                    <img src={m.image} alt={m.title} className="w-full h-full object-cover" />
+                    <img src={m.image} alt={m.title} className="w-full h-full object-cover" onError={handleImageError} />
                   </div>
                 )}
                 <div>

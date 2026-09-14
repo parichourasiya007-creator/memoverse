@@ -2,6 +2,14 @@ import React, { useState, useEffect, useCallback } from "react";
 import { useLanguage } from "./LanguageContext";
 import { recordGamePerformance, getUnlockedLevel, CognitiveSkill, DetailedGameResult } from "./adaptiveEngine";
 
+import heroElderlyImg from "./assets/images/hero_elderly.png";
+import bihuCelebrationImg from "./assets/images/bihu_celebration_memory.png";
+import teaGardenImg from "./assets/images/tea_garden_memory.png";
+import vintageRadioImg from "./assets/images/vintage_radio_memory.png";
+import kazirangaRhinoImg from "./assets/images/kaziranga_rhino_memory.png";
+import majuliBoatImg from "./assets/images/majuli_boat_memory.png";
+import defaultMemoryCoverImg from "./assets/images/default_memory_cover.png";
+
 // ═══════════════════════════════════════════════════════════════════
 //  GAME RECORD & PROGRESS TRACKING ENGINE
 // ═══════════════════════════════════════════════════════════════════
@@ -700,9 +708,9 @@ export function GameJigsawScreen({ onNav, onBack, onProgress }: CommonGameProps)
   const [selectedTheme, setSelectedTheme] = useState(0);
 
   const THEMES = [
-    { name: "Kaziranga Rhino", emoji: "🦏", bg: "bg-emerald-800", img: import.meta.env.BASE_URL + "hero_elderly.png" },
-    { name: "Majuli River Boat", emoji: "🛶", bg: "bg-amber-800", img: import.meta.env.BASE_URL + "vintage_radio_memory.png" },
-    { name: "Assam Tea Garden", emoji: "🍃", bg: "bg-teal-800", img: import.meta.env.BASE_URL + "tea_garden_memory.png" },
+    { name: "Kaziranga Rhino", emoji: "🦏", bg: "bg-emerald-800", img: kazirangaRhinoImg },
+    { name: "Majuli River Boat", emoji: "🛶", bg: "bg-amber-800", img: majuliBoatImg },
+    { name: "Assam Tea Garden", emoji: "🍃", bg: "bg-teal-800", img: teaGardenImg },
   ];
 
   const pieceCount = level === 1 ? 4 : level === 2 ? 6 : level === 3 ? 9 : 12;
@@ -1670,19 +1678,19 @@ export function GameMemoryLaneScreen({ onNav, onBack, onProgress }: CommonGamePr
       title: "Guwahati River Ghat & Brahmaputra Ferries",
       prompt: "Have you ever traveled on a river ferry across the majestic river?",
       sound: "water",
-      img: import.meta.env.BASE_URL + "vintage_radio_memory.png",
+      img: majuliBoatImg,
     },
     {
       title: "Traditional Assam Tea Estate House",
       prompt: "Do you remember the fresh morning breeze near green tea gardens?",
       sound: "bird",
-      img: import.meta.env.BASE_URL + "tea_garden_memory.png",
+      img: teaGardenImg,
     },
     {
       title: "Bihu Festival & Spring Celebrations",
       prompt: "Have you enjoyed the rhythmic Dhol beats during Bihu celebrations?",
       sound: "dhol",
-      img: import.meta.env.BASE_URL + "bihu_celebration_memory.png",
+      img: bihuCelebrationImg,
     },
   ];
 
@@ -1740,7 +1748,7 @@ export function GameMemoryLaneScreen({ onNav, onBack, onProgress }: CommonGamePr
       <div className="max-w-xl mx-auto px-4 space-y-6 text-center">
         <div className="bg-[var(--bg-card)] border border-[var(--brass)] rounded-3xl p-6 space-y-6 shadow-xl">
           <div className="rounded-2xl overflow-hidden h-64 sm:h-80 border border-[var(--border)] relative">
-            <img src={current.img} alt={current.title} className="w-full h-full object-cover" />
+            <img src={current.img} alt={current.title} className="w-full h-full object-cover" onError={(e) => { e.currentTarget.src = defaultMemoryCoverImg; }} />
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex items-end p-6">
               <h3 className="text-white text-xl font-black text-left">{current.title}</h3>
             </div>
