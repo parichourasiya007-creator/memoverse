@@ -2403,7 +2403,11 @@ function MainAppContent() {
   function getValidScreen(raw?: string): Screen {
     if (!raw) return "home";
     const clean = raw.replace("#", "").split("-modal")[0].split("-edit")[0].split("-profiles")[0].split("-locked")[0];
-    if (TOP_LEVEL_SCREENS.has(clean as Screen) || ["play", "more", "game-memory", "game-sounds", "game-market", "game-story", "profiles-select", "start-journey", "profile-created", "gate"].includes(clean)) {
+    if (
+      TOP_LEVEL_SCREENS.has(clean as Screen) ||
+      clean.startsWith("game-") ||
+      ["play", "more", "profiles-select", "start-journey", "profile-created", "gate"].includes(clean)
+    ) {
       return clean as Screen;
     }
     return "home";
@@ -2465,17 +2469,13 @@ function MainAppContent() {
     } else {
       const fallbackMap: Record<string, Screen> = {
         more: "profile-home",
-        "game-memory": "activities",
-        "game-sounds": "activities",
-        "game-market": "activities",
-        "game-story": "activities",
         "start-journey": "profile-home",
         "profiles-select": "profile-home",
         "profile-created": "profile-home",
         gate: "home",
         play: "activities",
       };
-      const target = fallbackMap[screen] || "home";
+      const target = screen.startsWith("game-") ? "activities" : fallbackMap[screen] || "home";
       nav(target);
     }
   }
