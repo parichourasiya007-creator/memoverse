@@ -892,7 +892,7 @@ function HomeScreen({ onNav, active, onSwitchProfile }: { onNav: (s: Screen) => 
               <img src={resolveImage(heroElderlyImg)} alt="Senior elder in peaceful morning home setting" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" onError={handleImageError} />
               <div className="absolute inset-0 bg-gradient-to-t from-[rgba(37,44,48,0.88)] via-[rgba(37,44,48,0.2)] to-transparent" />
               <div className="absolute bottom-6 left-6 right-6 text-white space-y-2">
-                <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-xs font-extrabold bg-black/50 backdrop-blur-md border border-white/30 text-[var(--brass)]">
+                <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-xs font-extrabold bg-black/50 backdrop-blur-md border border-white/30 text-white dark:text-[var(--brass)]">
                   <span>📸</span> {t.home.heroBadge}
                 </div>
                 <h2 className="text-2xl sm:text-3xl font-black text-white leading-tight">{t.home.heroTagline}</h2>
