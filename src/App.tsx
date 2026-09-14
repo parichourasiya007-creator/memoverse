@@ -1,6 +1,21 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { LanguageProvider, useLanguage } from "./LanguageContext";
 import { LANGUAGE_METADATA } from "./speechUtils";
+import {
+  GameWordPuzzlesScreen,
+  GameJigsawScreen,
+  GameDiceScreen,
+  GameBoardScreen,
+  GameInteractiveScreen,
+  GameBazaarScreen,
+  GameMemoryLaneScreen,
+  GameKazirangaPuzzleScreen,
+  GameWhatsMissingScreen,
+  GameRoutineScreen,
+  GamePatternScreen,
+  GameSoundRecScreen,
+  getGameRecords,
+} from "./CognitiveGames";
 
 // ═══════════════════════════════════════════════════════════════════
 //  TYPES
@@ -28,12 +43,12 @@ interface Profile {
   name: string;
   avatar: string;
   age: number;
-  gender?: string;
-  location?: string;
-  phone?: string;
-  familyContactName?: string;
-  familyContactPhone?: string;
-  address?: string;
+  gender: string;
+  location: string;
+  phone: string;
+  familyContactName: string;
+  familyContactPhone: string;
+  address: string;
   language: string;
   region: string;
   accessibility: {
@@ -56,6 +71,18 @@ type Screen =
   | "game-sounds"
   | "game-market"
   | "game-story"
+  | "game-word"
+  | "game-jigsaw"
+  | "game-dice"
+  | "game-board"
+  | "game-interactive"
+  | "game-bazaar"
+  | "game-memory-lane"
+  | "game-kaziranga-puzzle"
+  | "game-whats-missing"
+  | "game-routine"
+  | "game-pattern"
+  | "game-sound-rec"
   | "profiles-select"
   | "start-journey"
   | "profile-created"
@@ -806,31 +833,79 @@ function HomeScreen({ onNav, active, onSwitchProfile }: { onNav: (s: Screen) => 
 
 function ActivitiesScreen({ onNav }: { onNav: (s: Screen) => void }) {
   const { t } = useLanguage();
+  const [activeCategory, setActiveCategory] = useState<string>("All");
+
+  const CATEGORIES = ["All", "Memory", "Attention & Recognition", "Visual-Spatial", "Routine & Sequencing", "Logic & Categorization"];
+
+  const ALL_GAMES = [
+    // 1. MEMORY
+    { icon: "🧠", title: t.activities.memoryMatch || "Memory Photo Match", desc: t.activities.memoryMatchDesc || "Match paired cards featuring familiar cultural artifacts and places.", screen: "game-memory" as Screen, category: "Memory", tag: "Matching" },
+    { icon: "🔎", title: "What's Missing?", desc: "Observe items before one vanishes, then recall the missing object.", screen: "game-whats-missing" as Screen, category: "Memory", tag: "Observation & Recall" },
+    { icon: "🖼️", title: "Memory Lane: Purana NE", desc: "Digital reminiscence photo carousel with ambient cultural sounds.", screen: "game-memory-lane" as Screen, category: "Memory", tag: "Reminiscence" },
+    { icon: "🔊", title: "Sound Memory & Recognition", desc: "Listen to familiar nature and cultural sounds, then identify what you heard.", screen: "game-sound-rec" as Screen, category: "Memory", tag: "Audio Recall" },
+
+    // 2. ATTENTION & RECOGNITION
+    { icon: "🧩", title: "Pattern Recognition", desc: "Complete repeating visual sequence patterns with familiar items.", screen: "game-pattern" as Screen, category: "Attention & Recognition", tag: "Patterning" },
+    { icon: "🎧", title: t.activities.soundLounge || "Sound Lounge", desc: t.activities.soundLoungeDesc || "Relax and listen to authentic regional sounds and nature.", screen: "game-sounds" as Screen, category: "Attention & Recognition", tag: "Listening" },
+    { icon: "🎯", title: "Interactive Cognitive Activity", desc: "Slow-paced video activity to tap target objects and follow prompts.", screen: "game-interactive" as Screen, category: "Attention & Recognition", tag: "Visual Focus" },
+
+    // 3. VISUAL-SPATIAL
+    { icon: "🖼️", title: "Large-Piece Jigsaw Puzzle", desc: "Assemble large piece jigsaw puzzles of Kaziranga, Majuli, and tea gardens.", screen: "game-jigsaw" as Screen, category: "Visual-Spatial", tag: "Spatial Grid" },
+    { icon: "🦏", title: "Kaziranga 4-Piece Puzzle", desc: "Dedicated 2x2 simplified visual puzzle featuring Kaziranga rhino.", screen: "game-kaziranga-puzzle" as Screen, category: "Visual-Spatial", tag: "2x2 Assembly" },
+
+    // 4. ROUTINE & SEQUENCING
+    { icon: "🌅", title: "Daily Routine Ordering", desc: "Arrange daily activities into a natural morning to evening order.", screen: "game-routine" as Screen, category: "Routine & Sequencing", tag: "Sequencing" },
+    { icon: "📖", title: t.activities.storyRecall || "Folk Tale Story Recall", desc: t.activities.storyRecallDesc || "Listen to traditional folk tales and answer gentle memory questions.", screen: "game-story" as Screen, category: "Routine & Sequencing", tag: "Storytelling" },
+
+    // 5. LOGIC & CATEGORIZATION
+    { icon: "🥗", title: "NER Bazaar Sorting", desc: "Sort regional items into Food vs Household Handicraft baskets.", screen: "game-bazaar" as Screen, category: "Logic & Categorization", tag: "Sorting" },
+    { icon: "🔤", title: "Word Puzzles", desc: "Anagram letter unscrambles and simple culture riddles.", screen: "game-word" as Screen, category: "Logic & Categorization", tag: "Word Play" },
+    { icon: "🎲", title: "Dice Cognitive Activity", desc: "Roll the dice, observe numbers, and complete counting matching tasks.", screen: "game-dice" as Screen, category: "Logic & Categorization", tag: "Counting" },
+    { icon: "🏁", title: "Cognitive Board Game", desc: "Roll dice to move your token forward through landmark steps.", screen: "game-board" as Screen, category: "Logic & Categorization", tag: "Path Game" },
+    { icon: "🛒", title: t.activities.marketMemory || "Village Market Memory", desc: t.activities.marketMemoryDesc || "Remember items from a traditional bazaar shopping trip.", screen: "game-market" as Screen, category: "Logic & Categorization", tag: "Everyday" },
+  ];
+
+  const filteredGames = activeCategory === "All" ? ALL_GAMES : ALL_GAMES.filter((g) => g.category === activeCategory);
 
   return (
     <div className="min-h-screen pb-24 space-y-12">
       <section className="max-w-6xl mx-auto px-4 sm:px-6 pt-10 space-y-8">
         <div className="text-center space-y-3">
-          <Badge color="brass">🎮 Cognitive Library</Badge>
+          <Badge color="brass">🎮 Complete 16-Activity Cognitive Library</Badge>
           <h1 className="text-4xl sm:text-6xl font-black text-[var(--text-primary)]">{t.activities.title}</h1>
           <p className="text-lg text-[var(--text-secondary)] max-w-xl mx-auto font-medium">{t.activities.subtitle}</p>
         </div>
 
-        <div className="grid sm:grid-cols-2 gap-6">
-          {[
-            { icon: "🧠", title: t.activities.memoryMatch, desc: t.activities.memoryMatchDesc, screen: "game-memory" as Screen, tag: t.activities.catMatching },
-            { icon: "🎧", title: t.activities.soundLounge, desc: t.activities.soundLoungeDesc, screen: "game-sounds" as Screen, tag: t.activities.catListening },
-            { icon: "🛒", title: t.activities.marketMemory, desc: t.activities.marketMemoryDesc, screen: "game-market" as Screen, tag: t.activities.catEveryday },
-            { icon: "📖", title: t.activities.storyRecall, desc: t.activities.storyRecallDesc, screen: "game-story" as Screen, tag: t.activities.catStorytelling },
-          ].map((item) => (
-            <Card key={item.title} className="p-8 space-y-4 hover:border-[var(--oxblood)] transition-all cursor-pointer" onClick={() => onNav(item.screen)}>
-              <div className="flex items-center justify-between">
-                <span className="text-4xl">{item.icon}</span>
-                <Badge color="oxblood">{item.tag}</Badge>
+        {/* Category Tabs */}
+        <div className="flex items-center justify-center gap-2 flex-wrap pb-2 border-b border-[var(--border)]">
+          {CATEGORIES.map((cat) => (
+            <button
+              key={cat}
+              onClick={() => setActiveCategory(cat)}
+              className={`px-4 py-2 rounded-2xl font-black text-xs transition-all cursor-pointer border ${
+                activeCategory === cat
+                  ? "bg-[var(--oxblood)] text-white border-[var(--brass)] shadow-md scale-105"
+                  : "bg-[var(--bg-card)] text-[var(--text-secondary)] border-[var(--border)] hover:border-[var(--oxblood)]"
+              }`}
+            >
+              {cat}
+            </button>
+          ))}
+        </div>
+
+        {/* Games Grid */}
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredGames.map((item) => (
+            <Card key={item.title} className="p-6 space-y-4 hover:border-[var(--oxblood)] transition-all cursor-pointer flex flex-col justify-between" onClick={() => onNav(item.screen)}>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-4xl">{item.icon}</span>
+                  <Badge color="oxblood">{item.tag}</Badge>
+                </div>
+                <h2 className="text-xl font-black text-[var(--text-primary)]">{item.title}</h2>
+                <p className="text-xs text-[var(--text-secondary)] font-medium leading-relaxed">{item.desc}</p>
               </div>
-              <h2 className="text-2xl font-black text-[var(--text-primary)]">{item.title}</h2>
-              <p className="text-sm text-[var(--text-secondary)] font-medium leading-relaxed">{item.desc}</p>
-              <Btn variant="primary" fullWidth>{t.activities.playNow} →</Btn>
+              <Btn variant="primary" fullWidth className="mt-2 py-2.5 text-sm">{t.activities.playNow || "Play Now"} →</Btn>
             </Card>
           ))}
         </div>
@@ -1478,6 +1553,7 @@ function RemindersScreen({ profile, onUpdate }: { profile: Profile; onUpdate: (p
 
 function ProgressScreen({ profile }: { profile: Profile; onNav: (s: Screen) => void }) {
   const { t } = useLanguage();
+  const gameRecords = getGameRecords();
 
   return (
     <div className="min-h-screen pb-24 pt-8">
@@ -1508,6 +1584,35 @@ function ProgressScreen({ profile }: { profile: Profile; onNav: (s: Screen) => v
         <Card className="p-8 space-y-4 bg-[var(--oxblood-light)] border border-[var(--oxblood)]">
           <h3 className="text-2xl font-black text-[var(--oxblood-dark)]">{t.progress.streakTitle}</h3>
           <p className="text-base text-[var(--text-secondary)] font-medium leading-relaxed">{t.progress.streakDesc}</p>
+        </Card>
+
+        {/* Recent Game Activity Records */}
+        <Card className="p-6 space-y-4 bg-[var(--bg-card)] border border-[var(--border)] shadow-md">
+          <div className="flex items-center justify-between">
+            <h3 className="text-xl font-black text-[var(--text-primary)]">🎮 Activity Performance Records</h3>
+            <Badge color="brass">{gameRecords.length} Saved</Badge>
+          </div>
+
+          {gameRecords.length === 0 ? (
+            <p className="text-sm font-semibold text-[var(--text-muted)] leading-relaxed py-4 text-center">
+              No game history recorded yet. Play any cognitive game to log performance metrics!
+            </p>
+          ) : (
+            <div className="space-y-3">
+              {gameRecords.slice(0, 10).map((rec) => (
+                <div key={rec.id} className="p-4 rounded-2xl bg-[var(--bg-section)] border border-[var(--border)] flex items-center justify-between gap-3 text-sm">
+                  <div className="space-y-0.5">
+                    <div className="font-extrabold text-[var(--text-primary)]">{rec.gameTitle}</div>
+                    <div className="text-xs font-bold text-[var(--text-muted)]">{rec.category} • {rec.difficulty} Difficulty</div>
+                  </div>
+                  <div className="text-right shrink-0">
+                    <div className="font-black text-[var(--oxblood-dark)] text-base">{rec.score}</div>
+                    <div className="text-[10px] font-extrabold text-[var(--text-muted)]">{rec.completedAt}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </Card>
       </div>
     </div>
@@ -2418,6 +2523,19 @@ function MainAppContent() {
         {activeScreen === "game-sounds" && <GameSoundsScreen onNav={nav} onBack={goBack} active={active} onProgress={recordProgress} />}
         {activeScreen === "game-market" && <GameMarketScreen onNav={nav} onBack={goBack} active={active} onProgress={recordProgress} />}
         {activeScreen === "game-story"  && <GameStoryScreen onNav={nav} onBack={goBack} active={active} onProgress={recordProgress} />}
+
+        {activeScreen === "game-word" && <GameWordPuzzlesScreen onNav={nav} onBack={goBack} active={active} onProgress={recordProgress} />}
+        {activeScreen === "game-jigsaw" && <GameJigsawScreen onNav={nav} onBack={goBack} active={active} onProgress={recordProgress} />}
+        {activeScreen === "game-dice" && <GameDiceScreen onNav={nav} onBack={goBack} active={active} onProgress={recordProgress} />}
+        {activeScreen === "game-board" && <GameBoardScreen onNav={nav} onBack={goBack} active={active} onProgress={recordProgress} />}
+        {activeScreen === "game-interactive" && <GameInteractiveScreen onNav={nav} onBack={goBack} active={active} onProgress={recordProgress} />}
+        {activeScreen === "game-bazaar" && <GameBazaarScreen onNav={nav} onBack={goBack} active={active} onProgress={recordProgress} />}
+        {activeScreen === "game-memory-lane" && <GameMemoryLaneScreen onNav={nav} onBack={goBack} active={active} onProgress={recordProgress} />}
+        {activeScreen === "game-kaziranga-puzzle" && <GameKazirangaPuzzleScreen onNav={nav} onBack={goBack} active={active} onProgress={recordProgress} />}
+        {activeScreen === "game-whats-missing" && <GameWhatsMissingScreen onNav={nav} onBack={goBack} active={active} onProgress={recordProgress} />}
+        {activeScreen === "game-routine" && <GameRoutineScreen onNav={nav} onBack={goBack} active={active} onProgress={recordProgress} />}
+        {activeScreen === "game-pattern" && <GamePatternScreen onNav={nav} onBack={goBack} active={active} onProgress={recordProgress} />}
+        {activeScreen === "game-sound-rec" && <GameSoundRecScreen onNav={nav} onBack={goBack} active={active} onProgress={recordProgress} />}
 
         {activeScreen === "profiles-select" && (
           <ProfilesSelectScreen
