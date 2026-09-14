@@ -651,6 +651,15 @@ function AIRecommendationCard({ onNav }: { onNav: (s: Screen) => void }) {
   };
 
   const targetScreen = gameToScreenMap[rec.recommendedGameId] || "game-memory";
+  const levelLabels: Record<number, string> = {
+    1: "LEVEL 1 · Easy",
+    2: "LEVEL 2 · Medium",
+    3: "LEVEL 3 · Hard",
+    4: "LEVEL 4 · Advanced",
+  };
+
+  const levelName = levelLabels[rec.recommendedLevel] || `LEVEL ${rec.recommendedLevel}`;
+  const userReason = rec.reasonDefault;
 
   return (
     <Card className="p-6 sm:p-8 bg-gradient-to-r from-[var(--oxblood-light)] via-[var(--bg-card)] to-[var(--brass-light)] border border-[var(--oxblood)] shadow-lg rounded-3xl relative overflow-hidden">
@@ -661,15 +670,15 @@ function AIRecommendationCard({ onNav }: { onNav: (s: Screen) => void }) {
               <span>🤖</span> {t.ai?.recommendedForYou || "Recommended for You"}
             </span>
             <span className="text-xs font-black text-[var(--oxblood-dark)] bg-white/90 px-3 py-1 rounded-full border border-[var(--oxblood)] shadow-xs">
-              {rec.recommendedLevelName}
+              {levelName}
             </span>
           </div>
           <div>
             <h3 className="text-2xl sm:text-3xl font-black text-[var(--text-primary)] tracking-tight">
-              {rec.recommendedGame}
+              {rec.recommendedGameTitle}
             </h3>
             <p className="text-sm sm:text-base text-[var(--text-secondary)] font-medium mt-1.5 leading-relaxed">
-              "{rec.userFriendlyReason}"
+              "{userReason}"
             </p>
           </div>
         </div>
@@ -1227,17 +1236,16 @@ function GameMemoryScreen({ onNav, onBack, active, onProgress }: { onNav: (s: Sc
             const res = recordGamePerformance({
               gameId: "memory_match",
               gameTitle: "Memory Photo Match",
-              category: "memory",
+              skill: "Memory",
               accuracy,
               correctAnswers: targetPairCount,
-              incorrectAnswers: Math.max(0, nextMoves - targetPairCount),
+              totalQuestions: targetPairCount,
               attempts: nextMoves,
-              completionTimeSeconds: duration,
+              completionTime: duration,
               hintsUsed: 0,
               retries: 0,
               level,
-              consecutiveSuccesses: accuracy >= 75 ? 1 : 0,
-              consecutiveFailures: accuracy < 50 ? 1 : 0,
+              timestamp: Date.now(),
               completed: true,
             });
             saveGameRecord({
