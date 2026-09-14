@@ -10,15 +10,51 @@ import kazirangaRhinoImg from "./assets/images/kaziranga_rhino_memory.png";
 import majuliBoatImg from "./assets/images/majuli_boat_memory.png";
 import defaultMemoryCoverImg from "./assets/images/default_memory_cover.png";
 
+import caregiverSupportImg from "./assets/images/caregiver_support.png";
+
 const GAME_IMAGE_MAP: Record<string, string> = {
   "hero_elderly.png": heroElderlyImg,
   "bihu_celebration_memory.png": bihuCelebrationImg,
   "tea_garden_memory.png": teaGardenImg,
   "vintage_radio_memory.png": vintageRadioImg,
+  "caregiver_support.png": caregiverSupportImg,
   "default_memory_cover.png": defaultMemoryCoverImg,
   "kaziranga_rhino_memory.png": kazirangaRhinoImg,
   "majuli_boat_memory.png": majuliBoatImg,
 };
+
+const GAME_KEYWORD_MAP: Array<{ keywords: string[]; img: string }> = [
+  {
+    keywords: ["caregiver", "care", "companion", "empathetic", "support", "dementia", "nursing", "help"],
+    img: caregiverSupportImg,
+  },
+  {
+    keywords: ["bihu", "jorhat", "mustard", "dance", "dhol", "celebration", "festival", "assamese", "assam"],
+    img: bihuCelebrationImg,
+  },
+  {
+    keywords: ["tea", "garden", "ancestral", "estate", "chai", "upper assam", "plantation"],
+    img: teaGardenImg,
+  },
+  {
+    keywords: ["radio", "bhupen", "hazarika", "song", "music", "golden voice", "gramophone"],
+    img: vintageRadioImg,
+  },
+  {
+    keywords: ["rhino", "kaziranga", "safari", "wildlife", "park", "national park"],
+    img: kazirangaRhinoImg,
+  },
+  {
+    keywords: ["majuli", "boat", "ferry", "river", "island", "brahmaputra"],
+    img: majuliBoatImg,
+  },
+  {
+    keywords: ["hero", "elderly", "elder", "grandfather", "home", "morning", "senior", "peaceful"],
+    img: heroElderlyImg,
+  },
+];
+
+export const GUARANTEED_GAME_SVG = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600"><defs><linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="%231a365d"/><stop offset="100%" stop-color="%232b6cb0"/></linearGradient></defs><rect width="800" height="600" fill="url(%23g)"/><g fill="%23ffffff" opacity="0.9" text-anchor="middle" font-family="system-ui, sans-serif"><circle cx="400" cy="260" r="80" fill="%23ffffff" opacity="0.15"/><text x="400" y="275" font-size="72">🧩</text><text x="400" y="380" font-size="28" font-weight="bold">MEMOVERSE Puzzle</text><text x="400" y="420" font-size="18" opacity="0.8">Cognitive Activity &amp; Memory Game</text></g></svg>`;
 
 export function resolveGameImage(src?: string): string {
   if (!src) return defaultMemoryCoverImg;
@@ -37,7 +73,18 @@ export function resolveGameImage(src?: string): string {
     }
   }
 
-  return src;
+  const srcLower = src.toLowerCase();
+  for (const entry of GAME_KEYWORD_MAP) {
+    if (entry.keywords.some((kw) => srcLower.includes(kw))) {
+      return entry.img;
+    }
+  }
+
+  if (src.startsWith("http://") || src.startsWith("https://") || src.startsWith("/") || src.startsWith("./") || src.startsWith("assets/")) {
+    return src;
+  }
+
+  return defaultMemoryCoverImg;
 }
 
 // ═══════════════════════════════════════════════════════════════════
@@ -1778,7 +1825,7 @@ export function GameMemoryLaneScreen({ onNav, onBack, onProgress }: CommonGamePr
       <div className="max-w-xl mx-auto px-4 space-y-6 text-center">
         <div className="bg-[var(--bg-card)] border border-[var(--brass)] rounded-3xl p-6 space-y-6 shadow-xl">
           <div className="rounded-2xl overflow-hidden h-64 sm:h-80 border border-[var(--border)] relative">
-            <img src={resolveGameImage(current.img)} alt={current.title} className="w-full h-full object-cover" onError={(e) => { e.currentTarget.src = defaultMemoryCoverImg; }} />
+            <img src={resolveGameImage(current.img)} alt={current.title} className="w-full h-full object-cover" onError={(e) => { const t = e.currentTarget; if (!t.dataset.failed) { t.dataset.failed = "1"; t.src = defaultMemoryCoverImg; } else { t.src = GUARANTEED_GAME_SVG; } }} />
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex items-end p-6">
               <h3 className="text-white text-xl font-black text-left">{current.title}</h3>
             </div>

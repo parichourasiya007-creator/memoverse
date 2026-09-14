@@ -45,6 +45,39 @@ const IMAGE_MAP: Record<string, string> = {
   "majuli_boat_memory.png": majuliBoatImg,
 };
 
+const KEYWORD_IMAGE_MAP: Array<{ keywords: string[]; img: string }> = [
+  {
+    keywords: ["caregiver", "care", "companion", "empathetic", "support", "dementia", "nursing", "help"],
+    img: caregiverSupportImg,
+  },
+  {
+    keywords: ["bihu", "jorhat", "mustard", "dance", "dhol", "celebration", "festival", "assamese", "assam"],
+    img: bihuCelebrationImg,
+  },
+  {
+    keywords: ["tea", "garden", "ancestral", "estate", "chai", "upper assam", "plantation"],
+    img: teaGardenImg,
+  },
+  {
+    keywords: ["radio", "bhupen", "hazarika", "song", "music", "golden voice", "gramophone"],
+    img: vintageRadioImg,
+  },
+  {
+    keywords: ["rhino", "kaziranga", "safari", "wildlife", "park", "national park"],
+    img: kazirangaRhinoImg,
+  },
+  {
+    keywords: ["majuli", "boat", "ferry", "river", "island", "brahmaputra"],
+    img: majuliBoatImg,
+  },
+  {
+    keywords: ["hero", "elderly", "elder", "grandfather", "home", "morning", "senior", "peaceful"],
+    img: heroElderlyImg,
+  },
+];
+
+export const GUARANTEED_FALLBACK_SVG = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600"><defs><linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="%231a365d"/><stop offset="100%" stop-color="%232b6cb0"/></linearGradient></defs><rect width="800" height="600" fill="url(%23g)"/><g fill="%23ffffff" opacity="0.9" text-anchor="middle" font-family="system-ui, sans-serif"><circle cx="400" cy="260" r="80" fill="%23ffffff" opacity="0.15"/><text x="400" y="275" font-size="72">🌸</text><text x="400" y="380" font-size="28" font-weight="bold">MEMOVERSE Keepsake</text><text x="400" y="420" font-size="18" opacity="0.8">Cherished Memories &amp; Companionship</text></g></svg>`;
+
 export function resolveImage(src?: string): string {
   if (!src) return defaultMemoryCoverImg;
   if (typeof src !== "string") return defaultMemoryCoverImg;
@@ -62,14 +95,28 @@ export function resolveImage(src?: string): string {
     }
   }
 
-  return src;
+  const srcLower = src.toLowerCase();
+  for (const entry of KEYWORD_IMAGE_MAP) {
+    if (entry.keywords.some((kw) => srcLower.includes(kw))) {
+      return entry.img;
+    }
+  }
+
+  if (src.startsWith("http://") || src.startsWith("https://") || src.startsWith("/") || src.startsWith("./") || src.startsWith("assets/")) {
+    return src;
+  }
+
+  return defaultMemoryCoverImg;
 }
 
-const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+export const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
   const target = e.currentTarget;
   if (!target.dataset.failed) {
-    target.dataset.failed = "true";
+    target.dataset.failed = "1";
     target.src = defaultMemoryCoverImg;
+  } else if (target.dataset.failed === "1") {
+    target.dataset.failed = "2";
+    target.src = GUARANTEED_FALLBACK_SVG;
   }
 };
 
@@ -822,7 +869,7 @@ function HomeScreen({ onNav, active, onSwitchProfile }: { onNav: (s: Screen) => 
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start relative z-10">
             <div className="lg:col-span-8 rounded-3xl overflow-hidden border border-[var(--border)] shadow-xl relative group min-h-[360px] sm:min-h-[440px]">
-              <img src={heroElderlyImg} alt="Senior elder in peaceful morning home setting" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" onError={handleImageError} />
+              <img src={resolveImage(heroElderlyImg)} alt="Senior elder in peaceful morning home setting" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" onError={handleImageError} />
               <div className="absolute inset-0 bg-gradient-to-t from-[rgba(37,44,48,0.88)] via-[rgba(37,44,48,0.2)] to-transparent" />
               <div className="absolute bottom-6 left-6 right-6 text-white space-y-2">
                 <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-xs font-extrabold bg-black/50 backdrop-blur-md border border-white/30 text-[var(--brass)]">
@@ -1069,7 +1116,7 @@ function AboutDementiaScreen({ onNav }: { onNav: (s: Screen) => void }) {
 
       <section className="max-w-3xl mx-auto px-4 sm:px-6 space-y-10">
         <div className="rounded-3xl overflow-hidden border border-[var(--border)] shadow-md h-56 sm:h-72 relative">
-          <img src={caregiverSupportImg} alt="Empathetic Care & Daily Companionship" className="w-full h-full object-cover" onError={handleImageError} />
+          <img src={resolveImage("Empathetic Care & Daily Companionship")} alt="Empathetic Care & Daily Companionship" className="w-full h-full object-cover" onError={handleImageError} />
           <div className="absolute inset-0 bg-gradient-to-t from-[rgba(21,27,30,0.75)] via-transparent to-transparent flex items-end p-6">
             <span className="text-white font-extrabold text-lg sm:text-xl">Empathetic Care &amp; Daily Companionship</span>
           </div>
