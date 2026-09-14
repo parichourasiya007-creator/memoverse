@@ -351,12 +351,15 @@ function tone(type: "flip" | "correct" | "wrong" | "gogona" | "dhol" | "bird" | 
 function useProfiles() {
   const [profiles, setProfiles] = useState<Profile[]>(() => {
     const loaded: Profile[] = storageGet("mv_profiles", DEFAULT_PROFILES);
-    return loaded.map((p) => ({
+    const valid = Array.isArray(loaded) && loaded.length > 0 ? loaded : DEFAULT_PROFILES;
+    return valid.map((p) => ({
       ...p,
-      memories: p.memories.map((m) => ({
-        ...m,
-        image: resolveImage(m.image, m.title),
-      })),
+      memories: Array.isArray(p?.memories)
+        ? p.memories.map((m) => ({
+            ...m,
+            image: resolveImage(m?.image, m?.title),
+          }))
+        : [],
     }));
   });
   const [activeId, setActiveId] = useState<string | null>(() =>
@@ -364,17 +367,20 @@ function useProfiles() {
   );
 
   useEffect(() => {
+    if (!Array.isArray(profiles)) return;
     const sanitized = profiles.map((p) => ({
       ...p,
-      memories: p.memories.map((m) => {
-        let cleanImage = m.image;
-        if (m.title.includes("Bihu")) cleanImage = "bihu-celebration";
-        else if (m.title.includes("Tea") || m.title.includes("Ancestral")) cleanImage = "ancestral-tea-garden";
-        else if (m.title.includes("Radio") || m.title.includes("Bhupen")) cleanImage = "radio-memory";
-        else if (m.title.includes("Kaziranga")) cleanImage = "kaziranga_rhino_memory.png";
-        else if (m.title.includes("Majuli")) cleanImage = "majuli_boat_memory.png";
-        return { ...m, image: cleanImage };
-      }),
+      memories: Array.isArray(p?.memories)
+        ? p.memories.map((m) => {
+            let cleanImage = m?.image || "";
+            if (m?.title?.includes("Bihu")) cleanImage = "bihu-celebration";
+            else if (m?.title?.includes("Tea") || m?.title?.includes("Ancestral")) cleanImage = "ancestral-tea-garden";
+            else if (m?.title?.includes("Radio") || m?.title?.includes("Bhupen")) cleanImage = "radio-memory";
+            else if (m?.title?.includes("Kaziranga")) cleanImage = "kaziranga_rhino_memory.png";
+            else if (m?.title?.includes("Majuli")) cleanImage = "majuli_boat_memory.png";
+            return { ...m, image: cleanImage };
+          })
+        : [],
     }));
     storageSet("mv_profiles", sanitized);
   }, [profiles]);
