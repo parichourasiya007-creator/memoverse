@@ -227,9 +227,45 @@ export interface TranslationSchema {
     copyright: string;
     careText: string;
   };
+  ai: {
+    recommendedForYou: string;
+    recommendedNext: string;
+    playNow: string;
+    level: string;
+    levelEasy: string;
+    levelMedium: string;
+    levelHard: string;
+    levelAdvanced: string;
+    previousLevel: string;
+    nextLevel: string;
+    lockedLevel: string;
+    levelUnlocked: string;
+    gamePerformance: string;
+    activityProgress: string;
+    practiceTrends: string;
+    cognitiveSkills: string;
+  };
 }
 
 const baseEnglish: TranslationSchema = {
+  ai: {
+    recommendedForYou: "Recommended for You",
+    recommendedNext: "Recommended Next",
+    playNow: "Play Now",
+    level: "Level",
+    levelEasy: "Easy",
+    levelMedium: "Medium",
+    levelHard: "Hard",
+    levelAdvanced: "Advanced",
+    previousLevel: "← Previous Level",
+    nextLevel: "Next Level →",
+    lockedLevel: "Complete current level with strong score to unlock",
+    levelUnlocked: "Level Unlocked!",
+    gamePerformance: "Game Performance",
+    activityProgress: "Activity Progress",
+    practiceTrends: "Practice Trends",
+    cognitiveSkills: "Cognitive Skill Profile",
+  },
   nav: {
     home: "Home",
     activities: "Activities",

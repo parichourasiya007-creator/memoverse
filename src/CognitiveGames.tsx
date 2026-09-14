@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useLanguage } from "./LanguageContext";
+import { recordGamePerformance, getUnlockedLevel, CognitiveSkill, DetailedGameResult } from "./adaptiveEngine";
 
 // ═══════════════════════════════════════════════════════════════════
 //  GAME RECORD & PROGRESS TRACKING ENGINE
@@ -115,14 +116,109 @@ interface CommonGameProps {
   onProgress: () => void;
 }
 
-// Standard Header Component for Games
+// Adaptive Game Header with visible Level Navigation Controls (Level 1..4)
+export function AdaptiveGameHeader({
+  gameId,
+  title,
+  subtitle,
+  level,
+  setLevel,
+  unlockedLevel,
+  onBack,
+  onNav,
+}: {
+  gameId: string;
+  title: string;
+  subtitle: string;
+  level: number;
+  setLevel: (lvl: number) => void;
+  unlockedLevel: number;
+  onBack?: () => void;
+  onNav: (s: any) => void;
+}) {
+  const levelLabels: Record<number, string> = {
+    1: "LEVEL 1 · Easy",
+    2: "LEVEL 2 · Medium",
+    3: "LEVEL 3 · Hard",
+    4: "LEVEL 4 · Advanced",
+  };
+
+  const handlePrev = () => {
+    if (level > 1) setLevel(level - 1);
+  };
+
+  const handleNext = () => {
+    if (level < unlockedLevel && level < 4) {
+      setLevel(level + 1);
+    }
+  };
+
+  return (
+    <div className="space-y-4 text-center max-w-xl mx-auto px-4 mb-6">
+      <div className="flex items-center justify-between">
+        <button
+          onClick={onBack || (() => onNav("activities"))}
+          className="inline-flex items-center gap-1 text-sm font-extrabold text-[var(--text-secondary)] hover:text-[var(--oxblood-dark)] cursor-pointer"
+        >
+          <span>←</span> Back to Library
+        </button>
+
+        <div className="inline-flex items-center gap-1.5 bg-[var(--oxblood-light)] border border-[var(--oxblood)] px-3 py-1 rounded-full text-xs font-black text-[var(--oxblood-dark)] shadow-sm">
+          <span>🧠</span> AI Adaptive Training
+        </div>
+      </div>
+
+      <div>
+        <h1 className="text-3xl sm:text-4xl font-black text-[var(--text-primary)] tracking-tight">{title}</h1>
+        <p className="text-sm sm:text-base text-[var(--text-secondary)] font-medium mt-1 leading-relaxed">{subtitle}</p>
+      </div>
+
+      {/* Adaptive Level Navigation Controls */}
+      <div className="flex items-center justify-between gap-2 bg-[var(--bg-card)] border border-[var(--border)] p-2 rounded-2xl shadow-sm max-w-lg mx-auto">
+        <button
+          onClick={handlePrev}
+          disabled={level <= 1}
+          className={`px-3 py-2 text-xs sm:text-sm font-black rounded-xl transition-all ${
+            level > 1
+              ? "bg-[var(--bg-section)] hover:bg-[var(--bg-hover)] text-[var(--text-primary)] border border-[var(--border)] cursor-pointer active:scale-95 shadow-sm"
+              : "opacity-40 text-[var(--text-muted)] cursor-not-allowed border border-transparent"
+          }`}
+        >
+          ← Previous Level
+        </button>
+
+        <div className="px-3 py-1.5 bg-[var(--oxblood)] text-white font-black text-xs sm:text-sm rounded-xl shadow-md min-w-[140px] text-center tracking-wide">
+          {levelLabels[level] || `LEVEL ${level}`}
+        </div>
+
+        <button
+          onClick={handleNext}
+          disabled={level >= unlockedLevel || level >= 4}
+          className={`px-3 py-2 text-xs sm:text-sm font-black rounded-xl transition-all ${
+            level < unlockedLevel && level < 4
+              ? "bg-[var(--bg-section)] hover:bg-[var(--bg-hover)] text-[var(--text-primary)] border border-[var(--border)] cursor-pointer active:scale-95 shadow-sm"
+              : "opacity-40 text-[var(--text-muted)] cursor-not-allowed border border-transparent"
+          }`}
+        >
+          Next Level →
+        </button>
+      </div>
+
+      {level >= unlockedLevel && level < 4 && (
+        <p className="text-xs text-[var(--text-muted)] italic font-semibold">
+          🔒 Complete {levelLabels[level]} with 75%+ accuracy to unlock Level {level + 1}.
+        </p>
+      )}
+    </div>
+  );
+}
+
+// Legacy Header Component wrapper for backwards compatibility
 function GameHeader({
   title,
   subtitle,
   onBack,
   onNav,
-  difficulty,
-  setDifficulty,
 }: {
   title: string;
   subtitle: string;
@@ -132,7 +228,7 @@ function GameHeader({
   setDifficulty?: (d: "Easy" | "Medium" | "Hard") => void;
 }) {
   return (
-    <div className="space-y-4 text-center max-w-xl mx-auto px-4">
+    <div className="space-y-4 text-center max-w-xl mx-auto px-4 mb-6">
       <div className="flex items-center justify-between">
         <button
           onClick={onBack || (() => onNav("activities"))}
@@ -140,24 +236,6 @@ function GameHeader({
         >
           <span>←</span> Back to Library
         </button>
-
-        {setDifficulty && difficulty && (
-          <div className="flex items-center gap-1 bg-[var(--bg-card)] border border-[var(--border)] p-1 rounded-xl text-xs font-bold">
-            {(["Easy", "Medium", "Hard"] as const).map((d) => (
-              <button
-                key={d}
-                onClick={() => setDifficulty(d)}
-                className={`px-2.5 py-1 rounded-lg transition-all cursor-pointer ${
-                  difficulty === d
-                    ? "bg-[var(--oxblood)] text-white font-black shadow-sm"
-                    : "text-[var(--text-muted)] hover:text-[var(--text-primary)]"
-                }`}
-              >
-                {d}
-              </button>
-            ))}
-          </div>
-        )}
       </div>
 
       <div>
@@ -168,19 +246,29 @@ function GameHeader({
   );
 }
 
-// Victory Screen Component for Games
-function GameVictoryModal({
+// Adaptive Victory Screen Component for Games
+export function GameVictoryModal({
   title = "Wonderful Job!",
   message = "You completed this cognitive exercise successfully.",
   score,
+  feedbackMessage,
+  unlockedNewLevel,
+  nextRecommendedLevel,
+  currentLevel,
   onReplay,
+  onNextLevel,
   onBack,
   onNav,
 }: {
   title?: string;
   message?: string;
   score?: string | number;
+  feedbackMessage?: string;
+  unlockedNewLevel?: boolean;
+  nextRecommendedLevel?: number;
+  currentLevel?: number;
   onReplay: () => void;
+  onNextLevel?: (lvl: number) => void;
   onBack?: () => void;
   onNav: (s: any) => void;
 }) {
@@ -191,25 +279,42 @@ function GameVictoryModal({
         <div className="space-y-2">
           <h2 className="text-3xl font-black text-[var(--text-primary)]">{title}</h2>
           <p className="text-base text-[var(--text-secondary)] font-semibold leading-relaxed">{message}</p>
+
+          {feedbackMessage && (
+            <div className="p-3.5 bg-[var(--bg-section)] border border-[var(--brass)] rounded-2xl text-sm font-bold text-[var(--oxblood-dark)] leading-snug shadow-sm">
+              🤖 {feedbackMessage}
+            </div>
+          )}
+
           {score !== undefined && (
             <div className="inline-block px-4 py-2 bg-[var(--oxblood-light)] border border-[var(--oxblood)] text-[var(--oxblood-dark)] font-black text-lg rounded-2xl mt-2">
               Performance Score: {score}
             </div>
           )}
         </div>
-        <div className="flex flex-col sm:flex-row gap-3 pt-2">
-          <button
-            onClick={onReplay}
-            className="flex-1 min-h-[48px] px-5 py-3 rounded-2xl font-extrabold text-white bg-[var(--oxblood)] hover:bg-[var(--oxblood-dark)] border border-[var(--brass)] shadow-md transition-all cursor-pointer"
-          >
-            🔄 Play Again
-          </button>
-          <button
-            onClick={onBack || (() => onNav("activities"))}
-            className="flex-1 min-h-[48px] px-5 py-3 rounded-2xl font-extrabold text-[var(--text-primary)] bg-[var(--bg-section)] hover:bg-[var(--bg-hover)] border border-[var(--border)] transition-all cursor-pointer"
-          >
-            ← Activities
-          </button>
+        <div className="flex flex-col gap-3 pt-2">
+          {onNextLevel && nextRecommendedLevel && currentLevel && nextRecommendedLevel > currentLevel && (
+            <button
+              onClick={() => onNextLevel(nextRecommendedLevel)}
+              className="w-full min-h-[48px] px-5 py-3 rounded-2xl font-black text-white bg-[var(--oxblood)] hover:bg-[var(--oxblood-dark)] border border-[var(--brass)] shadow-md transition-all cursor-pointer text-base"
+            >
+              🚀 Play Level {nextRecommendedLevel} →
+            </button>
+          )}
+          <div className="flex flex-col sm:flex-row gap-3">
+            <button
+              onClick={onReplay}
+              className="flex-1 min-h-[48px] px-5 py-3 rounded-2xl font-extrabold text-[var(--text-primary)] bg-[var(--bg-section)] hover:bg-[var(--bg-hover)] border border-[var(--border)] transition-all cursor-pointer"
+            >
+              🔄 Replay Level
+            </button>
+            <button
+              onClick={onBack || (() => onNav("activities"))}
+              className="flex-1 min-h-[48px] px-5 py-3 rounded-2xl font-extrabold text-[var(--text-primary)] bg-[var(--bg-section)] hover:bg-[var(--bg-hover)] border border-[var(--border)] transition-all cursor-pointer"
+            >
+              ← Activities
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -221,8 +326,12 @@ function GameVictoryModal({
 // ═══════════════════════════════════════════════════════════════════
 
 export function GameWordPuzzlesScreen({ onNav, onBack, onProgress }: CommonGameProps) {
+  const gameId = "word_puzzles";
+  const [level, setLevel] = useState<number>(() => getUnlockedLevel(gameId));
+  const unlockedLevel = getUnlockedLevel(gameId);
+  const [adaptiveResult, setAdaptiveResult] = useState<any>(null);
+
   const [mode, setMode] = useState<"anagram" | "wordsearch" | "riddle">("anagram");
-  const [difficulty, setDifficulty] = useState<"Easy" | "Medium" | "Hard">("Easy");
   const [currentIndex, setCurrentIndex] = useState(0);
   const [constructedLetters, setConstructedLetters] = useState<string[]>([]);
   const [score, setScore] = useState(0);
@@ -244,7 +353,6 @@ export function GameWordPuzzlesScreen({ onNav, onBack, onProgress }: CommonGameP
     { question: "Which island in Assam is known as the world's largest river island?", options: ["Majuli", "Goa", "Lakshadweep"], correct: "Majuli" },
   ];
 
-  // Word Search grid setup
   const SEARCH_WORDS = ["TEA", "BIHU", "RHINO", "SILK"];
   const [foundWords, setFoundWords] = useState<string[]>([]);
   const [gridSelected, setGridSelected] = useState<string>("");
@@ -259,7 +367,7 @@ export function GameWordPuzzlesScreen({ onNav, onBack, onProgress }: CommonGameP
   const currentAnagram = ANAGRAMS[currentIndex % ANAGRAMS.length];
   const currentRiddle = RIDDLES[currentIndex % RIDDLES.length];
 
-  function handleLetterTap(letter: string, letterIdx: number) {
+  function handleLetterTap(letter: string) {
     playSoundTone("flip");
     setConstructedLetters((prev) => [...prev, letter]);
   }
@@ -267,6 +375,35 @@ export function GameWordPuzzlesScreen({ onNav, onBack, onProgress }: CommonGameP
   function handleClearLetters() {
     playSoundTone("flip");
     setConstructedLetters([]);
+  }
+
+  function finishGame(finalScore: number) {
+    const totalQ = mode === "anagram" ? (level === 1 ? 3 : level === 2 ? 4 : 5) : RIDDLES.length;
+    const res = recordGamePerformance({
+      gameId,
+      gameTitle: "Word Puzzles",
+      skill: "Attention",
+      level,
+      accuracy: 100,
+      correctAnswers: totalQ,
+      totalQuestions: totalQ,
+      attempts: 1,
+      completionTime: 30,
+      hintsUsed: 0,
+      retries: 0,
+      timestamp: Date.now(),
+      completed: true,
+    });
+    setAdaptiveResult(res);
+    setWon(true);
+    saveGameRecord({
+      gameId: "game-word",
+      gameTitle: "Word Puzzles",
+      category: "Attention",
+      score: `${finalScore} pts`,
+      difficulty: level === 1 ? "Easy" : level === 2 ? "Medium" : level === 3 ? "Hard" : "Standard",
+    });
+    onProgress();
   }
 
   function handleAnagramCheck() {
@@ -279,16 +416,9 @@ export function GameWordPuzzlesScreen({ onNav, onBack, onProgress }: CommonGameP
       setTimeout(() => {
         setFeedback(null);
         setConstructedLetters([]);
-        if (currentIndex + 1 >= (difficulty === "Easy" ? 3 : 5)) {
-          setWon(true);
-          saveGameRecord({
-            gameId: "game-word",
-            gameTitle: "Word Puzzles",
-            category: "Logic & Categorization",
-            score: `${nextScore} pts`,
-            difficulty,
-          });
-          onProgress();
+        const targetQ = level === 1 ? 3 : level === 2 ? 4 : 5;
+        if (currentIndex + 1 >= targetQ) {
+          finishGame(nextScore);
         } else {
           setCurrentIndex((i) => i + 1);
         }
@@ -309,15 +439,7 @@ export function GameWordPuzzlesScreen({ onNav, onBack, onProgress }: CommonGameP
       setTimeout(() => {
         setFeedback(null);
         if (currentIndex + 1 >= RIDDLES.length) {
-          setWon(true);
-          saveGameRecord({
-            gameId: "game-word",
-            gameTitle: "Word Puzzles",
-            category: "Logic & Categorization",
-            score: `${nextScore} pts`,
-            difficulty,
-          });
-          onProgress();
+          finishGame(nextScore);
         } else {
           setCurrentIndex((i) => i + 1);
         }
@@ -344,15 +466,7 @@ export function GameWordPuzzlesScreen({ onNav, onBack, onProgress }: CommonGameP
       setTimeout(() => setFeedback(null), 1000);
 
       if (nextFound.length === SEARCH_WORDS.length) {
-        setWon(true);
-        saveGameRecord({
-          gameId: "game-word",
-          gameTitle: "Word Search Puzzle",
-          category: "Logic & Categorization",
-          score: "All Words Found",
-          difficulty,
-        });
-        onProgress();
+        finishGame(40);
       }
     }
   }
@@ -368,18 +482,37 @@ export function GameWordPuzzlesScreen({ onNav, onBack, onProgress }: CommonGameP
   }
 
   if (won) {
-    return <GameVictoryModal score={`${score || 40} points`} onReplay={restart} onBack={onBack} onNav={onNav} />;
+    return (
+      <GameVictoryModal
+        title="Word Master!"
+        message={`You completed Word Puzzles at Level ${level}!`}
+        score={`${score || 40} points`}
+        feedbackMessage={adaptiveResult?.feedbackMessage}
+        unlockedNewLevel={adaptiveResult?.unlockedNewLevel}
+        nextRecommendedLevel={adaptiveResult?.nextRecommendedLevel}
+        currentLevel={level}
+        onNextLevel={(newLvl) => {
+          setLevel(newLvl);
+          restart();
+        }}
+        onReplay={restart}
+        onBack={onBack}
+        onNav={onNav}
+      />
+    );
   }
 
   return (
     <div className="min-h-screen pb-24 pt-6 space-y-6">
-      <GameHeader
+      <AdaptiveGameHeader
+        gameId={gameId}
         title="Word Puzzles"
         subtitle="Tap large letter buttons to spell words, search letter grids, and solve culture riddles."
+        level={level}
+        setLevel={(lvl) => { setLevel(lvl); restart(); }}
+        unlockedLevel={unlockedLevel}
         onBack={onBack}
         onNav={onNav}
-        difficulty={difficulty}
-        setDifficulty={setDifficulty}
       />
 
       <div className="max-w-xl mx-auto px-4 space-y-6">
@@ -556,11 +689,14 @@ export function GameWordPuzzlesScreen({ onNav, onBack, onProgress }: CommonGameP
 }
 
 // ═══════════════════════════════════════════════════════════════════
-//  2. JIGSAW PUZZLE (2x2 Grid with Touch & Tap Support)
+//  2. JIGSAW PUZZLE (Adaptive Grid with Touch & Tap Support)
 // ═══════════════════════════════════════════════════════════════════
 
 export function GameJigsawScreen({ onNav, onBack, onProgress }: CommonGameProps) {
-  const [difficulty, setDifficulty] = useState<"Easy" | "Medium" | "Hard">("Easy");
+  const gameId = "jigsaw_puzzle";
+  const [level, setLevel] = useState<number>(() => getUnlockedLevel(gameId));
+  const unlockedLevel = getUnlockedLevel(gameId);
+  const [adaptiveResult, setAdaptiveResult] = useState<any>(null);
   const [selectedTheme, setSelectedTheme] = useState(0);
 
   const THEMES = [
@@ -569,22 +705,24 @@ export function GameJigsawScreen({ onNav, onBack, onProgress }: CommonGameProps)
     { name: "Assam Tea Garden", emoji: "🍃", bg: "bg-teal-800", img: import.meta.env.BASE_URL + "tea_garden_memory.png" },
   ];
 
-  const pieceCount = 4;
-  const [grid, setGrid] = useState<(number | null)[]>([null, null, null, null]);
+  const pieceCount = level === 1 ? 4 : level === 2 ? 6 : level === 3 ? 9 : 12;
+  const gridCols = level === 1 ? "grid-cols-2" : level === 2 ? "grid-cols-3" : level === 3 ? "grid-cols-3" : "grid-cols-4";
+
+  const [grid, setGrid] = useState<(number | null)[]>(() => Array(pieceCount).fill(null));
   const [selectedTrayPiece, setSelectedTrayPiece] = useState<number | null>(null);
   const [trayPieces, setTrayPieces] = useState<number[]>([]);
   const [won, setWon] = useState(false);
 
   const initPuzzle = useCallback(() => {
-    const pieces = [0, 1, 2, 3];
+    const pieces = Array.from({ length: pieceCount }, (_, i) => i);
     const shuffled = [...pieces].sort(() => Math.random() - 0.5);
     setTrayPieces(shuffled);
-    setGrid([null, null, null, null]);
+    setGrid(Array(pieceCount).fill(null));
     setSelectedTrayPiece(null);
     setWon(false);
-  }, []);
+  }, [pieceCount]);
 
-  useEffect(() => { initPuzzle(); }, [initPuzzle, selectedTheme, difficulty]);
+  useEffect(() => { initPuzzle(); }, [initPuzzle, selectedTheme, level]);
 
   function placePiece(slotIdx: number, pieceIdx: number) {
     playSoundTone("flip");
@@ -604,13 +742,29 @@ export function GameJigsawScreen({ onNav, onBack, onProgress }: CommonGameProps)
     // Check complete
     if (nextGrid.every((p, idx) => p === idx)) {
       playSoundTone("correct");
+      const res = recordGamePerformance({
+        gameId,
+        gameTitle: "Jigsaw Puzzle",
+        skill: "Visual-Spatial",
+        level,
+        accuracy: 100,
+        correctAnswers: pieceCount,
+        totalQuestions: pieceCount,
+        attempts: 1,
+        completionTime: 40,
+        hintsUsed: 0,
+        retries: 0,
+        timestamp: Date.now(),
+        completed: true,
+      });
+      setAdaptiveResult(res);
       setWon(true);
       saveGameRecord({
         gameId: "game-jigsaw",
         gameTitle: "Jigsaw Puzzle",
         category: "Visual-Spatial",
         score: "100% Solved",
-        difficulty,
+        difficulty: level === 1 ? "Easy" : level === 2 ? "Medium" : level === 3 ? "Hard" : "Standard",
       });
       onProgress();
     }
@@ -622,7 +776,6 @@ export function GameJigsawScreen({ onNav, onBack, onProgress }: CommonGameProps)
     }
   }
 
-  // HTML5 Drag & Drop handlers for desktop
   function handleDragStart(e: React.DragEvent, pieceIdx: number) {
     e.dataTransfer.setData("text/plain", pieceIdx.toString());
     setSelectedTrayPiece(pieceIdx);
@@ -638,22 +791,37 @@ export function GameJigsawScreen({ onNav, onBack, onProgress }: CommonGameProps)
   }
 
   if (won) {
-    return <GameVictoryModal title="Jigsaw Completed!" message={`You assembled the ${THEMES[selectedTheme].name} 4-piece puzzle!`} score="100%" onReplay={initPuzzle} onBack={onBack} onNav={onNav} />;
+    return (
+      <GameVictoryModal
+        title="Jigsaw Completed!"
+        message={`You assembled the ${THEMES[selectedTheme].name} ${pieceCount}-piece puzzle!`}
+        score="100%"
+        feedbackMessage={adaptiveResult?.feedbackMessage}
+        unlockedNewLevel={adaptiveResult?.unlockedNewLevel}
+        nextRecommendedLevel={adaptiveResult?.nextRecommendedLevel}
+        currentLevel={level}
+        onNextLevel={(newLvl) => setLevel(newLvl)}
+        onReplay={initPuzzle}
+        onBack={onBack}
+        onNav={onNav}
+      />
+    );
   }
 
   return (
     <div className="min-h-screen pb-24 pt-6 space-y-6">
-      <GameHeader
+      <AdaptiveGameHeader
+        gameId={gameId}
         title="Large-Piece Jigsaw Puzzle"
-        subtitle="Drag or tap a piece from the tray into the 2x2 target board."
+        subtitle="Drag or tap a piece from the tray into the target board slots."
+        level={level}
+        setLevel={setLevel}
+        unlockedLevel={unlockedLevel}
         onBack={onBack}
         onNav={onNav}
-        difficulty={difficulty}
-        setDifficulty={setDifficulty}
       />
 
       <div className="max-w-xl mx-auto px-4 space-y-6">
-        {/* Theme Picker */}
         <div className="flex justify-center gap-2">
           {THEMES.map((theme, idx) => (
             <button
@@ -671,20 +839,19 @@ export function GameJigsawScreen({ onNav, onBack, onProgress }: CommonGameProps)
           ))}
         </div>
 
-        {/* Target 2x2 Grid */}
         <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-3xl p-6 space-y-4 shadow-lg text-center">
           <div className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider">
-            2 × 2 Target Board (Tap slot or drop piece)
+            {pieceCount}-Piece Target Board (Tap slot or drop piece)
           </div>
 
-          <div className="grid grid-cols-2 gap-3 max-w-xs mx-auto aspect-square p-3 bg-[var(--bg-section)] rounded-2xl border-2 border-dashed border-[var(--brass)]">
+          <div className={`grid ${gridCols} gap-3 max-w-sm mx-auto p-3 bg-[var(--bg-section)] rounded-2xl border-2 border-dashed border-[var(--brass)]`}>
             {grid.map((piece, slotIdx) => (
               <div
                 key={slotIdx}
                 onClick={() => handleSlotClick(slotIdx)}
                 onDragOver={(e) => e.preventDefault()}
                 onDrop={(e) => handleDrop(e, slotIdx)}
-                className={`rounded-2xl flex flex-col items-center justify-center font-black transition-all cursor-pointer relative overflow-hidden border-2 border-[var(--border)] ${
+                className={`aspect-square rounded-2xl flex flex-col items-center justify-center font-black transition-all cursor-pointer relative overflow-hidden border-2 border-[var(--border)] ${
                   piece !== null
                     ? piece === slotIdx
                       ? "bg-emerald-900/30 border-emerald-500 text-emerald-400"
@@ -694,7 +861,7 @@ export function GameJigsawScreen({ onNav, onBack, onProgress }: CommonGameProps)
               >
                 {piece !== null ? (
                   <div className="flex flex-col items-center justify-center">
-                    <span className="text-4xl">{THEMES[selectedTheme].emoji}</span>
+                    <span className="text-3xl sm:text-4xl">{THEMES[selectedTheme].emoji}</span>
                     <span className="text-[10px] font-black uppercase mt-1">Part {piece + 1} {piece === slotIdx ? "✓" : ""}</span>
                   </div>
                 ) : (
@@ -705,20 +872,19 @@ export function GameJigsawScreen({ onNav, onBack, onProgress }: CommonGameProps)
           </div>
         </div>
 
-        {/* Piece Tray */}
         <div className="bg-[var(--bg-section)] border border-[var(--border)] rounded-3xl p-5 space-y-3 text-center">
           <div className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">
             Piece Tray (Tap piece then tap slot)
           </div>
 
-          <div className="flex justify-center gap-3">
+          <div className="flex flex-wrap justify-center gap-3">
             {trayPieces.map((pieceIdx) => (
               <div
                 key={pieceIdx}
                 draggable
                 onDragStart={(e) => handleDragStart(e, pieceIdx)}
                 onClick={() => { playSoundTone("flip"); setSelectedTrayPiece(pieceIdx); }}
-                className={`w-20 h-20 rounded-2xl flex flex-col items-center justify-center font-black border-2 cursor-pointer transition-all active:scale-95 shadow-md ${
+                className={`w-16 h-16 sm:w-20 sm:h-20 rounded-2xl flex flex-col items-center justify-center font-black border-2 cursor-pointer transition-all active:scale-95 shadow-md ${
                   selectedTrayPiece === pieceIdx
                     ? "bg-[var(--oxblood)] text-white border-[var(--brass)] ring-4 ring-[var(--brass-light)] scale-105"
                     : "bg-[var(--bg-card)] text-[var(--text-primary)] border-[var(--border)] hover:border-[var(--oxblood)]"
@@ -740,7 +906,11 @@ export function GameJigsawScreen({ onNav, onBack, onProgress }: CommonGameProps)
 // ═══════════════════════════════════════════════════════════════════
 
 export function GameDiceScreen({ onNav, onBack, onProgress }: CommonGameProps) {
-  const [difficulty, setDifficulty] = useState<"Easy" | "Medium" | "Hard">("Easy");
+  const gameId = "dice_activity";
+  const [level, setLevel] = useState<number>(() => getUnlockedLevel(gameId));
+  const unlockedLevel = getUnlockedLevel(gameId);
+  const [adaptiveResult, setAdaptiveResult] = useState<any>(null);
+
   const [phase, setPhase] = useState<"roll" | "remember" | "question">("roll");
   const [rolledVal, setRolledVal] = useState<number>(1);
   const [rolling, setRolling] = useState(false);
@@ -764,7 +934,6 @@ export function GameDiceScreen({ onNav, onBack, onProgress }: CommonGameProps) {
         setRolledVal(finalNum);
         setPhase("remember");
 
-        // Hide die after 2.5 seconds to memory question phase
         setTimeout(() => {
           setPhase("question");
         }, 2500);
@@ -781,13 +950,29 @@ export function GameDiceScreen({ onNav, onBack, onProgress }: CommonGameProps) {
       setTimeout(() => {
         setFeedback(null);
         if (rounds + 1 >= 3) {
+          const res = recordGamePerformance({
+            gameId,
+            gameTitle: "Dice Activity",
+            skill: "Attention",
+            level,
+            accuracy: 100,
+            correctAnswers: 3,
+            totalQuestions: 3,
+            attempts: 3,
+            completionTime: 20,
+            hintsUsed: 0,
+            retries: 0,
+            timestamp: Date.now(),
+            completed: true,
+          });
+          setAdaptiveResult(res);
           setWon(true);
           saveGameRecord({
             gameId: "game-dice",
             gameTitle: "Dice Cognitive Activity",
-            category: "Logic & Categorization",
+            category: "Attention",
             score: `${nextScore} pts`,
-            difficulty,
+            difficulty: level === 1 ? "Easy" : level === 2 ? "Medium" : level === 3 ? "Hard" : "Standard",
           });
           onProgress();
         } else {
@@ -814,18 +999,34 @@ export function GameDiceScreen({ onNav, onBack, onProgress }: CommonGameProps) {
   }
 
   if (won) {
-    return <GameVictoryModal score={`${score} points`} onReplay={restart} onBack={onBack} onNav={onNav} />;
+    return (
+      <GameVictoryModal
+        title="Dice Champion!"
+        message={`You completed the Dice Recall activity at Level ${level}!`}
+        score={`${score} points`}
+        feedbackMessage={adaptiveResult?.feedbackMessage}
+        unlockedNewLevel={adaptiveResult?.unlockedNewLevel}
+        nextRecommendedLevel={adaptiveResult?.nextRecommendedLevel}
+        currentLevel={level}
+        onNextLevel={(newLvl) => { setLevel(newLvl); restart(); }}
+        onReplay={restart}
+        onBack={onBack}
+        onNav={onNav}
+      />
+    );
   }
 
   return (
     <div className="min-h-screen pb-24 pt-6 space-y-6">
-      <GameHeader
+      <AdaptiveGameHeader
+        gameId={gameId}
         title="Dice Activity"
         subtitle="Roll the die, remember the number, and answer the recall question."
+        level={level}
+        setLevel={(lvl) => { setLevel(lvl); restart(); }}
+        unlockedLevel={unlockedLevel}
         onBack={onBack}
         onNav={onNav}
-        difficulty={difficulty}
-        setDifficulty={setDifficulty}
       />
 
       <div className="max-w-md mx-auto px-4 space-y-6 text-center">
@@ -892,13 +1093,20 @@ export function GameDiceScreen({ onNav, onBack, onProgress }: CommonGameProps) {
 // ═══════════════════════════════════════════════════════════════════
 
 export function GameBoardScreen({ onNav, onBack, onProgress }: CommonGameProps) {
+  const gameId = "board_game";
+  const [level, setLevel] = useState<number>(() => getUnlockedLevel(gameId));
+  const unlockedLevel = getUnlockedLevel(gameId);
+  const [adaptiveResult, setAdaptiveResult] = useState<any>(null);
+
   const [position, setPosition] = useState(0);
   const [rolling, setRolling] = useState(false);
   const [lastRoll, setLastRoll] = useState<number | null>(null);
   const [activePrompt, setActivePrompt] = useState<string | null>(null);
   const [won, setWon] = useState(false);
 
-  const BOARD_STEPS = [
+  const maxSteps = level === 1 ? 6 : level === 2 ? 9 : level === 3 ? 12 : 15;
+
+  const ALL_STEPS = [
     { title: "Start", emoji: "🏁", prompt: "Welcome to the Journey!" },
     { title: "Tea Estate", emoji: "🍃", prompt: "Count 3 fresh green tea leaves." },
     { title: "Stream", emoji: "🌊", prompt: "Listen to the gentle mountain water sound." },
@@ -910,15 +1118,20 @@ export function GameBoardScreen({ onNav, onBack, onProgress }: CommonGameProps) 
     { title: "Pine Forest", emoji: "🌲", prompt: "Enjoy the fresh pine hill breeze." },
     { title: "Bazaar Market", emoji: "🛒", prompt: "Pick fresh lemons from the stall." },
     { title: "Sunset View", emoji: "🌅", prompt: "Relax and watch the golden sky." },
+    { title: "Orchid Haven", emoji: "🌸", prompt: "Admire beautiful regional flowers." },
+    { title: "River Island", emoji: "🏝️", prompt: "Enjoy peaceful river breeze." },
+    { title: "Hilltop Temple", emoji: "🛕", prompt: "Hear morning temple bells ring." },
     { title: "Grand Finish", emoji: "🏆", prompt: "Congratulations on reaching the finish line!" },
   ];
+
+  const BOARD_STEPS = ALL_STEPS.slice(0, maxSteps);
 
   function rollAndMove() {
     if (rolling) return;
     playSoundTone("flip");
     setRolling(true);
 
-    const roll = Math.floor(Math.random() * 3) + 1; // 1 to 3
+    const roll = Math.floor(Math.random() * 3) + 1;
     setLastRoll(roll);
 
     setTimeout(() => {
@@ -929,13 +1142,29 @@ export function GameBoardScreen({ onNav, onBack, onProgress }: CommonGameProps) 
 
       if (nextPos === BOARD_STEPS.length - 1) {
         playSoundTone("correct");
+        const res = recordGamePerformance({
+          gameId,
+          gameTitle: "Assam Board Game",
+          skill: "Attention",
+          level,
+          accuracy: 100,
+          correctAnswers: maxSteps,
+          totalQuestions: maxSteps,
+          attempts: 1,
+          completionTime: 40,
+          hintsUsed: 0,
+          retries: 0,
+          timestamp: Date.now(),
+          completed: true,
+        });
+        setAdaptiveResult(res);
         setWon(true);
         saveGameRecord({
           gameId: "game-board",
-          gameTitle: "Cognitive Board Game",
-          category: "Logic & Categorization",
-          score: "Reached Space 12",
-          difficulty: "Standard",
+          gameTitle: "Assam Board Game",
+          category: "Attention",
+          score: "Journey Completed!",
+          difficulty: level === 1 ? "Easy" : level === 2 ? "Medium" : level === 3 ? "Hard" : "Standard",
         });
         onProgress();
       }
@@ -950,14 +1179,32 @@ export function GameBoardScreen({ onNav, onBack, onProgress }: CommonGameProps) 
   }
 
   if (won) {
-    return <GameVictoryModal title="Board Journey Completed!" message="You navigated through all 12 landmark spaces on the board!" score="Victory" onReplay={restart} onBack={onBack} onNav={onNav} />;
+    return (
+      <GameVictoryModal
+        title="Board Journey Completed!"
+        message={`You navigated through all ${maxSteps} landmark spaces on the board!`}
+        score="Victory"
+        feedbackMessage={adaptiveResult?.feedbackMessage}
+        unlockedNewLevel={adaptiveResult?.unlockedNewLevel}
+        nextRecommendedLevel={adaptiveResult?.nextRecommendedLevel}
+        currentLevel={level}
+        onNextLevel={(newLvl) => { setLevel(newLvl); restart(); }}
+        onReplay={restart}
+        onBack={onBack}
+        onNav={onNav}
+      />
+    );
   }
 
   return (
     <div className="min-h-screen pb-24 pt-6 space-y-6">
-      <GameHeader
-        title="Cognitive Board Game"
+      <AdaptiveGameHeader
+        gameId={gameId}
+        title="Assam Board Game"
         subtitle="Roll the dice to move your player token space-by-space along the path."
+        level={level}
+        setLevel={(lvl) => { setLevel(lvl); restart(); }}
+        unlockedLevel={unlockedLevel}
         onBack={onBack}
         onNav={onNav}
       />
@@ -1022,7 +1269,11 @@ export function GameBoardScreen({ onNav, onBack, onProgress }: CommonGameProps) 
 // ═══════════════════════════════════════════════════════════════════
 
 export function GameInteractiveScreen({ onNav, onBack, onProgress }: CommonGameProps) {
-  const [difficulty, setDifficulty] = useState<"Easy" | "Medium" | "Hard">("Easy");
+  const gameId = "interactive_stories";
+  const [level, setLevel] = useState<number>(() => getUnlockedLevel(gameId));
+  const unlockedLevel = getUnlockedLevel(gameId);
+  const [adaptiveResult, setAdaptiveResult] = useState<any>(null);
+
   const [stepIndex, setStepIndex] = useState(0);
   const [score, setScore] = useState(0);
   const [won, setWon] = useState(false);
@@ -1068,6 +1319,7 @@ export function GameInteractiveScreen({ onNav, onBack, onProgress }: CommonGameP
     },
   ];
 
+  const totalTasks = level === 1 ? 2 : level === 2 ? 3 : TASKS.length;
   const currentTask = TASKS[stepIndex % TASKS.length];
 
   function handleSelect(isCorrect: boolean) {
@@ -1078,14 +1330,30 @@ export function GameInteractiveScreen({ onNav, onBack, onProgress }: CommonGameP
       setScore(nextScore);
       setTimeout(() => {
         setFeedback(null);
-        if (stepIndex + 1 >= TASKS.length) {
+        if (stepIndex + 1 >= totalTasks) {
+          const res = recordGamePerformance({
+            gameId,
+            gameTitle: "Interactive Cognitive Activity",
+            skill: "Recognition",
+            level,
+            accuracy: 100,
+            correctAnswers: totalTasks,
+            totalQuestions: totalTasks,
+            attempts: 1,
+            completionTime: 25,
+            hintsUsed: 0,
+            retries: 0,
+            timestamp: Date.now(),
+            completed: true,
+          });
+          setAdaptiveResult(res);
           setWon(true);
           saveGameRecord({
             gameId: "game-interactive",
             gameTitle: "Interactive Cognitive Activity",
-            category: "Attention & Recognition",
+            category: "Recognition",
             score: `${nextScore} pts`,
-            difficulty,
+            difficulty: level === 1 ? "Easy" : level === 2 ? "Medium" : level === 3 ? "Hard" : "Standard",
           });
           onProgress();
         } else {
@@ -1106,24 +1374,40 @@ export function GameInteractiveScreen({ onNav, onBack, onProgress }: CommonGameP
   }
 
   if (won) {
-    return <GameVictoryModal score={`${score} points`} onReplay={restart} onBack={onBack} onNav={onNav} />;
+    return (
+      <GameVictoryModal
+        title="Recognition Master!"
+        message={`You completed the observation activity at Level ${level}!`}
+        score={`${score} points`}
+        feedbackMessage={adaptiveResult?.feedbackMessage}
+        unlockedNewLevel={adaptiveResult?.unlockedNewLevel}
+        nextRecommendedLevel={adaptiveResult?.nextRecommendedLevel}
+        currentLevel={level}
+        onNextLevel={(newLvl) => { setLevel(newLvl); restart(); }}
+        onReplay={restart}
+        onBack={onBack}
+        onNav={onNav}
+      />
+    );
   }
 
   return (
     <div className="min-h-screen pb-24 pt-6 space-y-6">
-      <GameHeader
+      <AdaptiveGameHeader
+        gameId={gameId}
         title="Interactive Cognitive Activity"
         subtitle="Follow visual instructions and tap the requested target object."
+        level={level}
+        setLevel={(lvl) => { setLevel(lvl); restart(); }}
+        unlockedLevel={unlockedLevel}
         onBack={onBack}
         onNav={onNav}
-        difficulty={difficulty}
-        setDifficulty={setDifficulty}
       />
 
       <div className="max-w-md mx-auto px-4 space-y-6 text-center">
         <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-3xl p-6 sm:p-8 space-y-6 shadow-lg">
           <div className="inline-block px-3.5 py-1 bg-[var(--brass-light)] text-[var(--brass-dark)] border border-[var(--brass)] font-extrabold text-xs rounded-xl">
-            Task {stepIndex + 1} of {TASKS.length}
+            Task {stepIndex + 1} of {totalTasks}
           </div>
 
           <h2 className="text-2xl font-black text-[var(--text-primary)] leading-snug">
@@ -1159,16 +1443,24 @@ export function GameInteractiveScreen({ onNav, onBack, onProgress }: CommonGameP
 // ═══════════════════════════════════════════════════════════════════
 
 export function GameBazaarScreen({ onNav, onBack, onProgress }: CommonGameProps) {
-  const [difficulty, setDifficulty] = useState<"Easy" | "Medium" | "Hard">("Easy");
+  const gameId = "sorting_game";
+  const [level, setLevel] = useState<number>(() => getUnlockedLevel(gameId));
+  const unlockedLevel = getUnlockedLevel(gameId);
+  const [adaptiveResult, setAdaptiveResult] = useState<any>(null);
 
-  const ITEMS = [
+  const ALL_ITEMS = [
     { name: "Assam Tea Leaf", category: "FOOD", emoji: "🍃" },
     { name: "Bhoot Jolokia", category: "FOOD", emoji: "🌶️" },
     { name: "Banana", category: "FOOD", emoji: "🍌" },
+    { name: "Kazi Nemu Lemon", category: "FOOD", emoji: "🍋" },
     { name: "Bamboo Basket", category: "HANDICRAFT", emoji: "🧺" },
     { name: "Eri Silk Yarn", category: "HANDICRAFT", emoji: "🧶" },
     { name: "Brass Utensil", category: "HANDICRAFT", emoji: "🫖" },
+    { name: "Handloom Gamusa", category: "HANDICRAFT", emoji: "🧣" },
   ];
+
+  const itemCount = level === 1 ? 4 : level === 2 ? 6 : 8;
+  const ITEMS = ALL_ITEMS.slice(0, itemCount);
 
   const [remainingItems, setRemainingItems] = useState(ITEMS);
   const [selectedItem, setSelectedItem] = useState<(typeof ITEMS)[0] | null>(null);
@@ -1176,6 +1468,14 @@ export function GameBazaarScreen({ onNav, onBack, onProgress }: CommonGameProps)
   const [craftBasket, setCraftBasket] = useState<typeof ITEMS>([]);
   const [won, setWon] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
+
+  useEffect(() => {
+    setRemainingItems(ITEMS);
+    setSelectedItem(null);
+    setFoodBasket([]);
+    setCraftBasket([]);
+    setWon(false);
+  }, [level]);
 
   function sortItem(item: (typeof ITEMS)[0], targetCategory: "FOOD" | "HANDICRAFT") {
     if (item.category === targetCategory) {
@@ -1191,13 +1491,29 @@ export function GameBazaarScreen({ onNav, onBack, onProgress }: CommonGameProps)
 
       if (nextRemaining.length === 0) {
         setTimeout(() => {
+          const res = recordGamePerformance({
+            gameId,
+            gameTitle: "NER Bazaar Sorting",
+            skill: "Categorization",
+            level,
+            accuracy: 100,
+            correctAnswers: itemCount,
+            totalQuestions: itemCount,
+            attempts: 1,
+            completionTime: 35,
+            hintsUsed: 0,
+            retries: 0,
+            timestamp: Date.now(),
+            completed: true,
+          });
+          setAdaptiveResult(res);
           setWon(true);
           saveGameRecord({
             gameId: "game-bazaar",
             gameTitle: "NER Bazaar Sorting Game",
-            category: "Logic & Categorization",
+            category: "Categorization",
             score: "All Sorted",
-            difficulty,
+            difficulty: level === 1 ? "Easy" : level === 2 ? "Medium" : level === 3 ? "Hard" : "Standard",
           });
           onProgress();
         }, 600);
@@ -1215,7 +1531,6 @@ export function GameBazaarScreen({ onNav, onBack, onProgress }: CommonGameProps)
     }
   }
 
-  // HTML5 Drag & Drop for Desktop
   function handleDragStart(e: React.DragEvent, item: (typeof ITEMS)[0]) {
     e.dataTransfer.setData("text/plain", JSON.stringify(item));
     setSelectedItem(item);
@@ -1239,18 +1554,34 @@ export function GameBazaarScreen({ onNav, onBack, onProgress }: CommonGameProps)
   }
 
   if (won) {
-    return <GameVictoryModal title="Bazaar Sorted!" message="You correctly sorted all food & handicraft items into their baskets!" score="100%" onReplay={restart} onBack={onBack} onNav={onNav} />;
+    return (
+      <GameVictoryModal
+        title="Bazaar Sorted!"
+        message={`You correctly sorted all ${itemCount} food & handicraft items into their baskets!`}
+        score="100%"
+        feedbackMessage={adaptiveResult?.feedbackMessage}
+        unlockedNewLevel={adaptiveResult?.unlockedNewLevel}
+        nextRecommendedLevel={adaptiveResult?.nextRecommendedLevel}
+        currentLevel={level}
+        onNextLevel={(newLvl) => setLevel(newLvl)}
+        onReplay={restart}
+        onBack={onBack}
+        onNav={onNav}
+      />
+    );
   }
 
   return (
     <div className="min-h-screen pb-24 pt-6 space-y-6">
-      <GameHeader
+      <AdaptiveGameHeader
+        gameId={gameId}
         title="NER Bazaar Sorting Game"
         subtitle="Drag or tap items into the FOOD or HANDICRAFT basket."
+        level={level}
+        setLevel={setLevel}
+        unlockedLevel={unlockedLevel}
         onBack={onBack}
         onNav={onNav}
-        difficulty={difficulty}
-        setDifficulty={setDifficulty}
       />
 
       <div className="max-w-xl mx-auto px-4 space-y-6">
@@ -1328,25 +1659,28 @@ export function GameBazaarScreen({ onNav, onBack, onProgress }: CommonGameProps)
 // ═══════════════════════════════════════════════════════════════════
 
 export function GameMemoryLaneScreen({ onNav, onBack, onProgress }: CommonGameProps) {
+  const gameId = "memory_lane";
+  const [level, setLevel] = useState<number>(() => getUnlockedLevel(gameId));
+  const unlockedLevel = getUnlockedLevel(gameId);
   const [activeIdx, setActiveIdx] = useState(0);
   const [userChoice, setUserChoice] = useState<string | null>(null);
 
   const CARDS = [
     {
       title: "Guwahati River Ghat & Brahmaputra Ferries",
-      prompt: "Kya aapne kabhi river ferry par yatra ki hai?",
+      prompt: "Have you ever traveled on a river ferry across the majestic river?",
       sound: "water",
       img: import.meta.env.BASE_URL + "vintage_radio_memory.png",
     },
     {
       title: "Traditional Assam Tea Estate House",
-      prompt: "Kya aapko chai ke baugon ki subah ki taaza thand yaad hai?",
+      prompt: "Do you remember the fresh morning breeze near green tea gardens?",
       sound: "bird",
       img: import.meta.env.BASE_URL + "tea_garden_memory.png",
     },
     {
       title: "Bihu Festival & Spring Celebrations",
-      prompt: "Kya aapne Dhol ki taal par Bihu nritya dekha ya kiya hai?",
+      prompt: "Have you enjoyed the rhythmic Dhol beats during Bihu celebrations?",
       sound: "dhol",
       img: import.meta.env.BASE_URL + "bihu_celebration_memory.png",
     },
@@ -1364,12 +1698,27 @@ export function GameMemoryLaneScreen({ onNav, onBack, onProgress }: CommonGamePr
     const next = (activeIdx + 1) % CARDS.length;
     setActiveIdx(next);
     if (next === 0) {
+      recordGamePerformance({
+        gameId,
+        gameTitle: "Northeast Memory Lane",
+        skill: "Memory",
+        level,
+        accuracy: 100,
+        correctAnswers: CARDS.length,
+        totalQuestions: CARDS.length,
+        attempts: 1,
+        completionTime: 30,
+        hintsUsed: 0,
+        retries: 0,
+        timestamp: Date.now(),
+        completed: true,
+      });
       saveGameRecord({
         gameId: "game-memory-lane",
         gameTitle: "Memory Lane Reminiscence",
         category: "Memory",
         score: "Completed Reminiscence",
-        difficulty: "Standard",
+        difficulty: level === 1 ? "Easy" : level === 2 ? "Medium" : level === 3 ? "Hard" : "Standard",
       });
       onProgress();
     }
@@ -1377,9 +1726,13 @@ export function GameMemoryLaneScreen({ onNav, onBack, onProgress }: CommonGamePr
 
   return (
     <div className="min-h-screen pb-24 pt-6 space-y-6">
-      <GameHeader
+      <AdaptiveGameHeader
+        gameId={gameId}
         title="Memory Lane: Purana North-East"
         subtitle="Interactive digital reminiscence photo cards with gentle prompts and audio."
+        level={level}
+        setLevel={setLevel}
+        unlockedLevel={unlockedLevel}
         onBack={onBack}
         onNav={onNav}
       />
@@ -1397,7 +1750,6 @@ export function GameMemoryLaneScreen({ onNav, onBack, onProgress }: CommonGamePr
             <p className="text-base text-[var(--oxblood-dark)] font-bold italic">"{current.prompt}"</p>
           </div>
 
-          {/* User response buttons */}
           <div className="space-y-3">
             <div className="text-xs font-bold text-[var(--text-muted)] uppercase">Share Your Memory:</div>
             <div className="flex justify-center gap-2">
@@ -1438,14 +1790,29 @@ export function GameMemoryLaneScreen({ onNav, onBack, onProgress }: CommonGamePr
 }
 
 // ═══════════════════════════════════════════════════════════════════
-//  8. KAZIRANGA 4-PIECE PUZZLE (Dedicated 2x2 Assembly)
+//  8. KAZIRANGA PUZZLE (Dedicated Grid Assembly)
 // ═══════════════════════════════════════════════════════════════════
 
 export function GameKazirangaPuzzleScreen({ onNav, onBack, onProgress }: CommonGameProps) {
-  const [grid, setGrid] = useState<(number | null)[]>([null, null, null, null]);
+  const gameId = "kaziranga_puzzle";
+  const [level, setLevel] = useState<number>(() => getUnlockedLevel(gameId));
+  const unlockedLevel = getUnlockedLevel(gameId);
+  const [adaptiveResult, setAdaptiveResult] = useState<any>(null);
+
+  const pieceCount = level === 1 ? 4 : level === 2 ? 6 : level === 3 ? 9 : 12;
+  const gridCols = level === 1 ? "grid-cols-2" : level === 2 ? "grid-cols-3" : level === 3 ? "grid-cols-3" : "grid-cols-4";
+
+  const [grid, setGrid] = useState<(number | null)[]>(() => Array(pieceCount).fill(null));
   const [selectedPiece, setSelectedPiece] = useState<number | null>(null);
-  const [tray, setTray] = useState<number[]>([2, 0, 3, 1]);
+  const [tray, setTray] = useState<number[]>(() => Array.from({ length: pieceCount }, (_, i) => i).sort(() => Math.random() - 0.5));
   const [won, setWon] = useState(false);
+
+  useEffect(() => {
+    setGrid(Array(pieceCount).fill(null));
+    setSelectedPiece(null);
+    setTray(Array.from({ length: pieceCount }, (_, i) => i).sort(() => Math.random() - 0.5));
+    setWon(false);
+  }, [level, pieceCount]);
 
   function placePiece(slotIdx: number, pieceIdx: number) {
     playSoundTone("flip");
@@ -1464,13 +1831,29 @@ export function GameKazirangaPuzzleScreen({ onNav, onBack, onProgress }: CommonG
 
     if (nextGrid.every((p, i) => p === i)) {
       playSoundTone("correct");
+      const res = recordGamePerformance({
+        gameId,
+        gameTitle: "Kaziranga Wildlife Puzzle",
+        skill: "Visual-Spatial",
+        level,
+        accuracy: 100,
+        correctAnswers: pieceCount,
+        totalQuestions: pieceCount,
+        attempts: 1,
+        completionTime: 35,
+        hintsUsed: 0,
+        retries: 0,
+        timestamp: Date.now(),
+        completed: true,
+      });
+      setAdaptiveResult(res);
       setWon(true);
       saveGameRecord({
         gameId: "game-kaziranga-puzzle",
-        gameTitle: "Kaziranga 4-Piece Puzzle",
+        gameTitle: "Kaziranga Wildlife Puzzle",
         category: "Visual-Spatial",
         score: "100% Completed",
-        difficulty: "Easy",
+        difficulty: level === 1 ? "Easy" : level === 2 ? "Medium" : level === 3 ? "Hard" : "Standard",
       });
       onProgress();
     }
@@ -1483,28 +1866,46 @@ export function GameKazirangaPuzzleScreen({ onNav, onBack, onProgress }: CommonG
   }
 
   function restart() {
-    setGrid([null, null, null, null]);
+    setGrid(Array(pieceCount).fill(null));
     setSelectedPiece(null);
-    setTray([2, 0, 3, 1]);
+    setTray(Array.from({ length: pieceCount }, (_, i) => i).sort(() => Math.random() - 0.5));
     setWon(false);
   }
 
   if (won) {
-    return <GameVictoryModal title="Kaziranga Rhino Complete!" message="You assembled all 4 pieces of the Kaziranga rhino image!" score="100%" onReplay={restart} onBack={onBack} onNav={onNav} />;
+    return (
+      <GameVictoryModal
+        title="Kaziranga Rhino Complete!"
+        message={`You assembled all ${pieceCount} pieces of the Kaziranga rhino image!`}
+        score="100%"
+        feedbackMessage={adaptiveResult?.feedbackMessage}
+        unlockedNewLevel={adaptiveResult?.unlockedNewLevel}
+        nextRecommendedLevel={adaptiveResult?.nextRecommendedLevel}
+        currentLevel={level}
+        onNextLevel={(newLvl) => setLevel(newLvl)}
+        onReplay={restart}
+        onBack={onBack}
+        onNav={onNav}
+      />
+    );
   }
 
   return (
     <div className="min-h-screen pb-24 pt-6 space-y-6">
-      <GameHeader
-        title="Kaziranga 4-Piece Visual Puzzle"
-        subtitle="Tap or drag a piece from the tray into the 2x2 target slots."
+      <AdaptiveGameHeader
+        gameId={gameId}
+        title="Kaziranga Wildlife Visual Puzzle"
+        subtitle="Tap or drag a piece from the tray into the target slots."
+        level={level}
+        setLevel={setLevel}
+        unlockedLevel={unlockedLevel}
         onBack={onBack}
         onNav={onNav}
       />
 
       <div className="max-w-md mx-auto px-4 space-y-6 text-center">
         <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-3xl p-6 space-y-4 shadow-lg">
-          <div className="grid grid-cols-2 gap-2 max-w-xs mx-auto aspect-square p-2 bg-[var(--bg-section)] rounded-2xl border-2 border-dashed border-[var(--brass)]">
+          <div className={`grid ${gridCols} gap-2 max-w-xs mx-auto aspect-square p-2 bg-[var(--bg-section)] rounded-2xl border-2 border-dashed border-[var(--brass)]`}>
             {grid.map((piece, slotIdx) => (
               <button
                 key={slotIdx}
@@ -1519,11 +1920,11 @@ export function GameKazirangaPuzzleScreen({ onNav, onBack, onProgress }: CommonG
               >
                 {piece !== null ? (
                   <div className="text-center">
-                    <span className="text-4xl">🦏</span>
+                    <span className="text-3xl sm:text-4xl">🦏</span>
                     <span className="text-[10px] block font-black uppercase">Part {piece + 1} {piece === slotIdx ? "✓" : ""}</span>
                   </div>
                 ) : (
-                  <span>Slot {slotIdx + 1}</span>
+                  <span className="text-xs">Slot {slotIdx + 1}</span>
                 )}
               </button>
             ))}
@@ -1532,18 +1933,18 @@ export function GameKazirangaPuzzleScreen({ onNav, onBack, onProgress }: CommonG
 
         <div className="bg-[var(--bg-section)] border border-[var(--border)] rounded-3xl p-5 space-y-3">
           <div className="text-xs font-bold text-[var(--text-muted)] uppercase">Tray Pieces</div>
-          <div className="flex justify-center gap-3">
+          <div className="flex flex-wrap justify-center gap-3">
             {tray.map((piece) => (
               <button
                 key={piece}
                 onClick={() => { playSoundTone("flip"); setSelectedPiece(piece); }}
-                className={`w-20 h-20 rounded-2xl flex flex-col items-center justify-center font-black border-2 cursor-pointer transition-all active:scale-95 ${
+                className={`w-16 h-16 sm:w-20 sm:h-20 rounded-2xl flex flex-col items-center justify-center font-black border-2 cursor-pointer transition-all active:scale-95 ${
                   selectedPiece === piece
                     ? "bg-[var(--oxblood)] text-white border-[var(--brass)] ring-4 ring-[var(--brass-light)] scale-105"
                     : "bg-[var(--bg-card)] text-[var(--text-primary)] border-[var(--border)]"
                 }`}
               >
-                <span className="text-3xl">🦏</span>
+                <span className="text-2xl sm:text-3xl">🦏</span>
                 <span className="text-[10px]">Part {piece + 1}</span>
               </button>
             ))}
@@ -1559,7 +1960,11 @@ export function GameKazirangaPuzzleScreen({ onNav, onBack, onProgress }: CommonG
 // ═══════════════════════════════════════════════════════════════════
 
 export function GameWhatsMissingScreen({ onNav, onBack, onProgress }: CommonGameProps) {
-  const [difficulty, setDifficulty] = useState<"Easy" | "Medium" | "Hard">("Easy");
+  const gameId = "whats_missing";
+  const [level, setLevel] = useState<number>(() => getUnlockedLevel(gameId));
+  const unlockedLevel = getUnlockedLevel(gameId);
+  const [adaptiveResult, setAdaptiveResult] = useState<any>(null);
+
   const [phase, setPhase] = useState<"observe" | "recall">("observe");
   const [timer, setTimer] = useState(5);
   const [missingItem, setMissingItem] = useState<{ name: string; emoji: string } | null>(null);
@@ -1580,7 +1985,8 @@ export function GameWhatsMissingScreen({ onNav, onBack, onProgress }: CommonGame
   ];
 
   const startRound = useCallback(() => {
-    const count = difficulty === "Easy" ? 3 : difficulty === "Medium" ? 4 : 5;
+    const count = level === 1 ? 3 : level === 2 ? 4 : level === 3 ? 5 : 6;
+    const obsTime = level === 1 ? 5 : level === 2 ? 4 : 3;
     const shuffled = [...ITEMS].sort(() => Math.random() - 0.5).slice(0, count);
     setDisplayItems(shuffled);
 
@@ -1592,9 +1998,9 @@ export function GameWhatsMissingScreen({ onNav, onBack, onProgress }: CommonGame
     setOptions(opts);
 
     setPhase("observe");
-    setTimer(5);
+    setTimer(obsTime);
     setFeedback(null);
-  }, [difficulty]);
+  }, [level]);
 
   useEffect(() => { startRound(); }, [startRound]);
 
@@ -1616,13 +2022,29 @@ export function GameWhatsMissingScreen({ onNav, onBack, onProgress }: CommonGame
       setScore(nextScore);
       setTimeout(() => {
         if (rounds + 1 >= 3) {
+          const res = recordGamePerformance({
+            gameId,
+            gameTitle: "What's Missing?",
+            skill: "Visual-Spatial",
+            level,
+            accuracy: Math.round((nextScore / 30) * 100),
+            correctAnswers: Math.round(nextScore / 10),
+            totalQuestions: 3,
+            attempts: 3,
+            completionTime: 25,
+            hintsUsed: 0,
+            retries: 0,
+            timestamp: Date.now(),
+            completed: true,
+          });
+          setAdaptiveResult(res);
           setWon(true);
           saveGameRecord({
             gameId: "game-whats-missing",
             gameTitle: "What's Missing?",
-            category: "Memory",
+            category: "Visual-Spatial",
             score: `${nextScore} pts`,
-            difficulty,
+            difficulty: level === 1 ? "Easy" : level === 2 ? "Medium" : level === 3 ? "Hard" : "Standard",
           });
           onProgress();
         } else {
@@ -1637,19 +2059,42 @@ export function GameWhatsMissingScreen({ onNav, onBack, onProgress }: CommonGame
     }
   }
 
+  function restart() {
+    setScore(0);
+    setRounds(0);
+    setWon(false);
+    startRound();
+  }
+
   if (won) {
-    return <GameVictoryModal score={`${score} points`} onReplay={() => { setScore(0); setRounds(0); setWon(false); startRound(); }} onBack={onBack} onNav={onNav} />;
+    return (
+      <GameVictoryModal
+        title="Visual Recall Completed!"
+        message="You successfully recalled the missing objects across all rounds!"
+        score={`${score} points`}
+        feedbackMessage={adaptiveResult?.feedbackMessage}
+        unlockedNewLevel={adaptiveResult?.unlockedNewLevel}
+        nextRecommendedLevel={adaptiveResult?.nextRecommendedLevel}
+        currentLevel={level}
+        onNextLevel={(newLvl) => { setLevel(newLvl); restart(); }}
+        onReplay={restart}
+        onBack={onBack}
+        onNav={onNav}
+      />
+    );
   }
 
   return (
     <div className="min-h-screen pb-24 pt-6 space-y-6">
-      <GameHeader
+      <AdaptiveGameHeader
+        gameId={gameId}
         title="What's Missing?"
         subtitle="Observe the objects carefully before one disappears!"
+        level={level}
+        setLevel={(lvl) => { setLevel(lvl); restart(); }}
+        unlockedLevel={unlockedLevel}
         onBack={onBack}
         onNav={onNav}
-        difficulty={difficulty}
-        setDifficulty={setDifficulty}
       />
 
       <div className="max-w-md mx-auto px-4 space-y-6 text-center">
@@ -1716,17 +2161,34 @@ export function GameWhatsMissingScreen({ onNav, onBack, onProgress }: CommonGame
 // ═══════════════════════════════════════════════════════════════════
 
 export function GameRoutineScreen({ onNav, onBack, onProgress }: CommonGameProps) {
-  const ROUTINE = [
+  const gameId = "daily_routine";
+  const [level, setLevel] = useState<number>(() => getUnlockedLevel(gameId));
+  const unlockedLevel = getUnlockedLevel(gameId);
+  const [adaptiveResult, setAdaptiveResult] = useState<any>(null);
+
+  const ALL_ROUTINE = [
     { id: 1, title: "Wake Up", emoji: "🌅" },
     { id: 2, title: "Brush Teeth", emoji: "🪥" },
-    { id: 3, title: "Breakfast & Tea", emoji: "☕" },
+    { id: 3, title: "Morning Chai", emoji: "☕" },
     { id: 4, title: "Take Medicine", emoji: "💊" },
-    { id: 5, title: "Afternoon Rest", emoji: "🌙" },
+    { id: 5, title: "Walk in Garden", emoji: "🚶‍♂️" },
+    { id: 6, title: "Lunch", emoji: "🍲" },
+    { id: 7, title: "Afternoon Rest", emoji: "🌙" },
+    { id: 8, title: "Family Call", emoji: "📞" },
   ];
 
-  const [cards, setCards] = useState([...ROUTINE].sort(() => Math.random() - 0.5));
+  const cardCount = level === 1 ? 3 : level === 2 ? 4 : level === 3 ? 6 : 8;
+  const ROUTINE = ALL_ROUTINE.slice(0, cardCount);
+
+  const [cards, setCards] = useState(() => [...ROUTINE].sort(() => Math.random() - 0.5));
   const [won, setWon] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
+
+  useEffect(() => {
+    setCards([...ROUTINE].sort(() => Math.random() - 0.5));
+    setWon(false);
+    setFeedback(null);
+  }, [level]);
 
   function move(idx: number, direction: -1 | 1) {
     playSoundTone("flip");
@@ -1743,16 +2205,32 @@ export function GameRoutineScreen({ onNav, onBack, onProgress }: CommonGameProps
       playSoundTone("correct");
       setFeedback("✨ Perfect daily sequence!");
       setTimeout(() => {
+        const res = recordGamePerformance({
+          gameId,
+          gameTitle: "Daily Routine Sequencing",
+          skill: "Sequencing",
+          level,
+          accuracy: 100,
+          correctAnswers: cardCount,
+          totalQuestions: cardCount,
+          attempts: 1,
+          completionTime: 30,
+          hintsUsed: 0,
+          retries: 0,
+          timestamp: Date.now(),
+          completed: true,
+        });
+        setAdaptiveResult(res);
         setWon(true);
         saveGameRecord({
           gameId: "game-routine",
           gameTitle: "Daily Routine Ordering",
-          category: "Routine & Sequencing",
-          score: "100% Sequence",
-          difficulty: "Standard",
+          category: "Sequencing",
+          score: "Ordered Correctly",
+          difficulty: level === 1 ? "Easy" : level === 2 ? "Medium" : level === 3 ? "Hard" : "Standard",
         });
         onProgress();
-      }, 800);
+      }, 700);
     } else {
       playSoundTone("wrong");
       setFeedback("Some activities are out of order. Hint: Wake Up is first!");
@@ -1760,15 +2238,39 @@ export function GameRoutineScreen({ onNav, onBack, onProgress }: CommonGameProps
     }
   }
 
+  function restart() {
+    setCards([...ROUTINE].sort(() => Math.random() - 0.5));
+    setWon(false);
+    setFeedback(null);
+  }
+
   if (won) {
-    return <GameVictoryModal title="Routine Ordered!" message="You arranged all daily activities into proper sequence!" score="100%" onReplay={() => { setCards([...ROUTINE].sort(() => Math.random() - 0.5)); setWon(false); }} onBack={onBack} onNav={onNav} />;
+    return (
+      <GameVictoryModal
+        title="Routine Ordered!"
+        message={`You arranged all ${cardCount} daily activities into proper sequence!`}
+        score="100%"
+        feedbackMessage={adaptiveResult?.feedbackMessage}
+        unlockedNewLevel={adaptiveResult?.unlockedNewLevel}
+        nextRecommendedLevel={adaptiveResult?.nextRecommendedLevel}
+        currentLevel={level}
+        onNextLevel={(newLvl) => setLevel(newLvl)}
+        onReplay={restart}
+        onBack={onBack}
+        onNav={onNav}
+      />
+    );
   }
 
   return (
     <div className="min-h-screen pb-24 pt-6 space-y-6">
-      <GameHeader
+      <AdaptiveGameHeader
+        gameId={gameId}
         title="Daily Routine Ordering"
         subtitle="Arrange the daily activities into a natural morning-to-evening sequence."
+        level={level}
+        setLevel={setLevel}
+        unlockedLevel={unlockedLevel}
         onBack={onBack}
         onNav={onNav}
       />
@@ -1824,34 +2326,40 @@ export function GameRoutineScreen({ onNav, onBack, onProgress }: CommonGameProps
 }
 
 // ═══════════════════════════════════════════════════════════════════
-//  11. PATTERN RECOGNITION (ABAB / AABB / ABCABC)
+//  11. PATTERN RECOGNITION (ABAB / AABB / ABCABC / ABCD)
 // ═══════════════════════════════════════════════════════════════════
 
 export function GamePatternScreen({ onNav, onBack, onProgress }: CommonGameProps) {
-  const [difficulty, setDifficulty] = useState<"Easy" | "Medium" | "Hard">("Easy");
+  const gameId = "pattern_recognition";
+  const [level, setLevel] = useState<number>(() => getUnlockedLevel(gameId));
+  const unlockedLevel = getUnlockedLevel(gameId);
+  const [adaptiveResult, setAdaptiveResult] = useState<any>(null);
+
   const [step, setStep] = useState(0);
   const [score, setScore] = useState(0);
   const [won, setWon] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
 
-  const PATTERNS = [
-    {
-      sequence: ["🍃", "🦏", "🍃", "🦏", "?"],
-      answer: "🍃",
-      options: ["🍃", "🦏", "🧺"],
-    },
-    {
-      sequence: ["🧺", "🧺", "🛶", "🛶", "🧺", "?"],
-      answer: "🧺",
-      options: ["🛶", "🧺", "🦏"],
-    },
-    {
-      sequence: ["🦏", "🍃", "🧶", "🦏", "🍃", "?"],
-      answer: "🧶",
-      options: ["🍃", "🦏", "🧶"],
-    },
+  const PATTERNS_LEVEL1 = [
+    { sequence: ["🌺", "🍃", "🌺", "🍃", "?"], answer: "🌺", options: ["🌺", "🍃", "🦏"] },
+    { sequence: ["☕", "🍵", "☕", "🍵", "?"], answer: "☕", options: ["☕", "🍵", "🧺"] },
   ];
 
+  const PATTERNS_LEVEL2 = [
+    { sequence: ["🔴", "🔴", "🔵", "🔵", "🔴", "?"], answer: "🔴", options: ["🔴", "🔵", "🟡"] },
+    { sequence: ["🌸", "🌸", "🍃", "🍃", "🌸", "?"], answer: "🌸", options: ["🌸", "🍃", "🌾"] },
+  ];
+
+  const PATTERNS_LEVEL3 = [
+    { sequence: ["🌞", "🌙", "⭐", "🌞", "🌙", "?"], answer: "⭐", options: ["⭐", "🌞", "🌙"] },
+    { sequence: ["🦏", "🐘", "🐅", "🦏", "🐘", "?"], answer: "🐅", options: ["🐅", "🦏", "🐘"] },
+  ];
+
+  const PATTERNS_LEVEL4 = [
+    { sequence: ["🟢", "🟡", "🔵", "🔴", "🟢", "🟡", "🔵", "?"], answer: "🔴", options: ["🔴", "🔵", "🟢"] },
+  ];
+
+  const PATTERNS = level === 1 ? PATTERNS_LEVEL1 : level === 2 ? PATTERNS_LEVEL2 : level === 3 ? PATTERNS_LEVEL3 : PATTERNS_LEVEL4;
   const current = PATTERNS[step % PATTERNS.length];
 
   function handleSelect(choice: string) {
@@ -1862,13 +2370,29 @@ export function GamePatternScreen({ onNav, onBack, onProgress }: CommonGameProps
       setScore(nextScore);
       setTimeout(() => {
         if (step + 1 >= PATTERNS.length) {
+          const res = recordGamePerformance({
+            gameId,
+            gameTitle: "Pattern Recognition",
+            skill: "Pattern Recognition",
+            level,
+            accuracy: 100,
+            correctAnswers: PATTERNS.length,
+            totalQuestions: PATTERNS.length,
+            attempts: 1,
+            completionTime: 20,
+            hintsUsed: 0,
+            retries: 0,
+            timestamp: Date.now(),
+            completed: true,
+          });
+          setAdaptiveResult(res);
           setWon(true);
           saveGameRecord({
             gameId: "game-pattern",
             gameTitle: "Pattern Recognition",
-            category: "Attention & Recognition",
+            category: "Pattern Recognition",
             score: `${nextScore} pts`,
-            difficulty,
+            difficulty: level === 1 ? "Easy" : level === 2 ? "Medium" : level === 3 ? "Hard" : "Standard",
           });
           onProgress();
         } else {
@@ -1883,19 +2407,42 @@ export function GamePatternScreen({ onNav, onBack, onProgress }: CommonGameProps
     }
   }
 
+  function restart() {
+    setStep(0);
+    setScore(0);
+    setWon(false);
+    setFeedback(null);
+  }
+
   if (won) {
-    return <GameVictoryModal score={`${score} points`} onReplay={() => { setStep(0); setScore(0); setWon(false); }} onBack={onBack} onNav={onNav} />;
+    return (
+      <GameVictoryModal
+        title="Pattern Master!"
+        message={`You completed all pattern challenges at Level ${level}!`}
+        score={`${score} points`}
+        feedbackMessage={adaptiveResult?.feedbackMessage}
+        unlockedNewLevel={adaptiveResult?.unlockedNewLevel}
+        nextRecommendedLevel={adaptiveResult?.nextRecommendedLevel}
+        currentLevel={level}
+        onNextLevel={(newLvl) => { setLevel(newLvl); restart(); }}
+        onReplay={restart}
+        onBack={onBack}
+        onNav={onNav}
+      />
+    );
   }
 
   return (
     <div className="min-h-screen pb-24 pt-6 space-y-6">
-      <GameHeader
+      <AdaptiveGameHeader
+        gameId={gameId}
         title="Pattern Recognition"
         subtitle="Identify the repeating pattern and pick the item that comes next."
+        level={level}
+        setLevel={(lvl) => { setLevel(lvl); restart(); }}
+        unlockedLevel={unlockedLevel}
         onBack={onBack}
         onNav={onNav}
-        difficulty={difficulty}
-        setDifficulty={setDifficulty}
       />
 
       <div className="max-w-md mx-auto px-4 space-y-6 text-center">
@@ -1940,7 +2487,11 @@ export function GamePatternScreen({ onNav, onBack, onProgress }: CommonGameProps
 // ═══════════════════════════════════════════════════════════════════
 
 export function GameSoundRecScreen({ onNav, onBack, onProgress }: CommonGameProps) {
-  const [difficulty, setDifficulty] = useState<"Easy" | "Medium" | "Hard">("Easy");
+  const gameId = "sound_rec";
+  const [level, setLevel] = useState<number>(() => getUnlockedLevel(gameId));
+  const unlockedLevel = getUnlockedLevel(gameId);
+  const [adaptiveResult, setAdaptiveResult] = useState<any>(null);
+
   const [step, setStep] = useState(0);
   const [score, setScore] = useState(0);
   const [won, setWon] = useState(false);
@@ -1966,13 +2517,29 @@ export function GameSoundRecScreen({ onNav, onBack, onProgress }: CommonGameProp
       setScore(nextScore);
       setTimeout(() => {
         if (step + 1 >= SOUND_TASKS.length) {
+          const res = recordGamePerformance({
+            gameId,
+            gameTitle: "Sound Recognition",
+            skill: "Recognition",
+            level,
+            accuracy: 100,
+            correctAnswers: SOUND_TASKS.length,
+            totalQuestions: SOUND_TASKS.length,
+            attempts: 1,
+            completionTime: 25,
+            hintsUsed: 0,
+            retries: 0,
+            timestamp: Date.now(),
+            completed: true,
+          });
+          setAdaptiveResult(res);
           setWon(true);
           saveGameRecord({
             gameId: "game-sound-rec",
             gameTitle: "Sound Recognition & Memory",
-            category: "Memory",
+            category: "Recognition",
             score: `${nextScore} pts`,
-            difficulty,
+            difficulty: level === 1 ? "Easy" : level === 2 ? "Medium" : level === 3 ? "Hard" : "Standard",
           });
           onProgress();
         } else {
@@ -1987,19 +2554,42 @@ export function GameSoundRecScreen({ onNav, onBack, onProgress }: CommonGameProp
     }
   }
 
+  function restart() {
+    setStep(0);
+    setScore(0);
+    setWon(false);
+    setFeedback(null);
+  }
+
   if (won) {
-    return <GameVictoryModal score={`${score} points`} onReplay={() => { setStep(0); setScore(0); setWon(false); }} onBack={onBack} onNav={onNav} />;
+    return (
+      <GameVictoryModal
+        title="Auditory Recognition Complete!"
+        message={`You recognized all ambient sound tracks at Level ${level}!`}
+        score={`${score} points`}
+        feedbackMessage={adaptiveResult?.feedbackMessage}
+        unlockedNewLevel={adaptiveResult?.unlockedNewLevel}
+        nextRecommendedLevel={adaptiveResult?.nextRecommendedLevel}
+        currentLevel={level}
+        onNextLevel={(newLvl) => { setLevel(newLvl); restart(); }}
+        onReplay={restart}
+        onBack={onBack}
+        onNav={onNav}
+      />
+    );
   }
 
   return (
     <div className="min-h-screen pb-24 pt-6 space-y-6">
-      <GameHeader
+      <AdaptiveGameHeader
+        gameId={gameId}
         title="Sound Recognition & Memory"
         subtitle="Tap to listen to the audio sound, then pick the correct answer."
+        level={level}
+        setLevel={(lvl) => { setLevel(lvl); restart(); }}
+        unlockedLevel={unlockedLevel}
         onBack={onBack}
         onNav={onNav}
-        difficulty={difficulty}
-        setDifficulty={setDifficulty}
       />
 
       <div className="max-w-md mx-auto px-4 space-y-6 text-center">

@@ -2,6 +2,8 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { LanguageProvider, useLanguage } from "./LanguageContext";
 import { LANGUAGE_METADATA } from "./speechUtils";
 import {
+  AdaptiveGameHeader,
+  GameVictoryModal,
   GameWordPuzzlesScreen,
   GameJigsawScreen,
   GameDiceScreen,
@@ -16,6 +18,12 @@ import {
   GameSoundRecScreen,
   getGameRecords,
 } from "./CognitiveGames";
+import {
+  getAIRecommendation,
+  getSkillProfiles,
+  getUnlockedLevel,
+  recordGamePerformance,
+} from "./adaptiveEngine";
 
 // ═══════════════════════════════════════════════════════════════════
 //  TYPES
@@ -619,6 +627,65 @@ function NavBar({
 }
 
 // ═══════════════════════════════════════════════════════════════════
+//  AI RECOMMENDATION CARD COMPONENT
+// ═══════════════════════════════════════════════════════════════════
+
+function AIRecommendationCard({ onNav }: { onNav: (s: Screen) => void }) {
+  const { t } = useLanguage();
+  const rec = getAIRecommendation();
+
+  const gameToScreenMap: Record<string, Screen> = {
+    "memory_match": "game-memory",
+    "whats_missing": "game-whats-missing",
+    "pattern_recognition": "game-pattern",
+    "jigsaw_puzzle": "game-jigsaw",
+    "kaziranga_puzzle": "game-kaziranga-puzzle",
+    "sorting_game": "game-bazaar",
+    "daily_routine": "game-routine",
+    "word_puzzles": "game-word",
+    "dice_activity": "game-dice",
+    "board_game": "game-board",
+    "sound_rec": "game-sound-rec",
+    "interactive_stories": "game-interactive",
+    "memory_lane": "game-memory-lane",
+  };
+
+  const targetScreen = gameToScreenMap[rec.recommendedGameId] || "game-memory";
+
+  return (
+    <Card className="p-6 sm:p-8 bg-gradient-to-r from-[var(--oxblood-light)] via-[var(--bg-card)] to-[var(--brass-light)] border border-[var(--oxblood)] shadow-lg rounded-3xl relative overflow-hidden">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 relative z-10">
+        <div className="space-y-3 max-w-xl">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="px-3.5 py-1 bg-[var(--oxblood)] text-white text-xs font-black rounded-full uppercase tracking-wider shadow-sm flex items-center gap-1">
+              <span>🤖</span> {t.ai?.recommendedForYou || "Recommended for You"}
+            </span>
+            <span className="text-xs font-black text-[var(--oxblood-dark)] bg-white/90 px-3 py-1 rounded-full border border-[var(--oxblood)] shadow-xs">
+              {rec.recommendedLevelName}
+            </span>
+          </div>
+          <div>
+            <h3 className="text-2xl sm:text-3xl font-black text-[var(--text-primary)] tracking-tight">
+              {rec.recommendedGame}
+            </h3>
+            <p className="text-sm sm:text-base text-[var(--text-secondary)] font-medium mt-1.5 leading-relaxed">
+              "{rec.userFriendlyReason}"
+            </p>
+          </div>
+        </div>
+        <Btn
+          onClick={() => onNav(targetScreen)}
+          variant="primary"
+          className="text-base px-7 py-3.5 shadow-lg group cursor-pointer whitespace-nowrap shrink-0"
+        >
+          {t.ai?.playRecommended || "Play Recommended"} →
+        </Btn>
+      </div>
+    </Card>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════
 //  HOMEPAGE
 // ═══════════════════════════════════════════════════════════════════
 
@@ -657,6 +724,11 @@ function HomeScreen({ onNav, active, onSwitchProfile }: { onNav: (s: Screen) => 
           </div>
         </div>
       )}
+
+      {/* AI Recommendation Banner */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6">
+        <AIRecommendationCard onNav={onNav} />
+      </section>
 
       <section className="max-w-7xl mx-auto px-4 sm:px-6 pt-2">
         <div className="rounded-3xl bg-[var(--bg-section)] text-[var(--text-primary)] p-8 sm:p-14 border border-[var(--border)] shadow-xl relative overflow-hidden space-y-10">
@@ -876,6 +948,9 @@ function ActivitiesScreen({ onNav }: { onNav: (s: Screen) => void }) {
           <p className="text-lg text-[var(--text-secondary)] max-w-xl mx-auto font-medium">{t.activities.subtitle}</p>
         </div>
 
+        {/* AI Recommended Activity Header */}
+        <AIRecommendationCard onNav={onNav} />
+
         {/* Category Tabs */}
         <div className="flex items-center justify-center gap-2 flex-wrap pb-2 border-b border-[var(--border)]">
           {CATEGORIES.map((cat) => (
@@ -1086,7 +1161,8 @@ function MoreScreen({
 
 function GameMemoryScreen({ onNav, onBack, active, onProgress }: { onNav: (s: Screen) => void; onBack?: () => void; active: Profile | null; onProgress: () => void }) {
   const { t } = useLanguage();
-  const [difficulty, setDifficulty] = useState<"Easy" | "Medium" | "Hard">("Easy");
+  const [level, setLevel] = useState<number>(() => getUnlockedLevel("memory_match"));
+  const unlockedLevel = getUnlockedLevel("memory_match");
 
   const ALL_ITEMS = [
     { id: "1", emoji: "🍃", label: "Tea Leaf" },
@@ -1097,9 +1173,11 @@ function GameMemoryScreen({ onNav, onBack, active, onProgress }: { onNav: (s: Sc
     { id: "6", emoji: "🌸", label: "Orchid" },
     { id: "7", emoji: "🫖", label: "Tea Pot" },
     { id: "8", emoji: "🧺", label: "Basket" },
+    { id: "9", emoji: "🐦", label: "Hornbill" },
+    { id: "10", emoji: "🥁", label: "Bihu Dhol" },
   ];
 
-  const targetPairCount = difficulty === "Easy" ? 3 : difficulty === "Medium" ? 5 : 8;
+  const targetPairCount = level === 1 ? 3 : level === 2 ? 5 : level === 3 ? 8 : 10;
   const activeItems = ALL_ITEMS.slice(0, targetPairCount);
 
   const [cards, setCards] = useState<{ id: number; itemId: string; emoji: string; label: string; flipped: boolean; matched: boolean }[]>([]);
@@ -1107,6 +1185,8 @@ function GameMemoryScreen({ onNav, onBack, active, onProgress }: { onNav: (s: Sc
   const [moves, setMoves] = useState(0);
   const [matched, setMatched] = useState(0);
   const [won, setWon] = useState(false);
+  const [startTime, setStartTime] = useState<number>(Date.now());
+  const [victoryData, setVictoryData] = useState<{ feedbackMessage?: string; unlockedNewLevel?: boolean; nextRecommendedLevel?: number } | null>(null);
 
   const initGame = useCallback(() => {
     const doubled = [...activeItems, ...activeItems].map((item, idx) => ({
@@ -1116,8 +1196,8 @@ function GameMemoryScreen({ onNav, onBack, active, onProgress }: { onNav: (s: Sc
       const j = Math.floor(Math.random() * (i + 1));
       [doubled[i], doubled[j]] = [doubled[j], doubled[i]];
     }
-    setCards(doubled); setFlipped([]); setMoves(0); setMatched(0); setWon(false);
-  }, [difficulty]);
+    setCards(doubled); setFlipped([]); setMoves(0); setMatched(0); setWon(false); setStartTime(Date.now()); setVictoryData(null);
+  }, [level]);
 
   useEffect(() => { initGame(); }, [initGame]);
 
@@ -1142,14 +1222,37 @@ function GameMemoryScreen({ onNav, onBack, active, onProgress }: { onNav: (s: Sc
           const nextVal = m + 1;
           if (nextVal === activeItems.length) {
             setWon(true);
+            const duration = Math.round((Date.now() - startTime) / 1000);
+            const accuracy = Math.max(0, Math.min(100, Math.round((targetPairCount / Math.max(targetPairCount, nextMoves)) * 100)));
+            const res = recordGamePerformance({
+              gameId: "memory_match",
+              gameTitle: "Memory Photo Match",
+              category: "memory",
+              accuracy,
+              correctAnswers: targetPairCount,
+              incorrectAnswers: Math.max(0, nextMoves - targetPairCount),
+              attempts: nextMoves,
+              completionTimeSeconds: duration,
+              hintsUsed: 0,
+              retries: 0,
+              level,
+              consecutiveSuccesses: accuracy >= 75 ? 1 : 0,
+              consecutiveFailures: accuracy < 50 ? 1 : 0,
+              completed: true,
+            });
             saveGameRecord({
               gameId: "game-memory",
               gameTitle: "Memory Photo Match",
               category: "Memory",
-              score: `${nextMoves} moves`,
-              difficulty,
+              score: `${nextMoves} moves (${accuracy}% accuracy)`,
+              difficulty: `Level ${level}`,
             });
             onProgress();
+            setVictoryData({
+              feedbackMessage: res.feedbackMessage,
+              unlockedNewLevel: res.unlockedNewLevel,
+              nextRecommendedLevel: res.nextRecommendedLevel,
+            });
           }
           return nextVal;
         });
@@ -1166,59 +1269,48 @@ function GameMemoryScreen({ onNav, onBack, active, onProgress }: { onNav: (s: Sc
 
   if (won) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-6">
-        <div className="w-full max-w-md text-center space-y-6 bg-[var(--bg-card)] p-8 rounded-3xl border border-[var(--brass)] shadow-2xl">
-          <div className="text-8xl">🎉</div>
-          <h1 className="text-3xl font-black text-[var(--text-primary)]">{t.games.congrats}</h1>
-          <p className="text-base font-bold text-[var(--text-secondary)]">{t.games.moves}: {moves} attempts ({difficulty} difficulty)</p>
-          <div className="flex gap-3 justify-center pt-2">
-            <Btn onClick={initGame} variant="primary">{t.games.playAgain}</Btn>
-            <Btn onClick={onBack || (() => onNav("activities"))} variant="secondary">Back to Activities</Btn>
-          </div>
-          {!active && <StartYourJourneyCTA onNav={onNav} />}
-        </div>
-      </div>
+      <GameVictoryModal
+        title="Memory Match Complete!"
+        score={`${moves} moves (${Math.round((targetPairCount / Math.max(targetPairCount, moves)) * 100)}% accuracy)`}
+        feedbackMessage={victoryData?.feedbackMessage}
+        unlockedNewLevel={victoryData?.unlockedNewLevel}
+        nextRecommendedLevel={victoryData?.nextRecommendedLevel}
+        currentLevel={level}
+        onReplay={initGame}
+        onNextLevel={(nextLvl) => { setLevel(nextLvl); initGame(); }}
+        onBack={onBack}
+        onNav={onNav}
+      />
     );
   }
 
   return (
     <div className="min-h-screen pb-24 pt-6 space-y-6">
-      <div className="max-w-xl mx-auto px-4 space-y-6">
-        <div className="space-y-2 text-center">
-          <div className="flex items-center justify-between">
-            <button onClick={onBack || (() => onNav("activities"))} className="text-sm font-bold text-[var(--text-muted)] cursor-pointer hover:underline">
-              {t.games.backToActivities}
-            </button>
-            <div className="flex items-center gap-1 bg-[var(--bg-card)] border border-[var(--border)] p-1 rounded-xl text-xs font-bold">
-              {(["Easy", "Medium", "Hard"] as const).map((d) => (
-                <button
-                  key={d}
-                  onClick={() => setDifficulty(d)}
-                  className={`px-2.5 py-1 rounded-lg transition-all cursor-pointer ${
-                    difficulty === d
-                      ? "bg-[var(--oxblood)] text-white font-black shadow-sm"
-                      : "text-[var(--text-muted)] hover:text-[var(--text-primary)]"
-                  }`}
-                >
-                  {d}
-                </button>
-              ))}
-            </div>
-          </div>
-          <h1 className="text-3xl font-black text-[var(--text-primary)]">{t.games.memoryMatchTitle}</h1>
-          <p className="text-base text-[var(--text-secondary)] font-medium">{t.games.memoryMatchDesc}</p>
-        </div>
+      <AdaptiveGameHeader
+        gameId="memory_match"
+        title={t.games.memoryMatchTitle || "Memory Photo Match"}
+        subtitle={t.games.memoryMatchDesc || "Turn over photos to find matching pairs and train visual memory."}
+        level={level}
+        setLevel={setLevel}
+        unlockedLevel={unlockedLevel}
+        onBack={onBack}
+        onNav={onNav}
+      />
 
+      <div className="max-w-xl mx-auto px-4 space-y-6">
         <div className="flex items-center justify-between">
           <Card className="px-4 py-2 text-sm font-bold text-[var(--text-primary)]">
-            {t.games.matches}: {matched} / {activeItems.length}
+            {t.games.matches || "Matches"}: {matched} / {activeItems.length}
           </Card>
-          <Btn onClick={initGame} variant="ghost" className="text-sm py-2 min-h-[38px]">
-            {t.games.restart}
+          <Card className="px-4 py-2 text-sm font-bold text-[var(--text-primary)]">
+            {t.games.moves || "Moves"}: {moves}
+          </Card>
+          <Btn onClick={initGame} variant="secondary" className="text-xs py-1.5 px-3">
+            🔄 Reset
           </Btn>
         </div>
 
-        <div className={`grid ${targetPairCount <= 3 ? "grid-cols-3" : targetPairCount <= 5 ? "grid-cols-4" : "grid-cols-4 sm:grid-cols-4"} gap-3`}>
+        <div className={`grid gap-3 ${targetPairCount <= 3 ? "grid-cols-3" : targetPairCount <= 5 ? "grid-cols-4" : "grid-cols-4 sm:grid-cols-5"}`}>
           {cards.map((card) => (
             <button
               key={card.id}
@@ -1231,8 +1323,8 @@ function GameMemoryScreen({ onNav, onBack, active, onProgress }: { onNav: (s: Sc
             >
               {card.flipped || card.matched ? (
                 <>
-                  <span className="text-3xl">{card.emoji}</span>
-                  <span className="text-[10px] font-black uppercase text-[var(--text-muted)] mt-1">{card.label}</span>
+                  <span className="text-3xl sm:text-4xl">{card.emoji}</span>
+                  <span className="text-[10px] font-black uppercase text-[var(--text-muted)] mt-1 truncate max-w-full">{card.label}</span>
                 </>
               ) : (
                 <span className="text-3xl font-black text-white">?</span>
@@ -1589,6 +1681,7 @@ function RemindersScreen({ profile, onUpdate }: { profile: Profile; onUpdate: (p
 function ProgressScreen({ profile }: { profile: Profile; onNav: (s: Screen) => void }) {
   const { t } = useLanguage();
   const gameRecords = getGameRecords();
+  const skillProfiles = getSkillProfiles();
 
   return (
     <div className="min-h-screen pb-24 pt-8">
@@ -1619,6 +1712,54 @@ function ProgressScreen({ profile }: { profile: Profile; onNav: (s: Screen) => v
         <Card className="p-8 space-y-4 bg-[var(--oxblood-light)] border border-[var(--oxblood)]">
           <h3 className="text-2xl font-black text-[var(--oxblood-dark)]">{t.progress.streakTitle}</h3>
           <p className="text-base text-[var(--text-secondary)] font-medium leading-relaxed">{t.progress.streakDesc}</p>
+        </Card>
+
+        {/* Cognitive Skill Performance Breakdown */}
+        <Card className="p-6 space-y-6 bg-[var(--bg-card)] border border-[var(--border)] shadow-md">
+          <div className="flex items-center justify-between">
+            <div>
+              <Badge color="oxblood">🧠 AI Performance Profile</Badge>
+              <h3 className="text-2xl font-black text-[var(--text-primary)] mt-1">Cognitive Practice Breakdown</h3>
+              <p className="text-xs text-[var(--text-secondary)] font-medium">Activity performance metrics automatically updated from gameplay history.</p>
+            </div>
+            <span className="text-2xl">📈</span>
+          </div>
+
+          <div className="space-y-4">
+            {Object.values(skillProfiles).map((sk) => {
+              const trendBadges = {
+                improving: { label: "📈 Improving", bg: "bg-green-100 text-green-800 border-green-300" },
+                strong: { label: "⭐ Strong", bg: "bg-amber-100 text-amber-800 border-amber-300" },
+                struggling: { label: "🔄 Practicing", bg: "bg-blue-100 text-blue-800 border-blue-300" },
+                stable: { label: "⚖️ Stable", bg: "bg-slate-100 text-slate-800 border-slate-300" },
+              };
+              const badge = trendBadges[sk.trend] || trendBadges.stable;
+
+              return (
+                <div key={sk.skill} className="space-y-2 p-3.5 rounded-2xl bg-[var(--bg-section)] border border-[var(--border)]">
+                  <div className="flex items-center justify-between text-sm font-extrabold text-[var(--text-primary)]">
+                    <span className="flex items-center gap-2">
+                      <span>{sk.label}</span>
+                      <span className={`text-[10px] px-2 py-0.5 rounded-full border font-black ${badge.bg}`}>
+                        {badge.label}
+                      </span>
+                    </span>
+                    <span className="font-black text-[var(--oxblood-dark)]">{sk.score} / 100</span>
+                  </div>
+                  <div className="w-full bg-[var(--bg-card)] h-3 rounded-full overflow-hidden border border-[var(--border)]">
+                    <div
+                      className="bg-[var(--oxblood)] h-full transition-all duration-500 rounded-full"
+                      style={{ width: `${sk.score}%` }}
+                    />
+                  </div>
+                  <div className="text-[10px] font-bold text-[var(--text-muted)] flex justify-between">
+                    <span>{sk.gamesPlayed} session{sk.gamesPlayed === 1 ? "" : "s"} logged</span>
+                    <span>Performance Rating: {sk.score >= 80 ? "Excellent" : sk.score >= 60 ? "Good" : "Active Practice"}</span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </Card>
 
         {/* Recent Game Activity Records */}
