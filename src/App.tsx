@@ -25,20 +25,26 @@ import {
   recordGamePerformance,
 } from "./adaptiveEngine";
 
+import bihuCelebrationImg from "./assets/images/memories/bihu-celebration.png";
+import teaGardenImg from "./assets/images/memories/ancestral-tea-garden.png";
+import vintageRadioImg from "./assets/images/memories/radio-memory.png";
 import heroElderlyImg from "./assets/images/hero_elderly.png";
-import bihuCelebrationImg from "./assets/images/bihu_celebration_memory.png";
-import teaGardenImg from "./assets/images/tea_garden_memory.png";
-import vintageRadioImg from "./assets/images/vintage_radio_memory.png";
 import caregiverSupportImg from "./assets/images/caregiver_support.png";
 import defaultMemoryCoverImg from "./assets/images/default_memory_cover.png";
 import kazirangaRhinoImg from "./assets/images/kaziranga_rhino_memory.png";
 import majuliBoatImg from "./assets/images/majuli_boat_memory.png";
 
 const IMAGE_MAP: Record<string, string> = {
-  "hero_elderly.png": heroElderlyImg,
+  "bihu-celebration.png": bihuCelebrationImg,
+  "bihu-celebration": bihuCelebrationImg,
   "bihu_celebration_memory.png": bihuCelebrationImg,
+  "ancestral-tea-garden.png": teaGardenImg,
+  "ancestral-tea-garden": teaGardenImg,
   "tea_garden_memory.png": teaGardenImg,
+  "radio-memory.png": vintageRadioImg,
+  "radio-memory": vintageRadioImg,
   "vintage_radio_memory.png": vintageRadioImg,
+  "hero_elderly.png": heroElderlyImg,
   "caregiver_support.png": caregiverSupportImg,
   "default_memory_cover.png": defaultMemoryCoverImg,
   "kaziranga_rhino_memory.png": kazirangaRhinoImg,
@@ -46,10 +52,6 @@ const IMAGE_MAP: Record<string, string> = {
 };
 
 const KEYWORD_IMAGE_MAP: Array<{ keywords: string[]; img: string }> = [
-  {
-    keywords: ["caregiver", "care", "companion", "empathetic", "support", "dementia", "nursing", "help"],
-    img: caregiverSupportImg,
-  },
   {
     keywords: ["bihu", "jorhat", "mustard", "dance", "dhol", "celebration", "festival", "assamese", "assam"],
     img: bihuCelebrationImg,
@@ -61,6 +63,10 @@ const KEYWORD_IMAGE_MAP: Array<{ keywords: string[]; img: string }> = [
   {
     keywords: ["radio", "bhupen", "hazarika", "song", "music", "golden voice", "gramophone"],
     img: vintageRadioImg,
+  },
+  {
+    keywords: ["caregiver", "care", "companion", "empathetic", "support", "dementia", "nursing", "help"],
+    img: caregiverSupportImg,
   },
   {
     keywords: ["rhino", "kaziranga", "safari", "wildlife", "park", "national park"],
@@ -87,42 +93,26 @@ export function resolveImageByTitle(title: string): string | null {
 }
 
 export function resolveImage(src?: string, title?: string): string {
-  // If title is given and matches a memory title keyword, prioritize the exact contextual image
+  // 1. If title matches a memory keyword, return exact imported image
   if (title) {
     const titleMatch = resolveImageByTitle(title);
     if (titleMatch) return titleMatch;
   }
 
-  if (!src || typeof src !== "string" || src.includes("<svg") || src.startsWith("data:image/svg+xml") || src.includes("MEMOVERSE")) {
-    return defaultMemoryCoverImg;
-  }
-
-  // If user uploaded a valid custom image file base64 (png/jpeg)
-  if (src.startsWith("data:image/png") || src.startsWith("data:image/jpeg") || src.startsWith("blob:")) {
-    return src;
-  }
-
-  const filename = src.split("/").pop()?.split("?")[0] || "";
-  if (IMAGE_MAP[filename]) {
-    return IMAGE_MAP[filename];
-  }
-
-  for (const key of Object.keys(IMAGE_MAP)) {
-    const baseName = key.replace(/\.[^/.]+$/, "");
-    if (src.includes(baseName)) {
-      return IMAGE_MAP[key];
+  // 2. If src matches a memory keyword or filename, return exact imported image
+  if (src && typeof src === "string") {
+    // Check keyword map against src
+    const sLower = src.toLowerCase();
+    for (const entry of KEYWORD_IMAGE_MAP) {
+      if (entry.keywords.some((kw) => sLower.includes(kw))) {
+        return entry.img;
+      }
     }
-  }
 
-  const srcLower = src.toLowerCase();
-  for (const entry of KEYWORD_IMAGE_MAP) {
-    if (entry.keywords.some((kw) => srcLower.includes(kw))) {
-      return entry.img;
+    // Check custom uploaded photo (base64/blob)
+    if (src.startsWith("data:image/png") || src.startsWith("data:image/jpeg") || src.startsWith("blob:")) {
+      return src;
     }
-  }
-
-  if (src.startsWith("http://") || src.startsWith("https://") || src.startsWith("/") || src.startsWith("./") || src.startsWith("assets/")) {
-    return src;
   }
 
   return defaultMemoryCoverImg;
@@ -373,7 +363,21 @@ function useProfiles() {
     storageGet("mv_active_id", null)
   );
 
-  useEffect(() => storageSet("mv_profiles", profiles), [profiles]);
+  useEffect(() => {
+    const sanitized = profiles.map((p) => ({
+      ...p,
+      memories: p.memories.map((m) => {
+        let cleanImage = m.image;
+        if (m.title.includes("Bihu")) cleanImage = "bihu-celebration";
+        else if (m.title.includes("Tea") || m.title.includes("Ancestral")) cleanImage = "ancestral-tea-garden";
+        else if (m.title.includes("Radio") || m.title.includes("Bhupen")) cleanImage = "radio-memory";
+        else if (m.title.includes("Kaziranga")) cleanImage = "kaziranga_rhino_memory.png";
+        else if (m.title.includes("Majuli")) cleanImage = "majuli_boat_memory.png";
+        return { ...m, image: cleanImage };
+      }),
+    }));
+    storageSet("mv_profiles", sanitized);
+  }, [profiles]);
   useEffect(() => storageSet("mv_active_id", activeId), [activeId]);
 
   const active = profiles.find((p) => p.id === activeId) || null;

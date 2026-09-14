@@ -2,14 +2,13 @@ import React, { useState, useEffect, useCallback } from "react";
 import { useLanguage } from "./LanguageContext";
 import { recordGamePerformance, getUnlockedLevel, CognitiveSkill, DetailedGameResult } from "./adaptiveEngine";
 
+import bihuCelebrationImg from "./assets/images/memories/bihu-celebration.png";
+import teaGardenImg from "./assets/images/memories/ancestral-tea-garden.png";
+import vintageRadioImg from "./assets/images/memories/radio-memory.png";
 import heroElderlyImg from "./assets/images/hero_elderly.png";
-import bihuCelebrationImg from "./assets/images/bihu_celebration_memory.png";
-import teaGardenImg from "./assets/images/tea_garden_memory.png";
-import vintageRadioImg from "./assets/images/vintage_radio_memory.png";
 import kazirangaRhinoImg from "./assets/images/kaziranga_rhino_memory.png";
 import majuliBoatImg from "./assets/images/majuli_boat_memory.png";
 import defaultMemoryCoverImg from "./assets/images/default_memory_cover.png";
-
 import caregiverSupportImg from "./assets/images/caregiver_support.png";
 
 const GAME_IMAGE_MAP: Record<string, string> = {
