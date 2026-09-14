@@ -76,12 +76,31 @@ const KEYWORD_IMAGE_MAP: Array<{ keywords: string[]; img: string }> = [
   },
 ];
 
-export const GUARANTEED_FALLBACK_SVG = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600"><defs><linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="%231a365d"/><stop offset="100%" stop-color="%232b6cb0"/></linearGradient></defs><rect width="800" height="600" fill="url(%23g)"/><g fill="%23ffffff" opacity="0.9" text-anchor="middle" font-family="system-ui, sans-serif"><circle cx="400" cy="260" r="80" fill="%23ffffff" opacity="0.15"/><text x="400" y="275" font-size="72">🌸</text><text x="400" y="380" font-size="28" font-weight="bold">MEMOVERSE Keepsake</text><text x="400" y="420" font-size="18" opacity="0.8">Cherished Memories &amp; Companionship</text></g></svg>`;
+export function resolveImageByTitle(title: string): string | null {
+  const tLower = title.toLowerCase();
+  for (const entry of KEYWORD_IMAGE_MAP) {
+    if (entry.keywords.some((kw) => tLower.includes(kw))) {
+      return entry.img;
+    }
+  }
+  return null;
+}
 
-export function resolveImage(src?: string): string {
-  if (!src) return defaultMemoryCoverImg;
-  if (typeof src !== "string") return defaultMemoryCoverImg;
-  if (src.startsWith("data:") || src.startsWith("blob:")) return src;
+export function resolveImage(src?: string, title?: string): string {
+  // If title is given and matches a memory title keyword, prioritize the exact contextual image
+  if (title) {
+    const titleMatch = resolveImageByTitle(title);
+    if (titleMatch) return titleMatch;
+  }
+
+  if (!src || typeof src !== "string" || src.includes("<svg") || src.startsWith("data:image/svg+xml") || src.includes("MEMOVERSE")) {
+    return defaultMemoryCoverImg;
+  }
+
+  // If user uploaded a valid custom image file base64 (png/jpeg)
+  if (src.startsWith("data:image/png") || src.startsWith("data:image/jpeg") || src.startsWith("blob:")) {
+    return src;
+  }
 
   const filename = src.split("/").pop()?.split("?")[0] || "";
   if (IMAGE_MAP[filename]) {
@@ -112,11 +131,8 @@ export function resolveImage(src?: string): string {
 export const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
   const target = e.currentTarget;
   if (!target.dataset.failed) {
-    target.dataset.failed = "1";
+    target.dataset.failed = "true";
     target.src = defaultMemoryCoverImg;
-  } else if (target.dataset.failed === "1") {
-    target.dataset.failed = "2";
-    target.src = GUARANTEED_FALLBACK_SVG;
   }
 };
 
@@ -349,7 +365,7 @@ function useProfiles() {
       ...p,
       memories: p.memories.map((m) => ({
         ...m,
-        image: resolveImage(m.image),
+        image: resolveImage(m.image, m.title),
       })),
     }));
   });
@@ -987,7 +1003,7 @@ function HomeScreen({ onNav, active, onSwitchProfile }: { onNav: (s: Screen) => 
               <div key={m.title} onClick={() => onNav("my-memories")} className="clay-card rounded-3xl p-5 space-y-4 border border-[var(--border)] bg-[var(--bg-card)] flex flex-col justify-between cursor-pointer hover:border-[var(--oxblood)] transition-all group shadow-sm">
                 <div className="space-y-3">
                   <div className="h-48 sm:h-52 rounded-2xl overflow-hidden border border-[var(--border)] relative">
-                    <img src={resolveImage(m.image)} alt={m.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onError={handleImageError} />
+                    <img src={resolveImage(m.image, m.title)} alt={m.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onError={handleImageError} />
                     <div className="absolute top-3 left-3 px-3 py-1 rounded-full text-xs font-black bg-black/60 backdrop-blur-md text-white border border-white/20 flex items-center gap-1.5">
                       <span>{m.emoji}</span> {m.tag}
                     </div>
@@ -1687,7 +1703,7 @@ function MyMemoriesScreen({ profile, onUpdate }: { profile: Profile; onUpdate: (
                 </div>
                 {m.image && (
                   <div className="h-40 rounded-2xl overflow-hidden border border-[var(--border)]">
-                    <img src={resolveImage(m.image)} alt={m.title} className="w-full h-full object-cover" onError={handleImageError} />
+                    <img src={resolveImage(m.image, m.title)} alt={m.title} className="w-full h-full object-cover" onError={handleImageError} />
                   </div>
                 )}
                 <div>
