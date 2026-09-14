@@ -9,7 +9,7 @@ import heroElderlyImg from "./assets/images/hero_elderly.png";
 import kazirangaRhinoImg from "./assets/images/kaziranga_rhino_memory.png";
 import majuliBoatImg from "./assets/images/majuli_boat_memory.png";
 import defaultMemoryCoverImg from "./assets/images/default_memory_cover.png";
-import caregiverSupportImg from "./assets/images/caregiver_support.png";
+import caregiverSupportImg from "./assets/images/caregiver-companionship.png";
 
 const GAME_IMAGE_MAP: Record<string, string> = {
   "hero_elderly.png": heroElderlyImg,

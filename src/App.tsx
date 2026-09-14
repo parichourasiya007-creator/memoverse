@@ -29,7 +29,7 @@ import bihuCelebrationImg from "./assets/images/memories/bihu-celebration.png";
 import teaGardenImg from "./assets/images/memories/ancestral-tea-garden.png";
 import vintageRadioImg from "./assets/images/memories/radio-memory.png";
 import heroElderlyImg from "./assets/images/hero_elderly.png";
-import caregiverSupportImg from "./assets/images/caregiver_support.png";
+import caregiverSupportImg from "./assets/images/caregiver-companionship.png";
 import defaultMemoryCoverImg from "./assets/images/default_memory_cover.png";
 import kazirangaRhinoImg from "./assets/images/kaziranga_rhino_memory.png";
 import majuliBoatImg from "./assets/images/majuli_boat_memory.png";
