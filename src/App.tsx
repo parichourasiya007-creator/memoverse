@@ -791,14 +791,31 @@ function AIRecommendationCard({ onNav }: { onNav: (s: Screen) => void }) {
 
   return (
     <Card className="p-6 sm:p-8 bg-gradient-to-r from-[var(--oxblood-light)] via-[var(--bg-card)] to-[var(--brass-light)] border border-[var(--oxblood)] shadow-lg rounded-3xl relative overflow-hidden">
-      <style>{`.dark .rec-level-badge { color: #000000 !important; }`}</style>
+      <style>{`
+        :root {
+          --rec-badge-text-color: var(--oxblood-dark);
+        }
+        html.dark, .dark {
+          --rec-badge-text-color: #000000 !important;
+        }
+        html.dark .rec-level-badge,
+        .dark .rec-level-badge,
+        html.dark [data-rec-badge],
+        .dark [data-rec-badge] {
+          color: #000000 !important;
+        }
+      `}</style>
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 relative z-10">
         <div className="space-y-3 max-w-xl">
           <div className="flex items-center gap-2 flex-wrap">
             <span className="px-3.5 py-1 bg-[var(--oxblood)] text-white text-xs font-black rounded-full uppercase tracking-wider shadow-sm flex items-center gap-1">
               <span>🤖</span> {t.ai?.recommendedForYou || "Recommended for You"}
             </span>
-            <span className="rec-level-badge text-xs font-black text-[var(--oxblood-dark)] bg-white/90 px-3 py-1 rounded-full border border-[var(--oxblood)] shadow-xs">
+            <span
+              data-rec-badge="true"
+              className="rec-level-badge text-xs font-black dark:!text-black bg-white/90 px-3 py-1 rounded-full border border-[var(--oxblood)] shadow-xs"
+              style={{ color: "var(--rec-badge-text-color)" }}
+            >
               {levelName}
             </span>
           </div>
