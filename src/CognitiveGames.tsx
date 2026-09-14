@@ -10,6 +10,36 @@ import kazirangaRhinoImg from "./assets/images/kaziranga_rhino_memory.png";
 import majuliBoatImg from "./assets/images/majuli_boat_memory.png";
 import defaultMemoryCoverImg from "./assets/images/default_memory_cover.png";
 
+const GAME_IMAGE_MAP: Record<string, string> = {
+  "hero_elderly.png": heroElderlyImg,
+  "bihu_celebration_memory.png": bihuCelebrationImg,
+  "tea_garden_memory.png": teaGardenImg,
+  "vintage_radio_memory.png": vintageRadioImg,
+  "default_memory_cover.png": defaultMemoryCoverImg,
+  "kaziranga_rhino_memory.png": kazirangaRhinoImg,
+  "majuli_boat_memory.png": majuliBoatImg,
+};
+
+export function resolveGameImage(src?: string): string {
+  if (!src) return defaultMemoryCoverImg;
+  if (typeof src !== "string") return defaultMemoryCoverImg;
+  if (src.startsWith("data:") || src.startsWith("blob:")) return src;
+
+  const filename = src.split("/").pop()?.split("?")[0] || "";
+  if (GAME_IMAGE_MAP[filename]) {
+    return GAME_IMAGE_MAP[filename];
+  }
+
+  for (const key of Object.keys(GAME_IMAGE_MAP)) {
+    const baseName = key.replace(/\.[^/.]+$/, "");
+    if (src.includes(baseName)) {
+      return GAME_IMAGE_MAP[key];
+    }
+  }
+
+  return src;
+}
+
 // ═══════════════════════════════════════════════════════════════════
 //  GAME RECORD & PROGRESS TRACKING ENGINE
 // ═══════════════════════════════════════════════════════════════════
@@ -1748,7 +1778,7 @@ export function GameMemoryLaneScreen({ onNav, onBack, onProgress }: CommonGamePr
       <div className="max-w-xl mx-auto px-4 space-y-6 text-center">
         <div className="bg-[var(--bg-card)] border border-[var(--brass)] rounded-3xl p-6 space-y-6 shadow-xl">
           <div className="rounded-2xl overflow-hidden h-64 sm:h-80 border border-[var(--border)] relative">
-            <img src={current.img} alt={current.title} className="w-full h-full object-cover" onError={(e) => { e.currentTarget.src = defaultMemoryCoverImg; }} />
+            <img src={resolveGameImage(current.img)} alt={current.title} className="w-full h-full object-cover" onError={(e) => { e.currentTarget.src = defaultMemoryCoverImg; }} />
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex items-end p-6">
               <h3 className="text-white text-xl font-black text-left">{current.title}</h3>
             </div>

@@ -31,6 +31,39 @@ import teaGardenImg from "./assets/images/tea_garden_memory.png";
 import vintageRadioImg from "./assets/images/vintage_radio_memory.png";
 import caregiverSupportImg from "./assets/images/caregiver_support.png";
 import defaultMemoryCoverImg from "./assets/images/default_memory_cover.png";
+import kazirangaRhinoImg from "./assets/images/kaziranga_rhino_memory.png";
+import majuliBoatImg from "./assets/images/majuli_boat_memory.png";
+
+const IMAGE_MAP: Record<string, string> = {
+  "hero_elderly.png": heroElderlyImg,
+  "bihu_celebration_memory.png": bihuCelebrationImg,
+  "tea_garden_memory.png": teaGardenImg,
+  "vintage_radio_memory.png": vintageRadioImg,
+  "caregiver_support.png": caregiverSupportImg,
+  "default_memory_cover.png": defaultMemoryCoverImg,
+  "kaziranga_rhino_memory.png": kazirangaRhinoImg,
+  "majuli_boat_memory.png": majuliBoatImg,
+};
+
+export function resolveImage(src?: string): string {
+  if (!src) return defaultMemoryCoverImg;
+  if (typeof src !== "string") return defaultMemoryCoverImg;
+  if (src.startsWith("data:") || src.startsWith("blob:")) return src;
+
+  const filename = src.split("/").pop()?.split("?")[0] || "";
+  if (IMAGE_MAP[filename]) {
+    return IMAGE_MAP[filename];
+  }
+
+  for (const key of Object.keys(IMAGE_MAP)) {
+    const baseName = key.replace(/\.[^/.]+$/, "");
+    if (src.includes(baseName)) {
+      return IMAGE_MAP[key];
+    }
+  }
+
+  return src;
+}
 
 const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
   const target = e.currentTarget;
@@ -263,9 +296,16 @@ function tone(type: "flip" | "correct" | "wrong" | "gogona" | "dhol" | "bird" | 
 }
 
 function useProfiles() {
-  const [profiles, setProfiles] = useState<Profile[]>(() =>
-    storageGet("mv_profiles", DEFAULT_PROFILES)
-  );
+  const [profiles, setProfiles] = useState<Profile[]>(() => {
+    const loaded: Profile[] = storageGet("mv_profiles", DEFAULT_PROFILES);
+    return loaded.map((p) => ({
+      ...p,
+      memories: p.memories.map((m) => ({
+        ...m,
+        image: resolveImage(m.image),
+      })),
+    }));
+  });
   const [activeId, setActiveId] = useState<string | null>(() =>
     storageGet("mv_active_id", null)
   );
@@ -900,7 +940,7 @@ function HomeScreen({ onNav, active, onSwitchProfile }: { onNav: (s: Screen) => 
               <div key={m.title} onClick={() => onNav("my-memories")} className="clay-card rounded-3xl p-5 space-y-4 border border-[var(--border)] bg-[var(--bg-card)] flex flex-col justify-between cursor-pointer hover:border-[var(--oxblood)] transition-all group shadow-sm">
                 <div className="space-y-3">
                   <div className="h-48 sm:h-52 rounded-2xl overflow-hidden border border-[var(--border)] relative">
-                    <img src={m.image} alt={m.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onError={handleImageError} />
+                    <img src={resolveImage(m.image)} alt={m.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onError={handleImageError} />
                     <div className="absolute top-3 left-3 px-3 py-1 rounded-full text-xs font-black bg-black/60 backdrop-blur-md text-white border border-white/20 flex items-center gap-1.5">
                       <span>{m.emoji}</span> {m.tag}
                     </div>
@@ -1600,7 +1640,7 @@ function MyMemoriesScreen({ profile, onUpdate }: { profile: Profile; onUpdate: (
                 </div>
                 {m.image && (
                   <div className="h-40 rounded-2xl overflow-hidden border border-[var(--border)]">
-                    <img src={m.image} alt={m.title} className="w-full h-full object-cover" onError={handleImageError} />
+                    <img src={resolveImage(m.image)} alt={m.title} className="w-full h-full object-cover" onError={handleImageError} />
                   </div>
                 )}
                 <div>
