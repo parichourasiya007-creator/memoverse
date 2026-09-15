@@ -11,6 +11,54 @@ import majuliBoatImg from "./assets/images/majuli_boat_memory.png";
 import defaultMemoryCoverImg from "./assets/images/default_memory_cover.png";
 import caregiverSupportImg from "./assets/images/caregiver-companionship.png";
 
+import pepaAudio from "./assets/audio/pepa_instrumental.wav";
+import fluteAudio from "./assets/audio/bamboo_flute.wav";
+import dholAudio from "./assets/audio/dhol_rhythm.wav";
+import riverAudio from "./assets/audio/river_nature.wav";
+import teaAudio from "./assets/audio/tea_garden.wav";
+
+export const REAL_AUDIO_MAP: Record<string, string> = {
+  water: riverAudio,
+  river: riverAudio,
+  rain: riverAudio,
+  bird: fluteAudio,
+  flute: fluteAudio,
+  dhol: dholAudio,
+  pepa: pepaAudio,
+  bell: teaAudio,
+  tea: teaAudio,
+};
+
+export function stopAllRealAudio() {
+  if (typeof window !== "undefined" && (window as any).__activeMemoverseAudio) {
+    try {
+      (window as any).__activeMemoverseAudio.pause();
+      (window as any).__activeMemoverseAudio.currentTime = 0;
+    } catch (_) {}
+  }
+}
+
+export function playRealInstrumentalAudio(soundKey: string, onEnded?: () => void) {
+  stopAllRealAudio();
+  if (typeof window === "undefined") return null;
+
+  const audioUrl = REAL_AUDIO_MAP[soundKey] || pepaAudio;
+  const audio = new Audio(audioUrl);
+  (window as any).__activeMemoverseAudio = audio;
+
+  if (onEnded) {
+    audio.onended = () => {
+      onEnded();
+    };
+  }
+
+  audio.play().catch((err) => {
+    console.warn("Audio play promise rejected:", err);
+  });
+
+  return audio;
+}
+
 const GAME_IMAGE_MAP: Record<string, string> = {
   "hero_elderly.png": heroElderlyImg,
   "bihu_celebration_memory.png": bihuCelebrationImg,
@@ -1760,6 +1808,11 @@ export function GameMemoryLaneScreen({ onNav, onBack, onProgress }: CommonGamePr
   const [activeIdx, setActiveIdx] = useState(0);
   const [userChoice, setUserChoice] = useState<string | null>(null);
 
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
+  const [audioStatus, setAudioStatus] = useState<string | null>(null);
+  const audioInstanceRef = React.useRef<HTMLAudioElement | null>(null);
+
   const CARDS = [
     {
       title: "Guwahati River Ghat & Brahmaputra Ferries",
@@ -1783,12 +1836,84 @@ export function GameMemoryLaneScreen({ onNav, onBack, onProgress }: CommonGamePr
 
   const current = CARDS[activeIdx];
 
+  // Stop previous audio whenever card changes or component unmounts
+  useEffect(() => {
+    stopAllRealAudio();
+    if (audioInstanceRef.current) {
+      audioInstanceRef.current.pause();
+      audioInstanceRef.current.currentTime = 0;
+      audioInstanceRef.current = null;
+    }
+    setIsPlaying(false);
+    setIsPaused(false);
+    setAudioStatus(null);
+
+    return () => {
+      stopAllRealAudio();
+    };
+  }, [activeIdx]);
+
+  function handlePlayAudio() {
+    stopAllRealAudio();
+    const audioUrl = REAL_AUDIO_MAP[current.sound] || pepaAudio;
+    const audio = new Audio(audioUrl);
+    audioInstanceRef.current = audio;
+    (window as any).__activeMemoverseAudio = audio;
+
+    audio.onended = () => {
+      setIsPlaying(false);
+      setIsPaused(false);
+      setAudioStatus("Audio finished");
+    };
+
+    audio.onerror = () => {
+      setIsPlaying(false);
+      setIsPaused(false);
+      setAudioStatus("Unable to load audio file");
+    };
+
+    setAudioStatus(`Playing instrumental sound...`);
+    setIsPlaying(true);
+    setIsPaused(false);
+
+    audio.play().catch((err) => {
+      console.warn("Audio autoplay blocked or failed:", err);
+      setIsPlaying(false);
+      setIsPaused(true);
+      setAudioStatus("Tap Play to listen to instrumental audio");
+    });
+  }
+
+  function handlePauseAudio() {
+    if (audioInstanceRef.current) {
+      audioInstanceRef.current.pause();
+      setIsPlaying(false);
+      setIsPaused(true);
+      setAudioStatus("Paused");
+    }
+  }
+
+  function handleReplayAudio() {
+    if (audioInstanceRef.current) {
+      audioInstanceRef.current.currentTime = 0;
+      audioInstanceRef.current.play().then(() => {
+        setIsPlaying(true);
+        setIsPaused(false);
+        setAudioStatus("Playing instrumental sound...");
+      }).catch(() => {
+        handlePlayAudio();
+      });
+    } else {
+      handlePlayAudio();
+    }
+  }
+
   function handleResponse(choice: string) {
-    playSoundTone("flip");
     setUserChoice(choice);
   }
 
   function handleNext() {
+    stopAllRealAudio();
     setUserChoice(null);
     const next = (activeIdx + 1) % CARDS.length;
     setActiveIdx(next);
@@ -1824,12 +1949,12 @@ export function GameMemoryLaneScreen({ onNav, onBack, onProgress }: CommonGamePr
       <AdaptiveGameHeader
         gameId={gameId}
         title="Memory Lane: Purana North-East"
-        subtitle="Interactive digital reminiscence photo cards with gentle prompts and audio."
+        subtitle="Interactive digital reminiscence photo cards with gentle prompts and real instrumental audio."
         level={level}
         setLevel={setLevel}
         unlockedLevel={unlockedLevel}
-        onBack={onBack}
-        onNav={onNav}
+        onBack={() => { stopAllRealAudio(); if (onBack) onBack(); else onNav("activities"); }}
+        onNav={(s) => { stopAllRealAudio(); onNav(s); }}
       />
 
       <div className="max-w-xl mx-auto px-4 space-y-6 text-center">
@@ -1864,16 +1989,51 @@ export function GameMemoryLaneScreen({ onNav, onBack, onProgress }: CommonGamePr
             </div>
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-3">
-            <button
-              onClick={() => playSoundTone(current.sound as any)}
-              className="flex-1 py-3 px-4 rounded-2xl font-black text-sm text-[var(--brass-dark)] bg-[var(--brass-light)] border border-[var(--brass)] cursor-pointer"
-            >
-              🔊 Play Ambient Sound
-            </button>
+          {/* REAL INSTRUMENTAL AUDIO CONTROLLER */}
+          <div className="p-4 bg-[var(--bg-section)] border border-[var(--border)] rounded-2xl space-y-3">
+            <div className="flex items-center justify-between text-xs font-black uppercase text-[var(--oxblood-dark)]">
+              <span className="flex items-center gap-1.5">
+                <span>🎵</span> Real Instrumental Audio
+              </span>
+              {isPlaying && <span className="animate-pulse text-green-600 font-extrabold">● PLAYING AUDIO</span>}
+            </div>
+
+            {audioStatus && (
+              <div className="text-xs font-extrabold text-[var(--text-secondary)] italic">
+                {audioStatus}
+              </div>
+            )}
+
+            <div className="flex flex-wrap items-center justify-center gap-2">
+              {!isPlaying ? (
+                <button
+                  onClick={handlePlayAudio}
+                  className="flex-1 py-3 px-5 rounded-2xl font-black text-sm text-white bg-[var(--oxblood)] hover:bg-[var(--oxblood-dark)] border border-[var(--brass)] cursor-pointer shadow-md flex items-center justify-center gap-2"
+                >
+                  <span>▶</span> {isPaused ? "Resume Instrumental" : "Play Instrumental Sound"}
+                </button>
+              ) : (
+                <button
+                  onClick={handlePauseAudio}
+                  className="flex-1 py-3 px-5 rounded-2xl font-black text-sm text-[var(--oxblood-dark)] bg-[var(--oxblood-light)] hover:bg-[var(--brass-light)] border border-[var(--oxblood)] cursor-pointer shadow-sm flex items-center justify-center gap-2"
+                >
+                  <span>⏸</span> Pause Audio
+                </button>
+              )}
+
+              <button
+                onClick={handleReplayAudio}
+                className="py-3 px-4 rounded-2xl font-black text-sm text-[var(--text-primary)] bg-[var(--bg-card)] hover:bg-[var(--bg-hover)] border border-[var(--border)] cursor-pointer shadow-xs flex items-center justify-center gap-1"
+              >
+                <span>↻</span> Replay
+              </button>
+            </div>
+          </div>
+
+          <div className="pt-2">
             <button
               onClick={handleNext}
-              className="flex-1 py-3 px-4 rounded-2xl font-black text-sm text-white bg-[var(--oxblood)] hover:bg-[var(--oxblood-dark)] border border-[var(--brass)] cursor-pointer"
+              className="w-full py-3.5 px-4 rounded-2xl font-black text-sm text-white bg-[var(--oxblood)] hover:bg-[var(--oxblood-dark)] border border-[var(--brass)] cursor-pointer shadow-md"
             >
               Next Memory Card →
             </button>
@@ -2601,7 +2761,7 @@ export function GameSoundRecScreen({ onNav, onBack, onProgress }: CommonGameProp
   const current = SOUND_TASKS[step % SOUND_TASKS.length];
 
   function playSound() {
-    playSoundTone(current.sound as any);
+    playRealInstrumentalAudio(current.sound);
   }
 
   function handleAnswer(ans: string) {
