@@ -2803,7 +2803,7 @@ function MainAppContent() {
   return (
     <div className="page-root">
       {notice && (
-        <div className="fixed top-20 right-4 z-50 max-w-sm p-4 rounded-2xl bg-[var(--oxblood-dark)] text-white border border-[var(--brass)] shadow-2xl text-xs font-bold flex items-start gap-3 anim-fade">
+        <div className="fixed top-20 right-4 z-50 max-w-sm p-4 rounded-2xl bg-[var(--bg-card)] dark:bg-[var(--surface-raised)] text-[var(--text-primary)] border border-[var(--oxblood)] shadow-2xl text-xs font-bold flex items-start gap-3 anim-fade">
           <span className="text-lg">📢</span>
           <div className="flex-1">{notice}</div>
           <button onClick={clearNotice} className="font-extrabold hover:opacity-75 cursor-pointer">✕</button>
