@@ -7,6 +7,7 @@
     "dev": "vite",
     "build": "vite build",
     "postbuild": "node scripts/postbuild.js",
+    "deploy": "node scripts/deploy-gh-pages.js",
     "preview": "vite preview",
     "format": "oxfmt"
   },
