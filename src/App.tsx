@@ -17,6 +17,8 @@ import {
   GamePatternScreen,
   GameSoundRecScreen,
   getGameRecords,
+  playRealInstrumentalAudio,
+  stopAllRealAudio,
 } from "./CognitiveGames";
 import {
   getAIRecommendation,
@@ -791,22 +793,13 @@ function AIRecommendationCard({ onNav }: { onNav: (s: Screen) => void }) {
 
   return (
     <Card className="p-6 sm:p-8 bg-gradient-to-r from-[var(--oxblood-light)] via-[var(--bg-card)] to-[var(--brass-light)] border border-[var(--oxblood)] shadow-lg rounded-3xl relative overflow-hidden">
-      <style>{`
-        .rec-level-badge {
-          color: #4D2926 !important;
-        }
-        .dark .rec-level-badge,
-        html.dark .rec-level-badge {
-          color: #000000 !important;
-        }
-      `}</style>
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 relative z-10">
         <div className="space-y-3 max-w-xl">
           <div className="flex items-center gap-2 flex-wrap">
             <span className="px-3.5 py-1 bg-[var(--oxblood)] text-white text-xs font-black rounded-full uppercase tracking-wider shadow-sm flex items-center gap-1">
               <span>🤖</span> {t.ai?.recommendedForYou || "Recommended for You"}
             </span>
-            <span className="rec-level-badge text-xs font-black bg-white/90 px-3 py-1 rounded-full border border-[var(--oxblood)] shadow-xs">
+            <span className="text-xs font-black text-stone-900 dark:text-amber-100 bg-white/95 dark:bg-stone-800/90 px-3.5 py-1 rounded-full border border-[var(--oxblood)] shadow-xs">
               {levelName}
             </span>
           </div>
@@ -1476,29 +1469,29 @@ function GameMemoryScreen({ onNav, onBack, active, onProgress }: { onNav: (s: Sc
 }
 
 function GameSoundsScreen({ onNav, onBack, active, onProgress }: { onNav: (s: Screen) => void; onBack?: () => void; active: Profile | null; onProgress: () => void }) {
-  const { t, speakText } = useLanguage();
+  const { t } = useLanguage();
   const [playing, setPlaying] = useState<string | null>(null);
 
   const soundsList = [
-    { title: t.sounds.soundGogona, desc: t.sounds.soundGogonaDesc, icon: "🪕", type: "gogona" as const },
+    { title: t.sounds.soundGogona, desc: t.sounds.soundGogonaDesc, icon: "🪕", type: "flute" as const },
     { title: t.sounds.soundBihu, desc: t.sounds.soundBihuDesc, icon: "🥁", type: "dhol" as const },
     { title: t.sounds.soundBirdsong, desc: t.sounds.soundBirdsongDesc, icon: "🐦", type: "bird" as const },
-    { title: t.sounds.soundChai, desc: t.sounds.soundChaiDesc, icon: "☕", type: "bell" as const },
+    { title: t.sounds.soundChai, desc: t.sounds.soundChaiDesc, icon: "☕", type: "water" as const },
   ];
 
   function handlePlay(s: typeof soundsList[0]) {
     setPlaying(s.title);
-    tone(s.type);
-    speakText(s.title);
+    playRealInstrumentalAudio(s.type, () => {
+      setPlaying(null);
+    });
     onProgress();
-    setTimeout(() => setPlaying(null), 2000);
   }
 
   return (
     <div className="min-h-screen pb-24 pt-6">
       <div className="max-w-4xl mx-auto px-4 space-y-8">
         <div className="space-y-2 text-center">
-          <button onClick={onBack || (() => onNav("activities"))} className="text-sm font-bold text-[var(--text-muted)] cursor-pointer hover:underline">
+          <button onClick={() => { stopAllRealAudio(); if (onBack) onBack(); else onNav("activities"); }} className="text-sm font-bold text-[var(--text-muted)] cursor-pointer hover:underline">
             {t.games.backToActivities}
           </button>
           <h1 className="text-3xl sm:text-5xl font-black text-[var(--text-primary)]">{t.sounds.title}</h1>
@@ -1516,7 +1509,7 @@ function GameSoundsScreen({ onNav, onBack, active, onProgress }: { onNav: (s: Sc
                 </div>
               </div>
               <Btn onClick={() => handlePlay(s)} variant={playing === s.title ? "primary" : "secondary"} fullWidth className="text-sm py-2.5">
-                {playing === s.title ? t.sounds.playing : t.sounds.listen}
+                {playing === s.title ? `🎵 ${t.sounds.playing}` : `▶ ${t.sounds.listen}`}
               </Btn>
             </Card>
           ))}
