@@ -343,11 +343,13 @@ export function AdaptiveGameHeader({
   onBack?: () => void;
   onNav: (s: any) => void;
 }) {
+  const { t } = useLanguage();
+
   const levelLabels: Record<number, string> = {
-    1: "LEVEL 1 · Easy",
-    2: "LEVEL 2 · Medium",
-    3: "LEVEL 3 · Hard",
-    4: "LEVEL 4 · Advanced",
+    1: `LEVEL 1 · ${t.ai.levelEasy || "Easy"}`,
+    2: `LEVEL 2 · ${t.ai.levelMedium || "Medium"}`,
+    3: `LEVEL 3 · ${t.ai.levelHard || "Hard"}`,
+    4: `LEVEL 4 · ${t.ai.levelAdvanced || "Advanced"}`,
   };
 
   const handlePrev = () => {
@@ -367,11 +369,11 @@ export function AdaptiveGameHeader({
           onClick={onBack || (() => onNav("activities"))}
           className="inline-flex items-center gap-1 text-sm font-extrabold text-[var(--text-secondary)] hover:text-[var(--oxblood-dark)] cursor-pointer"
         >
-          <span>←</span> Back to Library
+          <span>←</span> {t.games.backToActivities}
         </button>
 
         <div className="inline-flex items-center gap-1.5 bg-[var(--oxblood-light)] border border-[var(--oxblood)] px-3 py-1 rounded-full text-xs font-black text-[var(--oxblood-dark)] shadow-sm">
-          <span>🧠</span> AI Adaptive Training
+          <span>🧠</span> {t.ai.cognitiveSkills || "AI Adaptive Training"}
         </div>
       </div>
 
@@ -391,7 +393,7 @@ export function AdaptiveGameHeader({
               : "opacity-40 text-[var(--text-muted)] cursor-not-allowed border border-transparent"
           }`}
         >
-          ← Previous Level
+          ← {t.ai.previousLevel}
         </button>
 
         <div className="px-3 py-1.5 bg-[var(--oxblood)] text-white font-black text-xs sm:text-sm rounded-xl shadow-md min-w-[140px] text-center tracking-wide">
@@ -407,7 +409,7 @@ export function AdaptiveGameHeader({
               : "opacity-40 text-[var(--text-muted)] cursor-not-allowed border border-transparent"
           }`}
         >
-          Next Level →
+          {t.ai.nextLevel} →
         </button>
       </div>
 
@@ -434,6 +436,7 @@ function GameHeader({
   difficulty?: "Easy" | "Medium" | "Hard";
   setDifficulty?: (d: "Easy" | "Medium" | "Hard") => void;
 }) {
+  const { t } = useLanguage();
   return (
     <div className="space-y-4 text-center max-w-xl mx-auto px-4 mb-6">
       <div className="flex items-center justify-between">
@@ -441,7 +444,7 @@ function GameHeader({
           onClick={onBack || (() => onNav("activities"))}
           className="inline-flex items-center gap-1 text-sm font-extrabold text-[var(--text-secondary)] hover:text-[var(--oxblood-dark)] cursor-pointer"
         >
-          <span>←</span> Back to Library
+          <span>←</span> {t.games.backToActivities}
         </button>
       </div>
 
@@ -455,8 +458,8 @@ function GameHeader({
 
 // Adaptive Victory Screen Component for Games
 export function GameVictoryModal({
-  title = "Wonderful Job!",
-  message = "You completed this cognitive exercise successfully.",
+  title,
+  message,
   score,
   feedbackMessage,
   unlockedNewLevel,
@@ -479,13 +482,17 @@ export function GameVictoryModal({
   onBack?: () => void;
   onNav: (s: any) => void;
 }) {
+  const { t } = useLanguage();
+  const displayTitle = title || t.games.congrats;
+  const displayMsg = message || t.activities.subtitle;
+
   return (
     <div className="min-h-[60vh] flex items-center justify-center p-4">
       <div className="w-full max-w-md bg-[var(--bg-card)] border border-[var(--brass)] rounded-3xl p-6 sm:p-8 text-center space-y-6 shadow-2xl anim-fade">
         <div className="text-7xl animate-bounce">🎉</div>
         <div className="space-y-2">
-          <h2 className="text-3xl font-black text-[var(--text-primary)]">{title}</h2>
-          <p className="text-base text-[var(--text-secondary)] font-semibold leading-relaxed">{message}</p>
+          <h2 className="text-3xl font-black text-[var(--text-primary)]">{displayTitle}</h2>
+          <p className="text-base text-[var(--text-secondary)] font-semibold leading-relaxed">{displayMsg}</p>
 
           {feedbackMessage && (
             <div className="p-3.5 bg-[var(--bg-section)] border border-[var(--brass)] rounded-2xl text-sm font-bold text-[var(--oxblood-dark)] leading-snug shadow-sm">
@@ -495,7 +502,7 @@ export function GameVictoryModal({
 
           {score !== undefined && (
             <div className="inline-block px-4 py-2 bg-[var(--oxblood-light)] border border-[var(--oxblood)] text-[var(--oxblood-dark)] font-black text-lg rounded-2xl mt-2">
-              Performance Score: {score}
+              {t.games.score}: {score}
             </div>
           )}
         </div>
@@ -505,7 +512,7 @@ export function GameVictoryModal({
               onClick={() => onNextLevel(nextRecommendedLevel)}
               className="w-full min-h-[48px] px-5 py-3 rounded-2xl font-black text-white bg-[var(--oxblood)] hover:bg-[var(--oxblood-dark)] border border-[var(--brass)] shadow-md transition-all cursor-pointer text-base"
             >
-              🚀 Play Level {nextRecommendedLevel} →
+              🚀 {t.ai.playNow} ({t.ai.level} {nextRecommendedLevel}) →
             </button>
           )}
           <div className="flex flex-col sm:flex-row gap-3">
@@ -513,13 +520,13 @@ export function GameVictoryModal({
               onClick={onReplay}
               className="flex-1 min-h-[48px] px-5 py-3 rounded-2xl font-extrabold text-[var(--text-primary)] bg-[var(--bg-section)] hover:bg-[var(--bg-hover)] border border-[var(--border)] transition-all cursor-pointer"
             >
-              🔄 Replay Level
+              🔄 {t.games.playAgain}
             </button>
             <button
               onClick={onBack || (() => onNav("activities"))}
               className="flex-1 min-h-[48px] px-5 py-3 rounded-2xl font-extrabold text-[var(--text-primary)] bg-[var(--bg-section)] hover:bg-[var(--bg-hover)] border border-[var(--border)] transition-all cursor-pointer"
             >
-              ← Activities
+              ← {t.games.backToActivities}
             </button>
           </div>
         </div>
@@ -533,6 +540,7 @@ export function GameVictoryModal({
 // ═══════════════════════════════════════════════════════════════════
 
 export function GameWordPuzzlesScreen({ onNav, onBack, onProgress }: CommonGameProps) {
+  const { t } = useLanguage();
   const gameId = "word_puzzles";
   const [level, setLevel] = useState<number>(() => getUnlockedLevel(gameId));
   const unlockedLevel = getUnlockedLevel(gameId);
@@ -900,6 +908,7 @@ export function GameWordPuzzlesScreen({ onNav, onBack, onProgress }: CommonGameP
 // ═══════════════════════════════════════════════════════════════════
 
 export function GameJigsawScreen({ onNav, onBack, onProgress }: CommonGameProps) {
+  const { t } = useLanguage();
   const gameId = "jigsaw_puzzle";
   const [level, setLevel] = useState<number>(() => getUnlockedLevel(gameId));
   const unlockedLevel = getUnlockedLevel(gameId);
@@ -1113,6 +1122,7 @@ export function GameJigsawScreen({ onNav, onBack, onProgress }: CommonGameProps)
 // ═══════════════════════════════════════════════════════════════════
 
 export function GameDiceScreen({ onNav, onBack, onProgress }: CommonGameProps) {
+  const { t } = useLanguage();
   const gameId = "dice_activity";
   const [level, setLevel] = useState<number>(() => getUnlockedLevel(gameId));
   const unlockedLevel = getUnlockedLevel(gameId);
@@ -1300,6 +1310,7 @@ export function GameDiceScreen({ onNav, onBack, onProgress }: CommonGameProps) {
 // ═══════════════════════════════════════════════════════════════════
 
 export function GameBoardScreen({ onNav, onBack, onProgress }: CommonGameProps) {
+  const { t } = useLanguage();
   const gameId = "board_game";
   const [level, setLevel] = useState<number>(() => getUnlockedLevel(gameId));
   const unlockedLevel = getUnlockedLevel(gameId);
@@ -1476,6 +1487,7 @@ export function GameBoardScreen({ onNav, onBack, onProgress }: CommonGameProps) 
 // ═══════════════════════════════════════════════════════════════════
 
 export function GameInteractiveScreen({ onNav, onBack, onProgress }: CommonGameProps) {
+  const { t } = useLanguage();
   const gameId = "interactive_stories";
   const [level, setLevel] = useState<number>(() => getUnlockedLevel(gameId));
   const unlockedLevel = getUnlockedLevel(gameId);
@@ -1650,6 +1662,7 @@ export function GameInteractiveScreen({ onNav, onBack, onProgress }: CommonGameP
 // ═══════════════════════════════════════════════════════════════════
 
 export function GameBazaarScreen({ onNav, onBack, onProgress }: CommonGameProps) {
+  const { t } = useLanguage();
   const gameId = "sorting_game";
   const [level, setLevel] = useState<number>(() => getUnlockedLevel(gameId));
   const unlockedLevel = getUnlockedLevel(gameId);
@@ -1866,6 +1879,7 @@ export function GameBazaarScreen({ onNav, onBack, onProgress }: CommonGameProps)
 // ═══════════════════════════════════════════════════════════════════
 
 export function GameMemoryLaneScreen({ onNav, onBack, onProgress }: CommonGameProps) {
+  const { t } = useLanguage();
   const gameId = "memory_lane";
   const [level, setLevel] = useState<number>(() => getUnlockedLevel(gameId));
   const unlockedLevel = getUnlockedLevel(gameId);
@@ -2113,6 +2127,7 @@ export function GameMemoryLaneScreen({ onNav, onBack, onProgress }: CommonGamePr
 // ═══════════════════════════════════════════════════════════════════
 
 export function GameKazirangaPuzzleScreen({ onNav, onBack, onProgress }: CommonGameProps) {
+  const { t } = useLanguage();
   const gameId = "kaziranga_puzzle";
   const [level, setLevel] = useState<number>(() => getUnlockedLevel(gameId));
   const unlockedLevel = getUnlockedLevel(gameId);
@@ -2279,6 +2294,7 @@ export function GameKazirangaPuzzleScreen({ onNav, onBack, onProgress }: CommonG
 // ═══════════════════════════════════════════════════════════════════
 
 export function GameWhatsMissingScreen({ onNav, onBack, onProgress }: CommonGameProps) {
+  const { t } = useLanguage();
   const gameId = "whats_missing";
   const [level, setLevel] = useState<number>(() => getUnlockedLevel(gameId));
   const unlockedLevel = getUnlockedLevel(gameId);
@@ -2480,6 +2496,7 @@ export function GameWhatsMissingScreen({ onNav, onBack, onProgress }: CommonGame
 // ═══════════════════════════════════════════════════════════════════
 
 export function GameRoutineScreen({ onNav, onBack, onProgress }: CommonGameProps) {
+  const { t } = useLanguage();
   const gameId = "daily_routine";
   const [level, setLevel] = useState<number>(() => getUnlockedLevel(gameId));
   const unlockedLevel = getUnlockedLevel(gameId);
@@ -2649,6 +2666,7 @@ export function GameRoutineScreen({ onNav, onBack, onProgress }: CommonGameProps
 // ═══════════════════════════════════════════════════════════════════
 
 export function GamePatternScreen({ onNav, onBack, onProgress }: CommonGameProps) {
+  const { t } = useLanguage();
   const gameId = "pattern_recognition";
   const [level, setLevel] = useState<number>(() => getUnlockedLevel(gameId));
   const unlockedLevel = getUnlockedLevel(gameId);
@@ -2806,6 +2824,7 @@ export function GamePatternScreen({ onNav, onBack, onProgress }: CommonGameProps
 // ═══════════════════════════════════════════════════════════════════
 
 export function GameSoundRecScreen({ onNav, onBack, onProgress }: CommonGameProps) {
+  const { t } = useLanguage();
   const gameId = "sound_rec";
   const [level, setLevel] = useState<number>(() => getUnlockedLevel(gameId));
   const unlockedLevel = getUnlockedLevel(gameId);

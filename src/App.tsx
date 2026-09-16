@@ -712,10 +712,10 @@ function NavBar({
                 ? "bg-[var(--oxblood)] text-white border-[var(--brass)] shadow-md"
                 : "border-[var(--brass)] bg-[var(--oxblood-light)] text-[var(--oxblood-dark)] hover:bg-[var(--brass-light)]"
             }`}
-            title="Profile & Details"
+            title={t.nav.profile}
           >
             <span>{active ? active.avatar : "👤"}</span>
-            <span>Profile</span>
+            <span>{t.nav.profile}</span>
           </button>
 
           <button onClick={() => { tone("flip"); toggleDark(); }} className="p-2 rounded-xl text-sm border border-[var(--border)] bg-[var(--bg-card)] hover:bg-[var(--bg-hover)] transition-colors cursor-pointer">

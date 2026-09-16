@@ -1,6 +1,40 @@
 // ─── MemoVerse Complete 18-Language Centralized Translation System ─────────────
 
 export interface TranslationSchema {
+  common: {
+    save: string;
+    cancel: string;
+    delete: string;
+    edit: string;
+    create: string;
+    close: string;
+    next: string;
+    back: string;
+    start: string;
+    continue: string;
+    tryAgain: string;
+    clear: string;
+    submit: string;
+    correct: string;
+    incorrect: string;
+    hint: string;
+    level: string;
+    score: string;
+    points: string;
+    completed: string;
+    loading: string;
+    error: string;
+    yes: string;
+    no: string;
+    ok: string;
+    confirm: string;
+    profile: string;
+    logout: string;
+    settings: string;
+    accuracy: string;
+    attempts: string;
+    time: string;
+  };
   nav: {
     home: string;
     activities: string;
@@ -252,6 +286,40 @@ export interface TranslationSchema {
 }
 
 const baseEnglish: TranslationSchema = {
+  common: {
+    save: "Save",
+    cancel: "Cancel",
+    delete: "Delete",
+    edit: "Edit",
+    create: "Create",
+    close: "Close",
+    next: "Next",
+    back: "Back",
+    start: "Start",
+    continue: "Continue",
+    tryAgain: "Try Again",
+    clear: "Clear",
+    submit: "Submit",
+    correct: "Correct!",
+    incorrect: "Incorrect",
+    hint: "Hint",
+    level: "Level",
+    score: "Score",
+    points: "points",
+    completed: "Completed",
+    loading: "Loading...",
+    error: "Error",
+    yes: "Yes",
+    no: "No",
+    ok: "OK",
+    confirm: "Confirm",
+    profile: "Profile",
+    logout: "Logout",
+    settings: "Settings",
+    accuracy: "Accuracy",
+    attempts: "Attempts",
+    time: "Time",
+  },
   ai: {
     recommendedForYou: "Recommended for You",
     recommendedNext: "Recommended Next",
