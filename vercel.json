@@ -1,0 +1,4 @@
+{
+  "buildCommand": "echo 'Pre-built MEMOVERSE static release ready'",
+  "outputDirectory": "."
+}

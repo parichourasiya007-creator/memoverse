@@ -1,0 +1,11 @@
+{
+  "name": "memoverse-gh-pages",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "echo 'Pre-built MEMOVERSE static release ready'"
+  },
+  "devDependencies": {
+    "vite": "^8.0.5"
+  }
+}
