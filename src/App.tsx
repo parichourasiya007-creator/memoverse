@@ -2870,6 +2870,37 @@ function Footer({ onNav }: { onNav: (s: Screen) => void }) {
 //  MAIN CONTENT WRAPPER
 // ═══════════════════════════════════════════════════════════════════
 
+const ALL_VALID_SCREENS = new Set<Screen>([
+  "home",
+  "more",
+  "about-dementia",
+  "activities",
+  "game-memory",
+  "game-sounds",
+  "game-market",
+  "game-story",
+  "game-word",
+  "game-jigsaw",
+  "game-dice",
+  "game-board",
+  "game-interactive",
+  "game-bazaar",
+  "game-memory-lane",
+  "game-kaziranga-puzzle",
+  "game-whats-missing",
+  "game-routine",
+  "game-pattern",
+  "game-sound-rec",
+  "profiles-select",
+  "start-journey",
+  "profile-created",
+  "profile-home",
+  "my-memories",
+  "reminders",
+  "progress",
+  "gate",
+]);
+
 function MainAppContent() {
   const { profiles, active, saveProfile, logout, switchTo } = useProfiles();
   const { dark, toggleDark } = useDarkTheme();
@@ -2883,12 +2914,14 @@ function MainAppContent() {
 
   function getValidScreen(raw?: string): Screen {
     if (!raw) return "home";
-    const clean = raw.replace("#", "").split("-modal")[0].split("-edit")[0].split("-profiles")[0].split("-locked")[0];
-    if (
-      TOP_LEVEL_SCREENS.has(clean as Screen) ||
-      clean.startsWith("game-") ||
-      ["play", "more", "profiles-select", "start-journey", "profile-created", "gate"].includes(clean)
-    ) {
+    let clean = raw.replace(/^#+/, "").split("-modal")[0].split("-edit")[0].split("-profiles")[0].split("-locked")[0].trim();
+    if (clean === "play") clean = "activities";
+    if (clean === "game-word-puzzles") clean = "game-word";
+    if (clean === "game-jigsaw-puzzle") clean = "game-jigsaw";
+    if (clean === "game-sorting") clean = "game-bazaar";
+    if (clean === "game-daily-routine") clean = "game-routine";
+    if (clean === "game-pattern-recognition") clean = "game-pattern";
+    if (ALL_VALID_SCREENS.has(clean as Screen)) {
       return clean as Screen;
     }
     return "home";
@@ -3085,6 +3118,7 @@ function MainAppContent() {
           active ? <ProgressScreen profile={active} onNav={nav} /> : <GateScreen onNav={nav} onProfiles={openProfileModal} />
         )}
         {activeScreen === "gate" && <GateScreen onNav={nav} onProfiles={openProfileModal} />}
+        {!ALL_VALID_SCREENS.has(activeScreen) && <HomeScreen onNav={nav} active={active} onSwitchProfile={openProfileModal} />}
       </main>
 
       <Footer onNav={nav} />
