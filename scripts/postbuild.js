@@ -19,9 +19,15 @@ function copyDir(src, dest) {
 
 console.log('📦 Running MEMOVERSE postbuild sync...');
 if (fs.existsSync('dist')) {
+  // Ensure .nojekyll and 404.html exist in dist
+  fs.writeFileSync(path.join('dist', '.nojekyll'), '');
+  if (fs.existsSync(path.join('dist', 'index.html'))) {
+    fs.copyFileSync(path.join('dist', 'index.html'), path.join('dist', '404.html'));
+  }
   if (fs.existsSync('docs')) {
     fs.rmSync('docs', { recursive: true, force: true });
   }
   copyDir('dist', 'docs');
   console.log('✅ Postbuild sync complete: dist -> docs!');
 }
+
