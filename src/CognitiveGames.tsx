@@ -93,21 +93,32 @@ export function playRealInstrumentalAudio(soundKey: string, onEnded?: () => void
     };
   }
 
-  audio.onerror = (err) => {
-    console.error("Audio failed to load/play:", soundKey, err);
+  audio.onerror = (e) => {
+    console.error("❌ Audio load error for key:", soundKey, "src:", audio.src, "error:", audio.error);
     if ((window as any).__activeMemoverseAudioKey === soundKey) {
       (window as any).__activeMemoverseAudioKey = null;
     }
-    if (onError) onError(err);
+    if (onError) onError(e);
   };
 
-  audio.play().catch((err) => {
-    console.warn("Audio play promise rejected:", err);
-    if ((window as any).__activeMemoverseAudioKey === soundKey) {
-      (window as any).__activeMemoverseAudioKey = null;
-    }
-    if (onError) onError(err);
-  });
+  const playPromise = audio.play();
+  if (playPromise !== undefined) {
+    playPromise
+      .then(() => {
+        // Playback started successfully
+      })
+      .catch((err: any) => {
+        if (err && (err.name === "AbortError" || err.message?.includes("interrupted"))) {
+          // Playback interrupted by pause() or sound switch - normal behavior, do not trigger error state
+          return;
+        }
+        console.warn("⚠️ Audio play promise rejected:", err.name, err.message);
+        if ((window as any).__activeMemoverseAudioKey === soundKey) {
+          (window as any).__activeMemoverseAudioKey = null;
+        }
+        if (onError) onError(err);
+      });
+  }
 
   return audio;
 }
