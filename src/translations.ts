@@ -46,6 +46,10 @@ export interface TranslationSchema {
     settings: string;
     switchProfile: string;
     back: string;
+    archival: string;
+    cognitiveCompanion: string;
+    offlineActive: string;
+    onlineNormal: string;
   };
   home: {
     title: string;
@@ -302,6 +306,17 @@ export interface TranslationSchema {
     modalCategoryLabel: string;
     saveMemory: string;
     cancel: string;
+    readAloud: string;
+    bihuTitle: string;
+    bihuDesc: string;
+    teaGardenTitle: string;
+    teaGardenDesc: string;
+    radioTitle: string;
+    radioDesc: string;
+    twoDaysAgo: string;
+    oneWeekAgo: string;
+    twoWeeksAgo: string;
+    justNow: string;
   };
   reminders: {
     title: string;
@@ -314,6 +329,11 @@ export interface TranslationSchema {
     completed: string;
     todaySchedule: string;
     delete: string;
+    r1Text: string;
+    r2Text: string;
+    r3Text: string;
+    r4Text: string;
+    today: string;
   };
   progress: {
     title: string;
@@ -324,6 +344,27 @@ export interface TranslationSchema {
     streakTitle: string;
     streakDesc: string;
     weeklyReport: string;
+    aiPerformanceProfile: string;
+    cognitiveBreakdown: string;
+    cognitiveBreakdownDesc: string;
+    improving: string;
+    strong: string;
+    practicing: string;
+    stable: string;
+    sessionLogged: string;
+    sessionsLogged: string;
+    performanceRating: string;
+    excellent: string;
+    good: string;
+    activePractice: string;
+    activityRecords: string;
+    saved: string;
+    noHistoryRecorded: string;
+    difficultyLabel: string;
+    easy: string;
+    medium: string;
+    hard: string;
+    standard: string;
   };
   aboutDementia: {
     title: string;
@@ -382,6 +423,40 @@ export interface TranslationSchema {
     unlockRemindersTitle: string;
     unlockProgressTitle: string;
     createProfileNow: string;
+    fullName: string;
+    ageLabel: string;
+    yearsOld: string;
+    genderLabel: string;
+    female: string;
+    male: string;
+    other: string;
+    notSpecified: string;
+    locationLabel: string;
+    phoneNumber: string;
+    notProvided: string;
+    familyEmergencyContact: string;
+    notConfigured: string;
+    addressLabel: string;
+    fullAddress: string;
+    noAddressEntered: string;
+    profileActions: string;
+    applicationSettings: string;
+    configureSettingsDesc: string;
+    openSettingsButton: string;
+    startYourJourneyDesc: string;
+    loadDemoProfile: string;
+    guestMode: string;
+    guestModeDesc: string;
+    activeBadge: string;
+    continueGuestMode: string;
+    profileRequired: string;
+    backHome: string;
+    chooseAvatar: string;
+    contactNamePlaceholder: string;
+    contactPhonePlaceholder: string;
+    fullAddressPlaceholder: string;
+    greatJob: string;
+    greatJobDesc: string;
   };
   settings: {
     title: string;
@@ -504,6 +579,10 @@ export const baseEnglish: TranslationSchema = {
     settings: "Settings",
     switchProfile: "Switch Profile",
     back: "Back",
+    archival: "Archival Memory Companion",
+    cognitiveCompanion: "Cognitive Companion",
+    offlineActive: "Offline Active",
+    onlineNormal: "Online Normal",
   },
   home: {
     title: "Where Memories",
@@ -760,6 +839,17 @@ export const baseEnglish: TranslationSchema = {
     modalCategoryLabel: "Category",
     saveMemory: "Save Memory",
     cancel: "Cancel",
+    readAloud: "Read Aloud",
+    bihuTitle: "Bihu Celebration in Jorhat",
+    bihuDesc: "Dancing Bihu with my family near our village mustard fields. The dhol beats filled the warm spring air.",
+    teaGardenTitle: "Our Ancestral Tea Garden",
+    teaGardenDesc: "The wooden tea estate house where I grew up in Upper Assam. Morning mist and fresh brewed chai.",
+    radioTitle: "Bhupen Hazarika on the Radio",
+    radioDesc: "Listening to the golden voice of Bhupen da on the morning radio every Sunday with my parents.",
+    twoDaysAgo: "2 days ago",
+    oneWeekAgo: "1 week ago",
+    twoWeeksAgo: "2 weeks ago",
+    justNow: "Just now",
   },
   reminders: {
     title: "Daily Reminders",
@@ -772,6 +862,11 @@ export const baseEnglish: TranslationSchema = {
     completed: "Completed",
     todaySchedule: "Today's Schedule",
     delete: "Delete",
+    r1Text: "Morning blood pressure medicine",
+    r2Text: "Lunch and rest time",
+    r3Text: "Evening medicine with warm water",
+    r4Text: "Call Ananya (Daughter)",
+    today: "Today",
   },
   progress: {
     title: "Cognitive Journey & Progress",
@@ -782,6 +877,27 @@ export const baseEnglish: TranslationSchema = {
     streakTitle: "Gentle Daily Focus",
     streakDesc: "Regular engagement with familiar sounds, matching cards, and folk stories helps preserve cognitive sharpness and daily peace.",
     weeklyReport: "Weekly Engagement Summary",
+    aiPerformanceProfile: "AI Performance Profile",
+    cognitiveBreakdown: "Cognitive Practice Breakdown",
+    cognitiveBreakdownDesc: "Activity performance metrics automatically updated from gameplay history.",
+    improving: "Improving",
+    strong: "Strong",
+    practicing: "Practicing",
+    stable: "Stable",
+    sessionLogged: "session logged",
+    sessionsLogged: "sessions logged",
+    performanceRating: "Performance Rating",
+    excellent: "Excellent",
+    good: "Good",
+    activePractice: "Active Practice",
+    activityRecords: "Activity Performance Records",
+    saved: "Saved",
+    noHistoryRecorded: "No game history recorded yet. Play any cognitive game to log performance metrics!",
+    difficultyLabel: "Difficulty",
+    easy: "Easy",
+    medium: "Medium",
+    hard: "Hard",
+    standard: "Standard",
   },
   aboutDementia: {
     title: "About Dementia & Senior Care",
@@ -850,6 +966,40 @@ export const baseEnglish: TranslationSchema = {
     unlockRemindersTitle: "Unlock Daily Reminders",
     unlockProgressTitle: "Unlock Cognitive Progress",
     createProfileNow: "Create Profile Now",
+    fullName: "Full Name",
+    ageLabel: "Age",
+    yearsOld: "years old",
+    genderLabel: "Gender",
+    female: "Female",
+    male: "Male",
+    other: "Other",
+    notSpecified: "Not specified",
+    locationLabel: "Location",
+    phoneNumber: "Phone Number",
+    notProvided: "Not provided",
+    familyEmergencyContact: "Family / Emergency Contact",
+    notConfigured: "Not configured",
+    addressLabel: "Address",
+    fullAddress: "Full Address",
+    noAddressEntered: "No address entered.",
+    profileActions: "Profile Actions",
+    applicationSettings: "Application Settings",
+    configureSettingsDesc: "Configure interface language, audio guidance, text sizing, and contrast options.",
+    openSettingsButton: "Open Settings",
+    startYourJourneyDesc: "Create your senior profile to unlock personalized keepsake albums, medicine reminders, and focus metrics.",
+    loadDemoProfile: "Load Demo Profile (Kamla Devi)",
+    guestMode: "Guest Mode",
+    guestModeDesc: "You are currently exploring as a guest. You can play cognitive activities freely, or create a profile to save personal memories, daily reminders, and activity progress.",
+    activeBadge: "Active",
+    continueGuestMode: "Continue in Guest Mode",
+    profileRequired: "Profile Required",
+    backHome: "Back Home",
+    chooseAvatar: "Choose Avatar",
+    contactNamePlaceholder: "Contact Name (e.g. Daughter)",
+    contactPhonePlaceholder: "Contact Phone Number",
+    fullAddressPlaceholder: "Full residence address...",
+    greatJob: "Great Job! Start Your Journey",
+    greatJobDesc: "You've completed your activity. Create your profile to save your progress, personal memories, and daily reminders.",
   },
   settings: {
     title: "Application Settings",
@@ -894,10 +1044,101 @@ export const TRANSLATIONS: Record<string, TranslationSchema> = {
     home: { ...baseEnglish.home, title: "য'ত স্মৃতিসমূহ", titleAccent: "মৰমেৰে সজীৱ হৈ থাকে", subtitle: "জ্যেষ্ঠসকলৰ বাবে সজোৱা স্মৃতি সংৰক্ষণ সংগী", heroDescription: "আপোনজনৰ বাবে চিনাকি আঞ্চলিক শব্দ, পৰিয়ালৰ স্মৃতি সংৰক্ষণ এলবাম আৰু শান্ত দৈনিক সময়সূচীৰ সৈতে সজোৱা এক প্ৰশান্ত আশ্ৰয়স্থল।", exploreActivities: "🧠 কাৰ্যসূচী চাওক", caregiverGuide: "📖 সেৱাকাৰীৰ হাতপুথি", heroBadge1: "জ্যেষ্ঠ সন্মান", heroBadge2: "স্মৃতি সংৰক্ষণ সংগী", heroTagline: "স্মৃতি আৰু শ্ৰৱণ অভিজ্ঞতাৰ জৰিয়তে দৈনিক মৰ্যাদা সংৰক্ষণ", soundsCardTitle: "গৃহৰ চিনাকি শব্দ", soundsCardDesc: "গগনা, বিহু ঢোলৰ মাত, চাহ বাগিচাৰ চৰাইৰ কাকলি আৰু বৰষুণৰ শব্দ চিনাক্ত কৰক।", soundsCardAction: "এতিয়াই শুনক →", keepsakeCardTitle: "স্মৃতিৰ এলবাম", keepsakeCardDesc: "পৰিয়ালৰ মৰমৰ মুহূৰ্ত, পূৰ্বপুৰুষৰ স্থান আৰু কণ্ঠৰ টোকা সংৰক্ষণ কৰক।", keepsakeCardAction: "স্মৃতি এলবাম চাওক →", remindersCardTitle: "দৈনিক সময়সূচী", remindersCardDesc: "ঔষধৰ সময়, পুৱাৰ খোজ কঢ়া আৰু পৰিয়ালৰ কলৰ সময়সূচী মনত ৰাখক।", remindersCardAction: "আজিৰ সময়সূচী চাওক →" },
     activities: { ...baseEnglish.activities, title: "মানসিক অনুশীলন", subtitle: "স্মৃতিশক্তি আৰু মনোযোগ বৃদ্ধিৰ বাবে দৈনিক কাৰ্যসূচী।", playNow: "আৰম্ভ কৰক", viewAll: "সকলো কাৰ্যসূচী চাওক →" },
     games: { ...baseEnglish.games, memoryMatchTitle: "স্মৃতি ফটো মিলাওক", memoryMatchDesc: "কাৰ্ডসমূহত ক্লিক কৰি মিল থকা ফটো যোৰা বিচাৰি উলিয়াওক।", flipCard: "কাৰ্ড উলিয়াওক", moves: "চেষ্টা", matches: "মিলসমূহ", congrats: "বৰ ধুনীয়া! আপুনি সকলো ফটো মিলালে!", playAgain: "পুনৰ খেলক", backToActivities: "← পিছলৈ যান", wordPuzzlesTitle: "শব্দ বুজৰুকি", wordPuzzlesDesc: "আখৰ সজাই শব্দ আৰু সৰু ৰহস্য সমাধান কৰক।", whatsMissingTitle: "কি হেৰাল?", whatsMissingDesc: "বস্তুবোৰ ভালদৰে মন কৰক, তাৰ পিছত হেৰোৱা বস্তুটো মনত পেলাওক।", patternTitle: "সজ্জা চিনাক্তকৰণ", patternDesc: "চিনাকি বস্তুবোৰৰ পুনৰাবৃত্তিমূলক সজ্জা সম্পূৰ্ণ কৰক।", jigsawTitle: "ডাঙৰ টুকুৰাৰ জিগছ' পাজল", jigsawDesc: "কাজিৰঙা আৰু চাহ বাগিচাৰ ছবিৰ পাজল মিলাওক।", routineTitle: "দৈনিক ক্ৰম সজোৱা", routineDesc: "পুৱাৰ পৰা গধূলিলৈ দৈনিক কামবোৰ সঠিক ক্ৰমত সজাওক।", diceTitle: "পাশা গণনাই কাৰ্যসূচী", diceDesc: "পাশা গুটি দলিয়াই সংখ্যা গণনা আৰু মিলাই খেলক।", boardTitle: "বৰ্ড গেম", boardDesc: "পাশা দলিয়াই কাজিৰঙা আৰু মাজুলীৰ পথত আগবাঢ়ক।", soundRecTitle: "শব্দ চিনাক্তকৰণ", soundRecDesc: "প্ৰাকৃতিক আৰু সাংস্কৃতিক শব্দ শুনি সঠিক চিনাক্ত কৰক।", kazirangaTitle: "কাজিৰঙা ৪-টুকুৰাৰ পাজল", kazirangaDesc: "সৰল ২x২ পাজলত কাজিৰঙাৰ গঁড় সজাওক।", memoryLaneTitle: "স্মৃতিৰ আলিবাট", memoryLaneDesc: "আঞ্চলিক শব্দৰ সৈতে পুৰণি দিনৰ ফটো এলবাম চাওক।", interactiveTitle: "ইণ্টাৰেক্টিভ মনোযোগ", interactiveDesc: "ধীৰ গতিৰ দৃশ্যমান কাৰ্যসূচী।", bazaarTitle: "বজাৰৰ বস্তু ভাগ কৰা", bazaarDesc: "আঞ্চলিক বস্তুসমূহ খাদ্য আৰু গৃহস্থালীৰ খাছ বাস্কেটত সজাওক।" },
-    memories: { ...baseEnglish.memories, title: "স্মৃতিৰ এলবাম", addMemory: "➕ নতুন স্মৃতি যোগ কৰক", family: "পৰিয়াল", places: "স্থানসমূহ", moments: "বিশেষ মুহূৰ্ত" },
-    reminders: { ...baseEnglish.reminders, title: "দৈনিক সময়সূচী", newReminder: "➕ নতুন মনত পেলোৱা যোগ কৰক", add: "যোগ কৰক", todaySchedule: "আজিৰ সময়সূচী", delete: "মচি পেলাওক" },
+    memories: {
+      ...baseEnglish.memories,
+      title: "স্মৃতিৰ এলবাম",
+      subtitle: "পৰিয়ালৰ মৰমৰ মুহূৰ্ত আৰু পূৰ্বপুৰুষৰ স্থানসমূহ সংৰক্ষণ কৰক।",
+      addMemory: "➕ নতুন স্মৃতি যোগ কৰক",
+      allCategories: "সকলো স্মৃতি",
+      family: "পৰিয়াল",
+      places: "স্থানসমূহ",
+      moments: "বিশেষ মুহূৰ্ত",
+      deleteMemory: "মচি পেলাওক",
+      readAloud: "শব্দ কৰি পঢ়ক",
+      bihuTitle: "যোৰহাটত বিহু উদযাপন",
+      bihuDesc: "সৰিয়হ পথাৰৰ ওচৰত পৰিয়ালৰ সৈতে বিহু নাচি থকা ধুনীয়া মুহূৰ্ত।",
+      teaGardenTitle: "আমাৰ পূৰ্বপুৰুষৰ চাহ বাগিচা",
+      teaGardenDesc: "পুৱাৰ কুঁৱলী, সতেজ চাহ আৰু শীতল বাৰাণ্ডা।",
+      radioTitle: "পুৰণি ৰেডিঅ' আৰু সুৰ",
+      radioDesc: "গধূলিৰ সময়ত আকাশবাণীৰ পুৰণি গীত আৰু ৰেডিঅ'ৰ মাত।",
+      twoDaysAgo: "২ দিন আগতে",
+      oneWeekAgo: "১ সপ্তাহ আগতে",
+      twoWeeksAgo: "২ সপ্তাহ আগতে",
+      justNow: "এইমাত্ৰ",
+    },
+    reminders: {
+      ...baseEnglish.reminders,
+      title: "দৈনিক সময়সূচী",
+      subtitle: "ঔষধ আৰু দৈনিক কামৰ সহায়ক সময়সূচী।",
+      newReminder: "➕ নতুন মনত পেলোৱা যোগ কৰক",
+      add: "যোগ কৰক",
+      todaySchedule: "আজিৰ সময়সূচী",
+      delete: "মচি পেলাওক",
+      r1Text: "পুৱাৰ ৰক্তচাপৰ ঔষধ",
+      r2Text: "দুপৰীয়াৰ আহাৰ আৰু বিশ্ৰাম",
+      r3Text: "গধূলিৰ গৰম পানীৰ সৈতে ঔষধ",
+      r4Text: "অনন্যা (জীয়াৰী) লৈ ফোন কৰক",
+      today: "আজি",
+    },
+    progress: {
+      ...baseEnglish.progress,
+      title: "মানসিক যাত্ৰা আৰু অগ্ৰগতি",
+      subtitle: "কাৰ্যসূচীৰ অংশগ্ৰহণ আৰু সফলতাৰ তথ্য নিৰীক্ষণ কৰক।",
+      activitiesCompleted: "সম্পূৰ্ণ কৰা কাৰ্যসূচী",
+      currentLevel: "বৰ্তমানৰ স্তৰ",
+      bestArea: "শ্ৰেষ্ঠ মানসিক বিভাগ",
+      streakTitle: "শান্ত দৈনিক মনোযোগ",
+      streakDesc: "চিনাকি শব্দ আৰু ফটো কাৰ্ডৰ অনুশীলন স্মৃতিশক্তি আৰু মানসিক শান্তি বজাই ৰখাত সহায়ক।",
+      aiPerformanceProfile: "এআই কাৰ্যদক্ষতা প্ৰফাইল",
+      cognitiveBreakdown: "মানসিক অনুশীলন বিভাজন",
+      cognitiveBreakdownDesc: "খেলৰ তথ্যৰ পৰা স্বয়ংক্ৰিয়ভাৱে উন্নীত কৰা কাৰ্যদক্ষতা।",
+      improving: "উন্নত হৈছে",
+      strong: "শক্তিশালী",
+      practicing: "অনুশীলনৰত",
+      stable: "স্থিৰ",
+      sessionLogged: "অনুশীলন সংৰক্ষিত",
+      sessionsLogged: "অনুশীলনসমূহ সংৰক্ষিত",
+      performanceRating: "কাৰ্যদক্ষতা ৰেটিং",
+      excellent: "উৎকৃষ্ট",
+      good: "ভাল",
+      activePractice: "সক্ৰিয় অনুশীলন",
+      activityRecords: "কাৰ্যসূচীৰ ৰেকৰ্ডসমূহ",
+      saved: "সংৰক্ষিত",
+      noHistoryRecorded: "কোনো খেলৰ ৰেকৰ্ড নাই। খেল খেলক আৰু অগ্ৰগতি ৰেকৰ্ড কৰক!",
+      difficultyLabel: "কঠিনতা",
+    },
     aboutDementia: { ...baseEnglish.aboutDementia, title: "ডিমেঞ্চিয়া আৰু স্মৃতি পৰিচৰ্যা", whatIsDementia: "ডিমেঞ্চিয়া কি?", keySigns: "প্ৰাৰম্ভিক লক্ষণসমূহ", caregiverTips: "সেৱাকাৰীৰ বাবে পৰামৰ্শ" },
-    profile: { ...baseEnglish.profile, title: "আপোনাৰ প্ৰফাইল", welcomeBack: "পুনৰ স্বাগতম", selectProfileTitle: "প্ৰফাইল বাছনি কৰক", createProfileTitle: "জ্যেষ্ঠ প্ৰফাইল সৃষ্টি কৰক" },
+    profile: {
+      ...baseEnglish.profile,
+      title: "আপোনাৰ প্ৰফাইল",
+      subtitle: "ব্যক্তিগত চিনাক্তকৰণ আৰু সেৱাকাৰীৰ যোগাযোগৰ তথ্য।",
+      welcomeBack: "পুনৰ স্বাগতম",
+      selectProfileTitle: "প্ৰফাইল বাছনি কৰক",
+      createProfileTitle: "জ্যেষ্ঠ প্ৰফাইল সৃষ্টি কৰক",
+      fullName: "সম্পূৰ্ণ নাম",
+      ageLabel: "বয়স",
+      yearsOld: "বছৰ",
+      genderLabel: "লিঙ্গ",
+      female: "মহিলা",
+      male: "পুৰুষ",
+      other: "অন্যান্য",
+      notSpecified: "উল্লেখনীয় নহয়",
+      locationLabel: "স্থান",
+      phoneNumber: "ফোন নম্বৰ",
+      notProvided: "দিয়া হোৱা নাই",
+      familyEmergencyContact: "পৰিয়াল / জৰুৰীকালীন যোগাযোগ",
+      notConfigured: "কনফিগাৰ কৰা হোৱা নাই",
+      addressLabel: "ঠিকনা",
+      fullAddress: "সম্পূৰ্ণ ঠিকানা",
+      noAddressEntered: "কোনো ঠিকানা দিয়া হোৱা নাই",
+      profileActions: "প্ৰফাইল কাৰ্যসমূহ",
+      applicationSettings: "এপ্লিকেশ্যন সংৰচনা",
+      configureSettingsDesc: "ভাষা, শ্ৰৱণ পৰামৰ্শ আৰু দৃশ্যমানতা সলনি কৰক।",
+      openSettingsButton: "সংৰচনা খোলক",
+      guestMode: "অতিথি মোড",
+      guestModeDesc: "আপুনি বৰ্তমান অতিথি হিচাপে কাৰ্যসূচীবোৰ ভ্ৰমণ কৰি আছে।",
+      loadDemoProfile: "ডেমো প্ৰফাইল ল'ড কৰক (কমলা দেৱী)",
+    },
   },
 
   // ─── BENGALI ─────────────────────────────────────────────────────────────

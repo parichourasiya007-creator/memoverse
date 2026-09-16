@@ -1017,22 +1017,22 @@ function HomeScreen({ onNav, active, onSwitchProfile }: { onNav: (s: Screen) => 
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {[
               {
-                title: "Bihu Celebration in Jorhat",
-                desc: "Dancing Bihu with my family near our village mustard fields. The dhol beats filled the warm spring air.",
+                title: t.memories.bihuTitle,
+                desc: t.memories.bihuDesc,
                 image: bihuCelebrationImg,
                 tag: t.memories.family,
                 emoji: "👨‍👩‍👧",
               },
               {
-                title: "Our Ancestral Tea Garden",
-                desc: "The wooden tea estate house where I grew up in Upper Assam. Morning mist and fresh brewed chai.",
+                title: t.memories.teaGardenTitle,
+                desc: t.memories.teaGardenDesc,
                 image: teaGardenImg,
                 tag: t.memories.places,
                 emoji: "🏡",
               },
               {
-                title: "Bhupen Hazarika on the Radio",
-                desc: "Listening to the golden voice of Bhupen da on the morning radio every Sunday with my parents.",
+                title: t.memories.radioTitle,
+                desc: t.memories.radioDesc,
                 image: vintageRadioImg,
                 tag: t.memories.moments,
                 emoji: "🎵",
@@ -1836,12 +1836,18 @@ function MyMemoriesScreen({ profile, onUpdate }: { profile: Profile; onUpdate: (
     onUpdate({ ...profile, memories: profile.memories.filter((m) => m.id !== id) });
   }
 
+  const memoryMap: Record<string, { title: string; desc: string; date: string }> = {
+    m1: { title: t.memories.bihuTitle, desc: t.memories.bihuDesc, date: t.memories.twoDaysAgo },
+    m2: { title: t.memories.teaGardenTitle, desc: t.memories.teaGardenDesc, date: t.memories.oneWeekAgo },
+    m3: { title: t.memories.radioTitle, desc: t.memories.radioDesc, date: t.memories.twoWeeksAgo },
+  };
+
   return (
     <div className="min-h-screen pb-24 pt-8">
       <div className="max-w-5xl mx-auto px-4 space-y-8">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
-            <Badge color="brass">📸 Keepsakes</Badge>
+            <Badge color="brass">📸 {t.home.keepsakeCardTitle}</Badge>
             <h1 className="text-3xl sm:text-5xl font-black text-[var(--text-primary)] mt-1">{t.memories.title}</h1>
             <p className="text-base text-[var(--text-secondary)] font-medium">{t.memories.subtitle}</p>
           </div>
@@ -1868,29 +1874,36 @@ function MyMemoriesScreen({ profile, onUpdate }: { profile: Profile; onUpdate: (
         </div>
 
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filtered.map((m) => (
-            <div key={m.id} className="clay-card rounded-3xl p-6 space-y-4 border border-[var(--border)] bg-[var(--bg-card)] flex flex-col justify-between">
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-2xl">{m.emoji}</span>
-                  <span className="text-xs font-bold text-[var(--text-muted)]">{m.date}</span>
-                </div>
-                {m.image && (
-                  <div className="h-40 rounded-2xl overflow-hidden border border-[var(--border)]">
-                    <img src={resolveImage(m.image, m.title)} alt={m.title} className="w-full h-full object-cover" onError={handleImageError} />
+          {filtered.map((m) => {
+            const mapped = memoryMap[m.id];
+            const displayTitle = mapped?.title || (m.title.includes("Bihu") ? t.memories.bihuTitle : m.title.includes("Tea") ? t.memories.teaGardenTitle : m.title.includes("Radio") ? t.memories.radioTitle : m.title);
+            const displayDesc = mapped?.desc || (m.title.includes("Bihu") ? t.memories.bihuDesc : m.title.includes("Tea") ? t.memories.teaGardenDesc : m.title.includes("Radio") ? t.memories.radioDesc : m.description);
+            const displayDate = mapped?.date || (m.date === "Just now" ? t.memories.justNow : m.date);
+
+            return (
+              <div key={m.id} className="clay-card rounded-3xl p-6 space-y-4 border border-[var(--border)] bg-[var(--bg-card)] flex flex-col justify-between">
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-2xl">{m.emoji}</span>
+                    <span className="text-xs font-bold text-[var(--text-muted)]">{displayDate}</span>
                   </div>
-                )}
-                <div>
-                  <h3 className="text-xl font-black text-[var(--text-primary)]">{m.title}</h3>
-                  <p className="text-sm text-[var(--text-secondary)] mt-2 leading-relaxed font-medium">{m.description}</p>
+                  {m.image && (
+                    <div className="h-40 rounded-2xl overflow-hidden border border-[var(--border)]">
+                      <img src={resolveImage(m.image, m.title)} alt={displayTitle} className="w-full h-full object-cover" onError={handleImageError} />
+                    </div>
+                  )}
+                  <div>
+                    <h3 className="text-xl font-black text-[var(--text-primary)]">{displayTitle}</h3>
+                    <p className="text-sm text-[var(--text-secondary)] mt-2 leading-relaxed font-medium">{displayDesc}</p>
+                  </div>
+                </div>
+                <div className="pt-3 border-t border-[var(--border)] flex items-center justify-between">
+                  <SpeakBtn text={`${displayTitle}. ${displayDesc}`} />
+                  <button onClick={() => remove(m.id)} className="text-xs font-bold text-[var(--error)] hover:underline cursor-pointer">{t.memories.deleteMemory}</button>
                 </div>
               </div>
-              <div className="pt-3 border-t border-[var(--border)] flex items-center justify-between">
-                <SpeakBtn text={`${m.title}. ${m.description}`} />
-                <button onClick={() => remove(m.id)} className="text-xs font-bold text-[var(--error)] hover:underline cursor-pointer">{t.memories.deleteMemory}</button>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
         {showAdd && (
@@ -1941,13 +1954,20 @@ function RemindersScreen({ profile, onUpdate }: { profile: Profile; onUpdate: (p
     onUpdate({ ...profile, reminders: profile.reminders.filter((r) => r.id !== id) });
   }
 
+  const reminderTextMap: Record<string, string> = {
+    r1: t.reminders.r1Text,
+    r2: t.reminders.r2Text,
+    r3: t.reminders.r3Text,
+    r4: t.reminders.r4Text,
+  };
+
   return (
     <div className="min-h-screen pb-24 pt-8">
       <div className="max-w-3xl mx-auto px-4 space-y-8">
         <div>
           <Badge color="oxblood">🔔 {t.reminders.title}</Badge>
           <h1 className="text-3xl sm:text-5xl font-black text-[var(--text-primary)] mt-1">{t.reminders.todaySchedule}</h1>
-          <p className="text-base text-[var(--text-secondary)] font-medium">Schedule for {profile.name}</p>
+          <p className="text-base text-[var(--text-secondary)] font-medium">{t.reminders.subtitle}</p>
         </div>
 
         <Card className="p-6 space-y-4">
@@ -1958,20 +1978,25 @@ function RemindersScreen({ profile, onUpdate }: { profile: Profile; onUpdate: (p
         </Card>
 
         <div className="space-y-3">
-          {profile.reminders.map((r) => (
-            <Card key={r.id} className="p-4 flex items-center justify-between gap-4">
-              <div className="flex items-center gap-4">
-                <button onClick={() => toggle(r.id)} className={`w-8 h-8 rounded-full border-2 flex items-center justify-center font-bold text-sm cursor-pointer ${r.done ? "bg-[var(--success)] text-white border-green-700" : "border-[var(--border)] bg-[var(--bg-input)]"}`}>
-                  {r.done ? "✓" : ""}
-                </button>
-                <div>
-                  <div className={`text-base font-extrabold ${r.done ? "line-through text-[var(--text-muted)]" : "text-[var(--text-primary)]"}`}>{r.text}</div>
-                  <div className="text-xs text-[var(--text-muted)] font-bold">{r.time}</div>
+          {profile.reminders.map((r) => {
+            const displayRemText = reminderTextMap[r.id] || r.text;
+            const displayRemTime = r.time === "Today" ? t.reminders.today : r.time;
+
+            return (
+              <Card key={r.id} className="p-4 flex items-center justify-between gap-4">
+                <div className="flex items-center gap-4">
+                  <button onClick={() => toggle(r.id)} className={`w-8 h-8 rounded-full border-2 flex items-center justify-center font-bold text-sm cursor-pointer ${r.done ? "bg-[var(--success)] text-white border-green-700" : "border-[var(--border)] bg-[var(--bg-input)]"}`}>
+                    {r.done ? "✓" : ""}
+                  </button>
+                  <div>
+                    <div className={`text-base font-extrabold ${r.done ? "line-through text-[var(--text-muted)]" : "text-[var(--text-primary)]"}`}>{displayRemText}</div>
+                    <div className="text-xs text-[var(--text-muted)] font-bold">{displayRemTime}</div>
+                  </div>
                 </div>
-              </div>
-              <button onClick={() => remove(r.id)} className="text-xs font-bold text-[var(--error)] hover:underline cursor-pointer">{t.reminders.delete}</button>
-            </Card>
-          ))}
+                <button onClick={() => remove(r.id)} className="text-xs font-bold text-[var(--error)] hover:underline cursor-pointer">{t.reminders.delete}</button>
+              </Card>
+            );
+          })}
         </div>
       </div>
     </div>
@@ -2018,9 +2043,9 @@ function ProgressScreen({ profile }: { profile: Profile; onNav: (s: Screen) => v
         <Card className="p-6 space-y-6 bg-[var(--bg-card)] border border-[var(--border)] shadow-md">
           <div className="flex items-center justify-between">
             <div>
-              <Badge color="oxblood">🧠 AI Performance Profile</Badge>
-              <h3 className="text-2xl font-black text-[var(--text-primary)] mt-1">Cognitive Practice Breakdown</h3>
-              <p className="text-xs text-[var(--text-secondary)] font-medium">Activity performance metrics automatically updated from gameplay history.</p>
+              <Badge color="oxblood">🧠 {t.progress.aiPerformanceProfile}</Badge>
+              <h3 className="text-2xl font-black text-[var(--text-primary)] mt-1">{t.progress.cognitiveBreakdown}</h3>
+              <p className="text-xs text-[var(--text-secondary)] font-medium">{t.progress.cognitiveBreakdownDesc}</p>
             </div>
             <span className="text-2xl">📈</span>
           </div>
@@ -2028,18 +2053,29 @@ function ProgressScreen({ profile }: { profile: Profile; onNav: (s: Screen) => v
           <div className="space-y-4">
             {Object.values(skillProfiles).map((sk) => {
               const trendBadges = {
-                improving: { label: "📈 Improving", bg: "bg-green-100 dark:bg-emerald-950/60 text-green-800 dark:text-emerald-300 border-green-300 dark:border-emerald-700/60" },
-                strong: { label: "⭐ Strong", bg: "bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border-amber-300 dark:border-amber-700/60" },
-                struggling: { label: "🔄 Practicing", bg: "bg-blue-100 dark:bg-blue-950/60 text-blue-800 dark:text-blue-300 border-blue-300 dark:border-blue-700/60" },
-                stable: { label: "⚖️ Stable", bg: "bg-slate-100 dark:bg-slate-800/60 text-slate-800 dark:text-slate-200 border-slate-300 dark:border-slate-600/60" },
+                improving: { label: `📈 ${t.progress.improving}`, bg: "bg-green-100 dark:bg-emerald-950/60 text-green-800 dark:text-emerald-300 border-green-300 dark:border-emerald-700/60" },
+                strong: { label: `⭐ ${t.progress.strong}`, bg: "bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border-amber-300 dark:border-amber-700/60" },
+                struggling: { label: `🔄 ${t.progress.practicing}`, bg: "bg-blue-100 dark:bg-blue-950/60 text-blue-800 dark:text-blue-300 border-blue-300 dark:border-blue-700/60" },
+                stable: { label: `⚖️ ${t.progress.stable}`, bg: "bg-slate-100 dark:bg-slate-800/60 text-slate-800 dark:text-slate-200 border-slate-300 dark:border-slate-600/60" },
               };
               const badge = trendBadges[sk.trend] || trendBadges.stable;
+
+              const skillNameMap: Record<string, string> = {
+                memory: t.games.catMemory,
+                attention: t.games.catAttention,
+                pattern: t.games.catSpatial,
+                spatial: t.games.catSpatial,
+                logic: t.games.catLogic,
+                routine: t.games.catRoutine,
+              };
+
+              const localizedSkillName = skillNameMap[sk.skill.toLowerCase()] || sk.skill;
 
               return (
                 <div key={sk.skill} className="space-y-2 p-3.5 rounded-2xl bg-[var(--bg-section)] border border-[var(--border)]">
                   <div className="flex items-center justify-between text-sm font-extrabold text-[var(--text-primary)]">
                     <span className="flex items-center gap-2">
-                      <span className="capitalize">{sk.skill}</span>
+                      <span className="capitalize">{localizedSkillName}</span>
                       <span className={`text-[10px] px-2 py-0.5 rounded-full border font-black ${badge.bg}`}>
                         {badge.label}
                       </span>
@@ -2053,8 +2089,8 @@ function ProgressScreen({ profile }: { profile: Profile; onNav: (s: Screen) => v
                     />
                   </div>
                   <div className="text-[10px] font-bold text-[var(--text-muted)] flex justify-between">
-                    <span>{sk.gamesPlayed} session{sk.gamesPlayed === 1 ? "" : "s"} logged</span>
-                    <span>Performance Rating: {sk.score >= 80 ? "Excellent" : sk.score >= 60 ? "Good" : "Active Practice"}</span>
+                    <span>{sk.gamesPlayed} {sk.gamesPlayed === 1 ? t.progress.sessionLogged : t.progress.sessionsLogged}</span>
+                    <span>{t.progress.performanceRating}: {sk.score >= 80 ? t.progress.excellent : sk.score >= 60 ? t.progress.good : t.progress.activePractice}</span>
                   </div>
                 </div>
               );
@@ -2065,13 +2101,13 @@ function ProgressScreen({ profile }: { profile: Profile; onNav: (s: Screen) => v
         {/* Recent Game Activity Records */}
         <Card className="p-6 space-y-4 bg-[var(--bg-card)] border border-[var(--border)] shadow-md">
           <div className="flex items-center justify-between">
-            <h3 className="text-xl font-black text-[var(--text-primary)]">🎮 Activity Performance Records</h3>
-            <Badge color="brass">{gameRecords.length} Saved</Badge>
+            <h3 className="text-xl font-black text-[var(--text-primary)]">🎮 {t.progress.activityRecords}</h3>
+            <Badge color="brass">{gameRecords.length} {t.progress.saved}</Badge>
           </div>
 
           {gameRecords.length === 0 ? (
             <p className="text-sm font-semibold text-[var(--text-muted)] leading-relaxed py-4 text-center">
-              No game history recorded yet. Play any cognitive game to log performance metrics!
+              {t.progress.noHistoryRecorded}
             </p>
           ) : (
             <div className="space-y-3">
@@ -2079,7 +2115,7 @@ function ProgressScreen({ profile }: { profile: Profile; onNav: (s: Screen) => v
                 <div key={rec.id} className="p-4 rounded-2xl bg-[var(--bg-section)] border border-[var(--border)] flex items-center justify-between gap-3 text-sm">
                   <div className="space-y-0.5">
                     <div className="font-extrabold text-[var(--text-primary)]">{rec.gameTitle}</div>
-                    <div className="text-xs font-bold text-[var(--text-muted)]">{rec.category} • {rec.difficulty} Difficulty</div>
+                    <div className="text-xs font-bold text-[var(--text-muted)]">{rec.category} • {rec.difficulty} {t.progress.difficultyLabel}</div>
                   </div>
                   <div className="text-right shrink-0">
                     <div className="font-black text-[var(--oxblood-dark)] text-base">{rec.score}</div>
@@ -2584,26 +2620,26 @@ function ProfileHomeScreen({
   onLogout: () => void;
   onLoadDemo: () => void;
 }) {
-  const { t } = useLanguage();
+  const { lang, t } = useLanguage();
 
   if (!profile) {
     return (
       <div className="min-h-screen pb-24 pt-8">
         <div className="max-w-2xl mx-auto px-4 space-y-8">
           <div>
-            <Badge color="brass">👤 Guest Mode</Badge>
-            <h1 className="text-3xl sm:text-5xl font-black text-[var(--text-primary)] mt-1">Welcome to MEMOVERSE</h1>
+            <Badge color="brass">👤 {t.profile.guestMode}</Badge>
+            <h1 className="text-3xl sm:text-5xl font-black text-[var(--text-primary)] mt-1">{t.profile.welcomeMEMOVERSE}</h1>
             <p className="text-base text-[var(--text-secondary)] font-medium mt-2 leading-relaxed">
-              You are currently exploring as a guest. You can play cognitive activities freely, or create a profile to save personal memories, daily reminders, and activity progress.
+              {t.profile.guestModeDesc}
             </p>
           </div>
 
           <Card level={2} className="p-8 space-y-6 text-center bg-[var(--bg-card)] border border-[var(--border)]">
             <div className="text-6xl">✨</div>
             <div className="space-y-2">
-              <h2 className="text-2xl font-black text-[var(--text-primary)]">Start Your Journey</h2>
+              <h2 className="text-2xl font-black text-[var(--text-primary)]">{t.profile.startJourney}</h2>
               <p className="text-sm font-semibold text-[var(--text-secondary)] max-w-md mx-auto">
-                Create your senior profile to unlock personalized keepsake albums, medicine reminders, and focus metrics.
+                {t.profile.startYourJourneyDesc}
               </p>
             </div>
             <div className="space-y-3 max-w-sm mx-auto pt-2">
@@ -2611,7 +2647,7 @@ function ProfileHomeScreen({
                 <span>✨</span> {t.profile.createProfile}
               </Btn>
               <Btn onClick={onLoadDemo} variant="secondary" fullWidth className="py-3.5 text-sm flex items-center justify-center gap-2">
-                <span>👵</span> Load Demo Profile (Kamla Devi)
+                <span>👵</span> {t.profile.loadDemoProfile}
               </Btn>
             </div>
           </Card>
@@ -2619,6 +2655,8 @@ function ProfileHomeScreen({
       </div>
     );
   }
+
+  const currentLangNative = LANGUAGE_METADATA[lang]?.nativeName || profile.language;
 
   return (
     <div className="min-h-screen pb-24 pt-8 space-y-8">
@@ -2637,7 +2675,7 @@ function ProfileHomeScreen({
             </div>
             <div className="space-y-2 text-center sm:text-left flex-1">
               <h2 className="text-3xl font-black text-[var(--text-primary)]">{profile.name}</h2>
-              <p className="text-sm font-semibold text-[var(--text-secondary)]">Senior Profile · Language: {profile.language}</p>
+              <p className="text-sm font-semibold text-[var(--text-secondary)]">{t.profile.createProfileTitle} · {t.settings.language}: {currentLangNative}</p>
             </div>
           </div>
         </Card>
@@ -2645,23 +2683,25 @@ function ProfileHomeScreen({
         {/* Personal Details */}
         <Card level={2} className="p-6 sm:p-8 space-y-4 bg-[var(--bg-card)] border border-[var(--border)] shadow-sm">
           <h3 className="text-xl font-black text-[var(--text-primary)] border-b border-[var(--border)] pb-3 flex items-center gap-2">
-            <span>👤</span> Personal Details
+            <span>👤</span> {t.profile.personalDetails}
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-left pt-1">
             <div>
-              <div className="text-xs font-black uppercase text-[var(--text-muted)] tracking-wider">Full Name</div>
+              <div className="text-xs font-black uppercase text-[var(--text-muted)] tracking-wider">{t.profile.fullName}</div>
               <div className="text-lg font-black text-[var(--text-primary)] mt-0.5">{profile.name}</div>
             </div>
             <div>
-              <div className="text-xs font-black uppercase text-[var(--text-muted)] tracking-wider">Age</div>
-              <div className="text-lg font-black text-[var(--text-primary)] mt-0.5">{profile.age} years old</div>
+              <div className="text-xs font-black uppercase text-[var(--text-muted)] tracking-wider">{t.profile.ageLabel}</div>
+              <div className="text-lg font-black text-[var(--text-primary)] mt-0.5">{profile.age} {t.profile.yearsOld}</div>
             </div>
             <div>
-              <div className="text-xs font-black uppercase text-[var(--text-muted)] tracking-wider">Gender</div>
-              <div className="text-lg font-black text-[var(--text-primary)] mt-0.5">{profile.gender || "Not specified"}</div>
+              <div className="text-xs font-black uppercase text-[var(--text-muted)] tracking-wider">{t.profile.genderLabel}</div>
+              <div className="text-lg font-black text-[var(--text-primary)] mt-0.5">
+                {profile.gender === "Female" ? t.profile.female : profile.gender === "Male" ? t.profile.male : profile.gender === "Other" ? t.profile.other : (profile.gender || t.profile.notSpecified)}
+              </div>
             </div>
             <div>
-              <div className="text-xs font-black uppercase text-[var(--text-muted)] tracking-wider">Location</div>
+              <div className="text-xs font-black uppercase text-[var(--text-muted)] tracking-wider">{t.profile.locationLabel}</div>
               <div className="text-lg font-black text-[var(--text-primary)] mt-0.5">{profile.location || profile.region || "India"}</div>
             </div>
           </div>
@@ -2670,15 +2710,15 @@ function ProfileHomeScreen({
         {/* Contact Details */}
         <Card level={2} className="p-6 sm:p-8 space-y-4 bg-[var(--bg-card)] border border-[var(--border)] shadow-sm">
           <h3 className="text-xl font-black text-[var(--text-primary)] border-b border-[var(--border)] pb-3 flex items-center gap-2">
-            <span>📞</span> Contact Details
+            <span>📞</span> {t.profile.contactDetails}
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-left pt-1">
             <div>
-              <div className="text-xs font-black uppercase text-[var(--text-muted)] tracking-wider">Phone Number</div>
-              <div className="text-lg font-black text-[var(--text-primary)] mt-0.5">{profile.phone || "Not provided"}</div>
+              <div className="text-xs font-black uppercase text-[var(--text-muted)] tracking-wider">{t.profile.phoneNumber}</div>
+              <div className="text-lg font-black text-[var(--text-primary)] mt-0.5">{profile.phone || t.profile.notProvided}</div>
             </div>
             <div>
-              <div className="text-xs font-black uppercase text-[var(--text-muted)] tracking-wider">Family / Emergency Contact</div>
+              <div className="text-xs font-black uppercase text-[var(--text-muted)] tracking-wider">{t.profile.familyEmergencyContact}</div>
               <div className="text-lg font-black text-[var(--oxblood-dark)] mt-0.5">
                 {profile.familyContactName ? (
                   <>
@@ -2686,7 +2726,7 @@ function ProfileHomeScreen({
                     <div className="text-sm font-bold text-[var(--text-secondary)]">{profile.familyContactPhone}</div>
                   </>
                 ) : (
-                  "Not configured"
+                  t.profile.notConfigured
                 )}
               </div>
             </div>
@@ -2696,19 +2736,19 @@ function ProfileHomeScreen({
         {/* Address */}
         <Card level={2} className="p-6 sm:p-8 space-y-4 bg-[var(--bg-card)] border border-[var(--border)] shadow-sm">
           <h3 className="text-xl font-black text-[var(--text-primary)] border-b border-[var(--border)] pb-3 flex items-center gap-2">
-            <span>🏡</span> Address
+            <span>🏡</span> {t.profile.addressLabel}
           </h3>
           <div className="text-left pt-1">
-            <div className="text-xs font-black uppercase text-[var(--text-muted)] tracking-wider">Full Address</div>
+            <div className="text-xs font-black uppercase text-[var(--text-muted)] tracking-wider">{t.profile.fullAddress}</div>
             <div className="text-base font-bold text-[var(--text-primary)] mt-1 leading-relaxed">
-              {profile.address || "No address entered."}
+              {profile.address || t.profile.noAddressEntered}
             </div>
           </div>
         </Card>
 
         {/* Profile Actions */}
         <Card level={2} className="p-6 sm:p-8 space-y-4 bg-[var(--bg-section)] border border-[var(--border)]">
-          <h3 className="text-xl font-black text-[var(--text-primary)] mb-2">Profile Actions</h3>
+          <h3 className="text-xl font-black text-[var(--text-primary)] mb-2">{t.profile.profileActions}</h3>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <Btn onClick={onEditProfile} variant="primary" className="py-4 text-sm flex items-center justify-center gap-2">
               <span>✏️</span> {t.profile.editProfile}
@@ -2727,14 +2767,14 @@ function ProfileHomeScreen({
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="space-y-1 text-left">
               <h3 className="text-xl font-black text-[var(--text-primary)] flex items-center gap-2">
-                <span>⚙️</span> Application Settings
+                <span>⚙️</span> {t.profile.applicationSettings}
               </h3>
               <p className="text-xs font-semibold text-[var(--text-secondary)]">
-                Configure interface language ({profile.language}), audio guidance, text sizing, and high contrast options.
+                {t.profile.configureSettingsDesc}
               </p>
             </div>
             <Btn onClick={() => onNav("more")} variant="secondary" className="py-3 px-6 text-sm flex items-center gap-2 shrink-0">
-              <span>⚙️</span> Open Settings
+              <span>⚙️</span> {t.profile.openSettingsButton}
             </Btn>
           </div>
         </Card>
