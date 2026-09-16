@@ -152,6 +152,16 @@ export interface TranslationSchema {
     optCotton: string;
     optWool: string;
     optJute: string;
+    whatsMissingTitle?: string;
+    patternTitle?: string;
+    jigsawTitle?: string;
+    routineTitle?: string;
+    wordPuzzlesTitle?: string;
+    diceTitle?: string;
+    boardTitle?: string;
+    soundRecTitle?: string;
+    kazirangaTitle?: string;
+    memoryLaneTitle?: string;
   };
   memories: {
     title: string;
@@ -455,6 +465,16 @@ const baseEnglish: TranslationSchema = {
     optCotton: "Cotton",
     optWool: "Wool",
     optJute: "Jute",
+    whatsMissingTitle: "What's Missing?",
+    patternTitle: "Pattern Matching",
+    jigsawTitle: "Jigsaw Memories",
+    routineTitle: "Daily Routine",
+    wordPuzzlesTitle: "Word Puzzles",
+    diceTitle: "Dice Activity",
+    boardTitle: "Assam Board Game",
+    soundRecTitle: "Sounds Recognition",
+    kazirangaTitle: "Kaziranga Safari",
+    memoryLaneTitle: "Memory Lane",
   },
   memories: {
     title: "Keepsake Memory Vault",
