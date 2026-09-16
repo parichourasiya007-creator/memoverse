@@ -40,7 +40,9 @@ export default defineConfig(({ mode }) => {
       watch: {
         ignored: [
           '**/.figma/**',
-],
+          '**/assets/**',
+          '**/docs/**',
+        ],
       },
     },
     preview: {

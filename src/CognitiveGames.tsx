@@ -1221,7 +1221,7 @@ export function GameDiceScreen({ onNav, onBack, onProgress }: CommonGameProps) {
           )}
 
           {feedback && (
-            <div className={`text-base font-black py-2 rounded-xl animate-pulse ${feedback.includes("Correct") ? "text-green-600" : "text-amber-600"}`}>
+            <div className={`text-base font-black py-2 rounded-xl animate-pulse ${feedback.includes("Correct") ? "text-green-600 dark:text-emerald-400" : "text-amber-600 dark:text-amber-400"}`}>
               {feedback}
             </div>
           )}
@@ -2355,7 +2355,7 @@ export function GameWhatsMissingScreen({ onNav, onBack, onProgress }: CommonGame
       <div className="max-w-md mx-auto px-4 space-y-6 text-center">
         {phase === "observe" ? (
           <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-3xl p-6 sm:p-8 space-y-6 shadow-lg">
-            <div className="text-xs font-bold text-amber-600 uppercase tracking-wider animate-pulse">
+            <div className="text-xs font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider animate-pulse">
               Observe carefully: {timer}s remaining
             </div>
 
@@ -2878,7 +2878,7 @@ export function GameSoundRecScreen({ onNav, onBack, onProgress }: CommonGameProp
           </div>
 
           {feedback && (
-            <div className={`text-base font-black py-2 rounded-xl animate-pulse ${feedback.includes("Correct") ? "text-green-600" : "text-amber-600"}`}>
+            <div className={`text-base font-black py-2 rounded-xl animate-pulse ${feedback.includes("Correct") ? "text-green-600 dark:text-emerald-400" : "text-amber-600 dark:text-amber-400"}`}>
               {feedback}
             </div>
           )}

@@ -19,12 +19,9 @@ function copyDir(src, dest) {
 
 console.log('📦 Running MEMOVERSE postbuild sync...');
 if (fs.existsSync('dist')) {
+  if (fs.existsSync('docs')) {
+    fs.rmSync('docs', { recursive: true, force: true });
+  }
   copyDir('dist', 'docs');
-  if (fs.existsSync('dist/assets')) {
-    copyDir('dist/assets', 'assets');
-  }
-  if (fs.existsSync('dist/index.html')) {
-    fs.copyFileSync('dist/index.html', 'index.html');
-  }
-  console.log('✅ Postbuild sync complete: dist -> docs, assets, index.html!');
+  console.log('✅ Postbuild sync complete: dist -> docs!');
 }
