@@ -787,16 +787,34 @@ function AIRecommendationCard({ onNav }: { onNav: (s: Screen) => void }) {
     "memory_lane": "game-memory-lane",
   };
 
-  const targetScreen = gameToScreenMap[rec.recommendedGameId] || "game-memory";
-  const levelLabels: Record<number, string> = {
-    1: "LEVEL 1 · Easy",
-    2: "LEVEL 2 · Medium",
-    3: "LEVEL 3 · Hard",
-    4: "LEVEL 4 · Advanced",
+  const gameTitleMap: Record<string, string> = {
+    memory_match: t.activities.memoryMatch,
+    whats_missing: t.games.whatsMissingTitle || "What's Missing?",
+    pattern_recognition: t.games.patternTitle || "Pattern Matching",
+    jigsaw_puzzle: t.games.jigsawTitle || "Jigsaw Memories",
+    sorting_game: t.activities.marketMemory,
+    daily_routine: t.games.routineTitle || "Daily Routine",
+    word_puzzles: t.games.wordPuzzlesTitle || "Word Puzzles",
+    dice_activity: t.games.diceTitle || "Dice Activity",
+    board_game: t.games.boardTitle || "Assam Board Game",
+    sound_rec: t.games.soundRecTitle || "Sounds Recognition",
+    kaziranga_puzzle: t.games.kazirangaTitle || "Kaziranga Safari",
+    memory_lane: t.games.memoryLaneTitle || "Memory Lane",
+    interactive_stories: t.activities.storyRecall,
   };
 
-  const levelName = levelLabels[rec.recommendedLevel] || `LEVEL ${rec.recommendedLevel}`;
-  const userReason = rec.reasonDefault;
+  const targetScreen = gameToScreenMap[rec.recommendedGameId] || "game-memory";
+  const recTitle = gameTitleMap[rec.recommendedGameId] || rec.recommendedGameTitle;
+
+  const levelLabels: Record<number, string> = {
+    1: `${t.ai?.level || "LEVEL"} 1 · ${t.ai?.levelEasy || "Easy"}`,
+    2: `${t.ai?.level || "LEVEL"} 2 · ${t.ai?.levelMedium || "Medium"}`,
+    3: `${t.ai?.level || "LEVEL"} 3 · ${t.ai?.levelHard || "Hard"}`,
+    4: `${t.ai?.level || "LEVEL"} 4 · ${t.ai?.levelAdvanced || "Advanced"}`,
+  };
+
+  const levelName = levelLabels[rec.recommendedLevel] || `${t.ai?.level || "LEVEL"} ${rec.recommendedLevel}`;
+  const userReason = `${t.ai?.cognitiveSkills || "Cognitive Training"} · ${t.ai?.level || "Level"} ${rec.recommendedLevel}`;
 
   return (
     <Card className="p-6 sm:p-8 bg-gradient-to-r from-[var(--oxblood-light)] via-[var(--bg-card)] to-[var(--brass-light)] border border-[var(--oxblood)] shadow-lg rounded-3xl relative overflow-hidden">
@@ -812,7 +830,7 @@ function AIRecommendationCard({ onNav }: { onNav: (s: Screen) => void }) {
           </div>
           <div>
             <h3 className="text-2xl sm:text-3xl font-black text-[var(--text-primary)] tracking-tight">
-              {rec.recommendedGameTitle}
+              {recTitle}
             </h3>
             <p className="text-sm sm:text-base text-[var(--text-secondary)] font-medium mt-1.5 leading-relaxed">
               "{userReason}"
@@ -847,12 +865,12 @@ function HomeScreen({ onNav, active, onSwitchProfile }: { onNav: (s: Screen) => 
               <span className="text-3xl">{active.avatar}</span>
               <div>
                 <div className="font-extrabold text-base text-[var(--oxblood-dark)]">{t.profile.welcomeBack}, {active.name}!</div>
-                <div className="text-xs font-bold text-[var(--text-secondary)]">{active.language} · Level {active.activities.level} · {active.activities.completed} {t.activities.completed}</div>
+                <div className="text-xs font-bold text-[var(--text-secondary)]">{LANGUAGE_METADATA[active.language]?.nativeName || active.language} · {t.ai.level} {active.activities.level} · {active.activities.completed} {t.activities.completed}</div>
               </div>
             </div>
             <div className="flex gap-2">
-              <Btn onClick={() => onNav("profile-home")} variant="primary" className="text-xs px-4 py-2 min-h-[36px]">Dashboard</Btn>
-              <Btn onClick={onSwitchProfile} variant="ghost" className="text-xs px-3 py-2 min-h-[36px]">Switch</Btn>
+              <Btn onClick={() => onNav("profile-home")} variant="primary" className="text-xs px-4 py-2 min-h-[36px]">{t.nav.profile}</Btn>
+              <Btn onClick={onSwitchProfile} variant="ghost" className="text-xs px-3 py-2 min-h-[36px]">{t.nav.switchProfile}</Btn>
             </div>
           </div>
         </div>
@@ -862,8 +880,8 @@ function HomeScreen({ onNav, active, onSwitchProfile }: { onNav: (s: Screen) => 
             <div className="flex items-center gap-3">
               <span className="text-3xl">✨</span>
               <div>
-                <div className="font-extrabold text-base text-[var(--brass-dark)]">Welcome to MEMOVERSE Archival</div>
-                <div className="text-xs font-bold text-[var(--text-secondary)]">Explore cognitive activities freely or create a profile to save personal memories.</div>
+                <div className="font-extrabold text-base text-[var(--brass-dark)]">{t.profile.welcomeBack}</div>
+                <div className="text-xs font-bold text-[var(--text-secondary)]">{t.home.subtitle}</div>
               </div>
             </div>
             <Btn onClick={() => onNav("start-journey")} variant="primary" className="text-xs px-4 py-2 min-h-[36px]">✨ {t.profile.startJourney}</Btn>
