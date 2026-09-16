@@ -563,10 +563,9 @@ export function GameWordPuzzlesScreen({ onNav, onBack, onProgress }: CommonGameP
 
   const RIDDLES = [
     { question: t.games.riddleGoldenSilk, options: [t.games.optMuga, t.games.optCotton, t.games.optWool], correct: t.games.optMuga },
-    { question: t.games.riddleKazirangaAnimal, options: [t.games.labelRhino || "Rhino", "Camel", "Polar Bear"], correct: t.games.labelRhino || "Rhino" },
-
-    { question: t.games.riddleBihuInstrument, options: [t.games.itemDhol || "Dhol", "Piano", "Guitar"], correct: t.games.itemDhol || "Dhol" },
-    { question: t.games.riddleLargestIsland, options: ["Majuli", "Goa", "Lakshadweep"], correct: "Majuli" },
+    { question: t.games.riddleKazirangaAnimal, options: [t.games.labelRhino || "Rhino", t.games.labelSmallRhino || "Small", t.games.labelLargeRhino || "Large"], correct: t.games.labelRhino || "Rhino" },
+    { question: t.games.riddleBihuInstrument, options: [t.games.itemDhol || "Dhol", t.games.itemFlute || "Flute", t.games.itemPepa || "Pepa"], correct: t.games.itemDhol || "Dhol" },
+    { question: t.games.riddleLargestIsland, options: ["Majuli", "Guwahati", "Jorhat"], correct: "Majuli" },
   ];
 
   const SEARCH_WORDS = ["TEA", "BIHU", "RHINO", "SILK"];
@@ -597,7 +596,7 @@ export function GameWordPuzzlesScreen({ onNav, onBack, onProgress }: CommonGameP
     const totalQ = mode === "anagram" ? (level === 1 ? 3 : level === 2 ? 4 : 5) : RIDDLES.length;
     const res = recordGamePerformance({
       gameId,
-      gameTitle: "Word Puzzles",
+      gameTitle: t.games.wordPuzzlesTitle || "Word Puzzles",
       skill: "Attention",
       level,
       accuracy: 100,
@@ -614,8 +613,8 @@ export function GameWordPuzzlesScreen({ onNav, onBack, onProgress }: CommonGameP
     setWon(true);
     saveGameRecord({
       gameId: "game-word",
-      gameTitle: "Word Puzzles",
-      category: "Attention",
+      gameTitle: t.games.wordPuzzlesTitle || "Word Puzzles",
+      category: t.games.catAttention || "Attention",
       score: `${finalScore} pts`,
       difficulty: level === 1 ? "Easy" : level === 2 ? "Medium" : level === 3 ? "Hard" : "Standard",
     });
@@ -700,9 +699,9 @@ export function GameWordPuzzlesScreen({ onNav, onBack, onProgress }: CommonGameP
   if (won) {
     return (
       <GameVictoryModal
-        title="Word Master!"
-        message={`You completed Word Puzzles at Level ${level}!`}
-        score={`${score || 40} points`}
+        title={t.games.feedbackPuzzleComplete || "Word Master!"}
+        message={t.games.congrats}
+        score={`${score || 40} ${t.common.points || "points"}`}
         feedbackMessage={adaptiveResult?.feedbackMessage}
         unlockedNewLevel={adaptiveResult?.unlockedNewLevel}
         nextRecommendedLevel={adaptiveResult?.nextRecommendedLevel}
@@ -722,8 +721,8 @@ export function GameWordPuzzlesScreen({ onNav, onBack, onProgress }: CommonGameP
     <div className="min-h-screen pb-24 pt-6 space-y-6">
       <AdaptiveGameHeader
         gameId={gameId}
-        title="Word Puzzles"
-        subtitle="Tap large letter buttons to spell words, search letter grids, and solve culture riddles."
+        title={t.games.wordPuzzlesTitle}
+        subtitle={t.games.wordPuzzlesDesc}
         level={level}
         setLevel={(lvl) => { setLevel(lvl); restart(); }}
         unlockedLevel={unlockedLevel}
@@ -739,7 +738,7 @@ export function GameWordPuzzlesScreen({ onNav, onBack, onProgress }: CommonGameP
               mode === "anagram" ? "bg-[var(--oxblood)] text-white font-black shadow-md" : "text-[var(--text-secondary)]"
             }`}
           >
-            🔤 Letter Scramble
+            🔤 {t.games.tagWordPlay}
           </button>
           <button
             onClick={() => { setMode("wordsearch"); restart(); }}
@@ -747,7 +746,7 @@ export function GameWordPuzzlesScreen({ onNav, onBack, onProgress }: CommonGameP
               mode === "wordsearch" ? "bg-[var(--oxblood)] text-white font-black shadow-md" : "text-[var(--text-secondary)]"
             }`}
           >
-            🔍 Word Search
+            🔍 {t.games.tagObservation}
           </button>
           <button
             onClick={() => { setMode("riddle"); restart(); }}
@@ -755,24 +754,24 @@ export function GameWordPuzzlesScreen({ onNav, onBack, onProgress }: CommonGameP
               mode === "riddle" ? "bg-[var(--oxblood)] text-white font-black shadow-md" : "text-[var(--text-secondary)]"
             }`}
           >
-            🧩 Riddles
+            🧩 {t.games.wordPuzzlesTitle}
           </button>
         </div>
 
         {mode === "anagram" && (
           <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-3xl p-6 sm:p-8 space-y-6 text-center shadow-lg">
             <div className="inline-block px-3.5 py-1 bg-[var(--brass-light)] text-[var(--brass-dark)] border border-[var(--brass)] font-extrabold text-xs rounded-xl">
-              Word {currentIndex + 1} of {level === 1 ? 3 : 5}
+              {t.common.level} {currentIndex + 1} / {level === 1 ? 3 : 5}
             </div>
 
             <div className="space-y-2">
-              <p className="text-sm font-bold text-[var(--text-secondary)]">💡 Hint: {currentAnagram.hint}</p>
+              <p className="text-sm font-bold text-[var(--text-secondary)]">💡 {t.common.hint}: {currentAnagram.hint}</p>
             </div>
 
             {/* Answer Display Box */}
             <div className="min-h-[64px] p-3 rounded-2xl border-2 border-dashed border-[var(--brass)] bg-[var(--bg-section)] flex items-center justify-center gap-2">
               {constructedLetters.length === 0 ? (
-                <span className="text-sm font-bold text-[var(--text-muted)]">Tap letter buttons below to spell the word...</span>
+                <span className="text-sm font-bold text-[var(--text-muted)]">{t.games.wordPuzzlesDesc}</span>
               ) : (
                 constructedLetters.map((l, i) => (
                   <span key={i} className="w-12 h-12 rounded-xl bg-[var(--oxblood)] text-white font-black text-2xl flex items-center justify-center shadow-md animate-fade">
@@ -784,7 +783,7 @@ export function GameWordPuzzlesScreen({ onNav, onBack, onProgress }: CommonGameP
 
             {/* Tappable Scrambled Letter Buttons */}
             <div className="space-y-3">
-              <div className="text-xs font-bold text-[var(--text-muted)] uppercase">Scrambled Letters:</div>
+              <div className="text-xs font-bold text-[var(--text-muted)] uppercase">{t.games.wordPuzzlesTitle}:</div>
               <div className="flex flex-wrap justify-center gap-3">
                 {currentAnagram.letters.map((char, idx) => (
                   <button
@@ -803,13 +802,13 @@ export function GameWordPuzzlesScreen({ onNav, onBack, onProgress }: CommonGameP
                 onClick={handleClearLetters}
                 className="py-3 px-5 rounded-2xl font-bold text-sm text-[var(--text-secondary)] bg-[var(--bg-section)] border border-[var(--border)] cursor-pointer"
               >
-                Clear ✕
+                {t.common.clear} ✕
               </button>
               <button
                 onClick={handleAnagramCheck}
                 className="flex-1 py-3 px-5 rounded-2xl font-black text-base text-white bg-[var(--oxblood)] hover:bg-[var(--oxblood-dark)] border border-[var(--brass)] shadow-md cursor-pointer"
               >
-                Submit Word ✨
+                {t.common.submit} ✨
               </button>
             </div>
 
@@ -824,7 +823,7 @@ export function GameWordPuzzlesScreen({ onNav, onBack, onProgress }: CommonGameP
         {mode === "wordsearch" && (
           <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-3xl p-6 sm:p-8 space-y-6 text-center shadow-lg">
             <div className="space-y-1">
-              <div className="text-xs font-bold text-[var(--text-muted)] uppercase">Words to Find:</div>
+              <div className="text-xs font-bold text-[var(--text-muted)] uppercase">{t.games.wordPuzzlesTitle}:</div>
               <div className="flex justify-center gap-2">
                 {SEARCH_WORDS.map((w) => (
                   <span
@@ -840,9 +839,9 @@ export function GameWordPuzzlesScreen({ onNav, onBack, onProgress }: CommonGameP
             </div>
 
             <div className="p-3 bg-[var(--bg-section)] rounded-2xl border border-[var(--border)] text-sm font-bold min-h-[44px] flex items-center justify-center">
-              Selected: <span className="font-black text-lg ml-2 text-[var(--oxblood-dark)]">{gridSelected || "(Tap grid letters)"}</span>
+              {t.common.score}: <span className="font-black text-lg ml-2 text-[var(--oxblood-dark)]">{gridSelected || "..."}</span>
               {gridSelected && (
-                <button onClick={() => setGridSelected("")} className="ml-3 text-xs text-amber-700 dark:text-amber-400 underline cursor-pointer">Reset</button>
+                <button onClick={() => setGridSelected("")} className="ml-3 text-xs text-amber-700 dark:text-amber-400 underline cursor-pointer">{t.common.clear}</button>
               )}
             </div>
 
@@ -872,7 +871,7 @@ export function GameWordPuzzlesScreen({ onNav, onBack, onProgress }: CommonGameP
         {mode === "riddle" && (
           <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-3xl p-6 sm:p-8 space-y-6 text-center shadow-lg">
             <div className="inline-block px-3.5 py-1 bg-[var(--brass-light)] text-[var(--brass-dark)] border border-[var(--brass)] font-extrabold text-xs rounded-xl">
-              Riddle {currentIndex + 1} of {RIDDLES.length}
+              {t.games.wordPuzzlesTitle} {currentIndex + 1} / {RIDDLES.length}
             </div>
 
             <h3 className="text-xl sm:text-2xl font-black text-[var(--text-primary)] leading-snug">
@@ -887,7 +886,7 @@ export function GameWordPuzzlesScreen({ onNav, onBack, onProgress }: CommonGameP
                   className="w-full min-h-[52px] px-5 py-3 rounded-2xl text-lg font-black text-[var(--text-primary)] bg-[var(--bg-section)] hover:bg-[var(--oxblood-light)] hover:border-[var(--oxblood)] border border-[var(--border)] transition-all cursor-pointer text-left flex items-center justify-between"
                 >
                   <span>{opt}</span>
-                  <span className="text-sm font-bold text-[var(--text-muted)]">Select →</span>
+                  <span className="text-sm font-bold text-[var(--text-muted)]">{t.common.next} →</span>
                 </button>
               ))}
             </div>
@@ -917,9 +916,9 @@ export function GameJigsawScreen({ onNav, onBack, onProgress }: CommonGameProps)
   const [selectedTheme, setSelectedTheme] = useState(0);
 
   const THEMES = [
-    { name: "Kaziranga Rhino", emoji: "🦏", bg: "bg-emerald-800", img: kazirangaRhinoImg },
-    { name: "Majuli River Boat", emoji: "🛶", bg: "bg-amber-800", img: majuliBoatImg },
-    { name: "Assam Tea Garden", emoji: "🍃", bg: "bg-teal-800", img: teaGardenImg },
+    { name: t.games.kazirangaTitle || "Kaziranga Rhino", emoji: "🦏", bg: "bg-emerald-800", img: kazirangaRhinoImg },
+    { name: t.games.landmarkMajuli || "Majuli River Boat", emoji: "🛶", bg: "bg-amber-800", img: majuliBoatImg },
+    { name: t.games.landmarkTeaGarden || "Assam Tea Garden", emoji: "🍃", bg: "bg-teal-800", img: teaGardenImg },
   ];
 
   const pieceCount = level === 1 ? 4 : level === 2 ? 6 : level === 3 ? 9 : 12;
@@ -961,7 +960,7 @@ export function GameJigsawScreen({ onNav, onBack, onProgress }: CommonGameProps)
       playSoundTone("correct");
       const res = recordGamePerformance({
         gameId,
-        gameTitle: "Jigsaw Puzzle",
+        gameTitle: t.games.jigsawTitle || "Jigsaw Puzzle",
         skill: "Visual-Spatial",
         level,
         accuracy: 100,
@@ -978,8 +977,8 @@ export function GameJigsawScreen({ onNav, onBack, onProgress }: CommonGameProps)
       setWon(true);
       saveGameRecord({
         gameId: "game-jigsaw",
-        gameTitle: "Jigsaw Puzzle",
-        category: "Visual-Spatial",
+        gameTitle: t.games.jigsawTitle || "Jigsaw Puzzle",
+        category: t.games.catSpatial || "Visual-Spatial",
         score: "100% Solved",
         difficulty: level === 1 ? "Easy" : level === 2 ? "Medium" : level === 3 ? "Hard" : "Standard",
       });
@@ -1010,8 +1009,8 @@ export function GameJigsawScreen({ onNav, onBack, onProgress }: CommonGameProps)
   if (won) {
     return (
       <GameVictoryModal
-        title="Jigsaw Completed!"
-        message={`You assembled the ${THEMES[selectedTheme].name} ${pieceCount}-piece puzzle!`}
+        title={t.games.feedbackPuzzleComplete || "Jigsaw Completed!"}
+        message={`${t.games.feedbackPiecePlaced} ${THEMES[selectedTheme].name}`}
         score="100%"
         feedbackMessage={adaptiveResult?.feedbackMessage}
         unlockedNewLevel={adaptiveResult?.unlockedNewLevel}
@@ -1029,8 +1028,8 @@ export function GameJigsawScreen({ onNav, onBack, onProgress }: CommonGameProps)
     <div className="min-h-screen pb-24 pt-6 space-y-6">
       <AdaptiveGameHeader
         gameId={gameId}
-        title="Large-Piece Jigsaw Puzzle"
-        subtitle="Drag or tap a piece from the tray into the target board slots."
+        title={t.games.jigsawTitle}
+        subtitle={t.games.jigsawDesc}
         level={level}
         setLevel={setLevel}
         unlockedLevel={unlockedLevel}
@@ -1058,7 +1057,7 @@ export function GameJigsawScreen({ onNav, onBack, onProgress }: CommonGameProps)
 
         <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-3xl p-6 space-y-4 shadow-lg text-center">
           <div className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider">
-            {pieceCount}-Piece Target Board (Tap slot or drop piece)
+            {pieceCount} {t.games.jigsawTitle}
           </div>
 
           <div className={`grid ${gridCols} gap-3 max-w-sm mx-auto p-3 bg-[var(--bg-section)] rounded-2xl border-2 border-dashed border-[var(--brass)]`}>
@@ -1079,10 +1078,10 @@ export function GameJigsawScreen({ onNav, onBack, onProgress }: CommonGameProps)
                 {piece !== null ? (
                   <div className="flex flex-col items-center justify-center">
                     <span className="text-3xl sm:text-4xl">{THEMES[selectedTheme].emoji}</span>
-                    <span className="text-[10px] font-black uppercase mt-1">Part {piece + 1} {piece === slotIdx ? "✓" : ""}</span>
+                    <span className="text-[10px] font-black uppercase mt-1">{t.common.level} {piece + 1} {piece === slotIdx ? "✓" : ""}</span>
                   </div>
                 ) : (
-                  <span className="text-xs font-bold">Slot {slotIdx + 1}</span>
+                  <span className="text-xs font-bold">{t.common.level} {slotIdx + 1}</span>
                 )}
               </div>
             ))}
@@ -1091,7 +1090,7 @@ export function GameJigsawScreen({ onNav, onBack, onProgress }: CommonGameProps)
 
         <div className="bg-[var(--bg-section)] border border-[var(--border)] rounded-3xl p-5 space-y-3 text-center">
           <div className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">
-            Piece Tray (Tap piece then tap slot)
+            {t.games.jigsawTitle}
           </div>
 
           <div className="flex flex-wrap justify-center gap-3">
@@ -1108,7 +1107,7 @@ export function GameJigsawScreen({ onNav, onBack, onProgress }: CommonGameProps)
                 }`}
               >
                 <span className="text-3xl">{THEMES[selectedTheme].emoji}</span>
-                <span className="text-[10px] uppercase">Part {pieceIdx + 1}</span>
+                <span className="text-[10px] uppercase">{t.common.level} {pieceIdx + 1}</span>
               </div>
             ))}
           </div>
@@ -1162,7 +1161,7 @@ export function GameDiceScreen({ onNav, onBack, onProgress }: CommonGameProps) {
   function handleAnswer(ans: number) {
     if (ans === rolledVal) {
       playSoundTone("correct");
-      setFeedback("✨ Correct memory!");
+      setFeedback(t.games.feedbackCorrectCount);
       const nextScore = score + 10;
       setScore(nextScore);
       setTimeout(() => {
@@ -1170,7 +1169,7 @@ export function GameDiceScreen({ onNav, onBack, onProgress }: CommonGameProps) {
         if (rounds + 1 >= 3) {
           const res = recordGamePerformance({
             gameId,
-            gameTitle: "Dice Activity",
+            gameTitle: t.games.diceTitle || "Dice Activity",
             skill: "Attention",
             level,
             accuracy: 100,
@@ -1187,8 +1186,8 @@ export function GameDiceScreen({ onNav, onBack, onProgress }: CommonGameProps) {
           setWon(true);
           saveGameRecord({
             gameId: "game-dice",
-            gameTitle: "Dice Cognitive Activity",
-            category: "Attention",
+            gameTitle: t.games.diceTitle || "Dice Cognitive Activity",
+            category: t.games.catAttention || "Attention",
             score: `${nextScore} pts`,
             difficulty: level === 1 ? "Easy" : level === 2 ? "Medium" : level === 3 ? "Hard" : "Standard",
           });
@@ -1200,7 +1199,7 @@ export function GameDiceScreen({ onNav, onBack, onProgress }: CommonGameProps) {
       }, 1000);
     } else {
       playSoundTone("wrong");
-      setFeedback(`You picked ${ans}. The rolled number was ${rolledVal}.`);
+      setFeedback((t.games.feedbackPickedRolled || "Picked {ans}, rolled {rolledVal}").replace("{ans}", String(ans)).replace("{rolledVal}", String(rolledVal)));
       setTimeout(() => {
         setFeedback(null);
         setPhase("roll");
@@ -1219,9 +1218,9 @@ export function GameDiceScreen({ onNav, onBack, onProgress }: CommonGameProps) {
   if (won) {
     return (
       <GameVictoryModal
-        title="Dice Champion!"
-        message={`You completed the Dice Recall activity at Level ${level}!`}
-        score={`${score} points`}
+        title={t.games.feedbackCorrectCount || "Dice Champion!"}
+        message={t.games.congrats}
+        score={`${score} ${t.common.points || "points"}`}
         feedbackMessage={adaptiveResult?.feedbackMessage}
         unlockedNewLevel={adaptiveResult?.unlockedNewLevel}
         nextRecommendedLevel={adaptiveResult?.nextRecommendedLevel}
@@ -1238,8 +1237,8 @@ export function GameDiceScreen({ onNav, onBack, onProgress }: CommonGameProps) {
     <div className="min-h-screen pb-24 pt-6 space-y-6">
       <AdaptiveGameHeader
         gameId={gameId}
-        title="Dice Activity"
-        subtitle="Roll the die, remember the number, and answer the recall question."
+        title={t.games.diceTitle}
+        subtitle={t.games.diceDesc}
         level={level}
         setLevel={(lvl) => { setLevel(lvl); restart(); }}
         unlockedLevel={unlockedLevel}
@@ -1250,7 +1249,7 @@ export function GameDiceScreen({ onNav, onBack, onProgress }: CommonGameProps) {
       <div className="max-w-md mx-auto px-4 space-y-6 text-center">
         <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-3xl p-8 space-y-6 shadow-lg">
           <div className="inline-block px-3.5 py-1 bg-[var(--brass-light)] text-[var(--brass-dark)] border border-[var(--brass)] font-extrabold text-xs rounded-xl">
-            Round {rounds + 1} of 3
+            {t.common.level} {rounds + 1} / 3
           </div>
 
           {phase === "roll" && (
@@ -1261,7 +1260,7 @@ export function GameDiceScreen({ onNav, onBack, onProgress }: CommonGameProps) {
                 disabled={rolling}
                 className="w-full py-4 rounded-2xl text-xl font-black text-white bg-[var(--oxblood)] hover:bg-[var(--oxblood-dark)] border border-[var(--brass)] shadow-md cursor-pointer transition-all disabled:opacity-50"
               >
-                {rolling ? "Rolling..." : "🎲 Roll Dice"}
+                {rolling ? t.common.loading : t.games.promptRollDice}
               </button>
             </div>
           )}
@@ -1272,14 +1271,14 @@ export function GameDiceScreen({ onNav, onBack, onProgress }: CommonGameProps) {
                 {["⚀", "⚁", "⚂", "⚃", "⚄", "⚅"][rolledVal - 1]}
               </div>
               <div className="p-3 bg-[var(--brass-light)] border border-[var(--brass)] rounded-2xl text-[var(--brass-dark)] font-black text-lg">
-                Remember this number: {rolledVal}!
+                {t.games.promptRollDice}: {rolledVal}!
               </div>
             </div>
           )}
 
           {phase === "question" && (
             <div className="space-y-6 animate-fade">
-              <h3 className="text-2xl font-black text-[var(--text-primary)]">"What number did you roll?"</h3>
+              <h3 className="text-2xl font-black text-[var(--text-primary)]">"{t.games.promptRollDice}?"</h3>
 
               <div className="grid grid-cols-3 gap-3">
                 {[1, 2, 3, 4, 5, 6].map((num) => (
@@ -1326,21 +1325,11 @@ export function GameBoardScreen({ onNav, onBack, onProgress }: CommonGameProps) 
   const maxSteps = level === 1 ? 6 : level === 2 ? 9 : level === 3 ? 12 : 15;
 
   const ALL_STEPS = [
-    { title: "Start", emoji: "🏁", prompt: "Welcome to the Journey!" },
-    { title: "Tea Estate", emoji: "🍃", prompt: "Count 3 fresh green tea leaves." },
-    { title: "Stream", emoji: "🌊", prompt: "Listen to the gentle mountain water sound." },
-    { title: "Banyan Tree", emoji: "🌳", prompt: "Spot 2 wild birds in the branches." },
-    { title: "Kaziranga", emoji: "🦏", prompt: "Remember the one-horned rhino!" },
-    { title: "Silk Mill", emoji: "🧶", prompt: "Touch the soft golden Muga silk." },
-    { title: "Bihu Ground", emoji: "🥁", prompt: "Clap to the Dhol beat rhythm." },
-    { title: "Majuli Ghat", emoji: "🛶", prompt: "Watch the ferry boat cross the river." },
-    { title: "Pine Forest", emoji: "🌲", prompt: "Enjoy the fresh pine hill breeze." },
-    { title: "Bazaar Market", emoji: "🛒", prompt: "Pick fresh lemons from the stall." },
-    { title: "Sunset View", emoji: "🌅", prompt: "Relax and watch the golden sky." },
-    { title: "Orchid Haven", emoji: "🌸", prompt: "Admire beautiful regional flowers." },
-    { title: "River Island", emoji: "🏝️", prompt: "Enjoy peaceful river breeze." },
-    { title: "Hilltop Temple", emoji: "🛕", prompt: "Hear morning temple bells ring." },
-    { title: "Grand Finish", emoji: "🏆", prompt: "Congratulations on reaching the finish line!" },
+    { title: t.games.landmarkStart || "Start", emoji: "🏁", prompt: t.home.heroTagline },
+    { title: t.games.landmarkTeaGarden || "Tea Estate", emoji: "🍃", prompt: t.sounds.soundChaiDesc },
+    { title: t.games.landmarkKaziranga || "Kaziranga", emoji: "🦏", prompt: t.games.kazirangaDesc },
+    { title: t.games.landmarkMajuli || "Majuli Ghat", emoji: "🛶", prompt: t.games.jigsawDesc },
+    { title: t.games.landmarkFinish || "Finish", emoji: "🏆", prompt: t.games.feedbackReachedFinish },
   ];
 
   const BOARD_STEPS = ALL_STEPS.slice(0, maxSteps);
@@ -1363,7 +1352,7 @@ export function GameBoardScreen({ onNav, onBack, onProgress }: CommonGameProps) 
         playSoundTone("correct");
         const res = recordGamePerformance({
           gameId,
-          gameTitle: "Assam Board Game",
+          gameTitle: t.games.boardTitle || "Assam Board Game",
           skill: "Attention",
           level,
           accuracy: 100,
@@ -1380,8 +1369,8 @@ export function GameBoardScreen({ onNav, onBack, onProgress }: CommonGameProps) 
         setWon(true);
         saveGameRecord({
           gameId: "game-board",
-          gameTitle: "Assam Board Game",
-          category: "Attention",
+          gameTitle: t.games.boardTitle || "Assam Board Game",
+          category: t.games.catAttention || "Attention",
           score: "Journey Completed!",
           difficulty: level === 1 ? "Easy" : level === 2 ? "Medium" : level === 3 ? "Hard" : "Standard",
         });
@@ -1400,8 +1389,8 @@ export function GameBoardScreen({ onNav, onBack, onProgress }: CommonGameProps) 
   if (won) {
     return (
       <GameVictoryModal
-        title="Board Journey Completed!"
-        message={`You navigated through all ${maxSteps} landmark spaces on the board!`}
+        title={t.games.feedbackReachedFinish || "Board Journey Completed!"}
+        message={t.games.congrats}
         score="Victory"
         feedbackMessage={adaptiveResult?.feedbackMessage}
         unlockedNewLevel={adaptiveResult?.unlockedNewLevel}
@@ -1419,8 +1408,8 @@ export function GameBoardScreen({ onNav, onBack, onProgress }: CommonGameProps) 
     <div className="min-h-screen pb-24 pt-6 space-y-6">
       <AdaptiveGameHeader
         gameId={gameId}
-        title="Assam Board Game"
-        subtitle="Roll the dice to move your player token space-by-space along the path."
+        title={t.games.boardTitle}
+        subtitle={t.games.boardDesc}
         level={level}
         setLevel={(lvl) => { setLevel(lvl); restart(); }}
         unlockedLevel={unlockedLevel}
@@ -1432,8 +1421,8 @@ export function GameBoardScreen({ onNav, onBack, onProgress }: CommonGameProps) 
         {/* Step Info Card */}
         <div className="bg-[var(--bg-card)] border border-[var(--brass)] rounded-3xl p-6 text-center space-y-4 shadow-lg">
           <div className="flex items-center justify-between text-xs font-black text-[var(--text-muted)] border-b border-[var(--border)] pb-3">
-            <span>Space {position + 1} of {BOARD_STEPS.length}</span>
-            <span>{lastRoll ? `Last Roll: +${lastRoll}` : "Ready"}</span>
+            <span>{t.common.level} {position + 1} / {BOARD_STEPS.length}</span>
+            <span>{lastRoll ? `+${lastRoll}` : t.common.start}</span>
           </div>
 
           <div className="text-6xl">{BOARD_STEPS[position].emoji}</div>
@@ -1445,14 +1434,14 @@ export function GameBoardScreen({ onNav, onBack, onProgress }: CommonGameProps) 
             disabled={rolling}
             className="w-full min-h-[52px] py-3.5 rounded-2xl text-lg font-black text-white bg-[var(--oxblood)] hover:bg-[var(--oxblood-dark)] border border-[var(--brass)] shadow-md cursor-pointer transition-all disabled:opacity-50"
           >
-            {rolling ? "Moving Token..." : "🎲 Roll Dice & Move Forward"}
+            {rolling ? t.common.loading : t.games.promptRollMove}
           </button>
         </div>
 
         {/* 12-Space Board Grid */}
         <div className="bg-[var(--bg-section)] border border-[var(--border)] rounded-3xl p-5 space-y-3">
           <div className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider text-center">
-            Board Path (12 Landmark Spaces)
+            {t.games.boardTitle}
           </div>
 
           <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
@@ -1472,7 +1461,7 @@ export function GameBoardScreen({ onNav, onBack, onProgress }: CommonGameProps) 
                 >
                   <span className="text-2xl">{step.emoji}</span>
                   <span className="text-[11px] font-black truncate max-w-full">{step.title}</span>
-                  {isCurrent && <span className="text-[9px] font-black uppercase px-2 py-0.5 bg-[var(--brass)] text-black rounded-full">YOU HERE</span>}
+                  {isCurrent && <span className="text-[9px] font-black uppercase px-2 py-0.5 bg-[var(--brass)] text-black rounded-full">{t.common.ok}</span>}
                 </div>
               );
             })}
@@ -1502,7 +1491,7 @@ export function GameInteractiveScreen({ onNav, onBack, onProgress }: CommonGameP
   const TASKS = [
     {
       instruction: t.games.promptTapTeaLeaf,
-      target: "Tea Leaf",
+      target: t.games.labelTeaLeaf,
       options: [
         { emoji: "🍃", label: t.games.labelTeaLeaf, isCorrect: true },
         { emoji: "🛶", label: t.games.labelBoat, isCorrect: false },
@@ -1512,29 +1501,29 @@ export function GameInteractiveScreen({ onNav, onBack, onProgress }: CommonGameP
     },
     {
       instruction: t.games.promptTapRedPot,
-      target: "Red Pot",
+      target: t.games.labelRedPot,
       options: [
-        { emoji: "🫖", color: "blue", label: "Blue Pot", isCorrect: false },
-        { emoji: "🫖", color: "red", label: "Red Pot", isCorrect: true },
-        { emoji: "🫖", color: "green", label: "Green Pot", isCorrect: false },
+        { emoji: "🫖", color: "blue", label: t.games.labelBluePot, isCorrect: false },
+        { emoji: "🫖", color: "red", label: t.games.labelRedPot, isCorrect: true },
+        { emoji: "🫖", color: "green", label: t.games.labelGreenPot, isCorrect: false },
       ],
     },
     {
       instruction: t.games.promptTapLargestRhino,
-      target: "Large Rhino",
+      target: t.games.labelLargeRhino,
       options: [
-        { emoji: "🦏", size: "text-3xl", label: "Small Rhino", isCorrect: false },
-        { emoji: "🦏", size: "text-6xl", label: "Large Rhino", isCorrect: true },
-        { emoji: "🦏", size: "text-4xl", label: "Medium Rhino", isCorrect: false },
+        { emoji: "🦏", size: "text-3xl", label: t.games.labelSmallRhino, isCorrect: false },
+        { emoji: "🦏", size: "text-6xl", label: t.games.labelLargeRhino, isCorrect: true },
+        { emoji: "🦏", size: "text-4xl", label: t.games.labelMediumRhino, isCorrect: false },
       ],
     },
     {
       instruction: t.games.promptNotBelongNature,
-      target: "Airplane",
+      target: t.games.labelAirplane,
       options: [
-        { emoji: "🌸", label: "Flower", isCorrect: false },
-        { emoji: "🍃", label: "Leaf", isCorrect: false },
-        { emoji: "✈️", label: "Airplane", isCorrect: true },
+        { emoji: "🌸", label: t.games.labelFlower, isCorrect: false },
+        { emoji: "🍃", label: t.games.labelLeaf, isCorrect: false },
+        { emoji: "✈️", label: t.games.labelAirplane, isCorrect: true },
       ],
     },
   ];
@@ -1553,7 +1542,7 @@ export function GameInteractiveScreen({ onNav, onBack, onProgress }: CommonGameP
         if (stepIndex + 1 >= totalTasks) {
           const res = recordGamePerformance({
             gameId,
-            gameTitle: "Interactive Cognitive Activity",
+            gameTitle: t.games.interactiveTitle,
             skill: "Recognition",
             level,
             accuracy: 100,
@@ -1570,9 +1559,9 @@ export function GameInteractiveScreen({ onNav, onBack, onProgress }: CommonGameP
           setWon(true);
           saveGameRecord({
             gameId: "game-interactive",
-            gameTitle: "Interactive Cognitive Activity",
+            gameTitle: t.games.interactiveTitle,
             category: "Recognition",
-            score: `${nextScore} pts`,
+            score: `${nextScore} ${t.common.points}`,
             difficulty: level === 1 ? "Easy" : level === 2 ? "Medium" : level === 3 ? "Hard" : "Standard",
           });
           onProgress();
@@ -1596,9 +1585,9 @@ export function GameInteractiveScreen({ onNav, onBack, onProgress }: CommonGameP
   if (won) {
     return (
       <GameVictoryModal
-        title="Recognition Master!"
-        message={`You completed the observation activity at Level ${level}!`}
-        score={`${score} points`}
+        title={t.games.congrats}
+        message={`${t.common.completed} ${t.games.interactiveTitle}!`}
+        score={`${score} ${t.common.points}`}
         feedbackMessage={adaptiveResult?.feedbackMessage}
         unlockedNewLevel={adaptiveResult?.unlockedNewLevel}
         nextRecommendedLevel={adaptiveResult?.nextRecommendedLevel}
@@ -1615,8 +1604,8 @@ export function GameInteractiveScreen({ onNav, onBack, onProgress }: CommonGameP
     <div className="min-h-screen pb-24 pt-6 space-y-6">
       <AdaptiveGameHeader
         gameId={gameId}
-        title="Interactive Cognitive Activity"
-        subtitle="Follow visual instructions and tap the requested target object."
+        title={t.games.interactiveTitle}
+        subtitle={t.games.interactiveDesc}
         level={level}
         setLevel={(lvl) => { setLevel(lvl); restart(); }}
         unlockedLevel={unlockedLevel}
@@ -1627,7 +1616,7 @@ export function GameInteractiveScreen({ onNav, onBack, onProgress }: CommonGameP
       <div className="max-w-md mx-auto px-4 space-y-6 text-center">
         <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-3xl p-6 sm:p-8 space-y-6 shadow-lg">
           <div className="inline-block px-3.5 py-1 bg-[var(--brass-light)] text-[var(--brass-dark)] border border-[var(--brass)] font-extrabold text-xs rounded-xl">
-            Task {stepIndex + 1} of {totalTasks}
+            {stepIndex + 1} / {totalTasks}
           </div>
 
           <h2 className="text-2xl font-black text-[var(--text-primary)] leading-snug">
@@ -1648,7 +1637,7 @@ export function GameInteractiveScreen({ onNav, onBack, onProgress }: CommonGameP
           </div>
 
           {feedback && (
-            <div className={`text-base font-black py-2 rounded-xl animate-pulse ${feedback.includes("Great") ? "text-green-600 dark:text-emerald-400" : "text-amber-600 dark:text-amber-400"}`}>
+            <div className={`text-base font-black py-2 rounded-xl animate-pulse ${feedback.includes(t.games.feedbackGreatObservation) || feedback.includes("Great") ? "text-green-600 dark:text-emerald-400" : "text-amber-600 dark:text-amber-400"}`}>
               {feedback}
             </div>
           )}
@@ -1670,14 +1659,14 @@ export function GameBazaarScreen({ onNav, onBack, onProgress }: CommonGameProps)
   const [adaptiveResult, setAdaptiveResult] = useState<any>(null);
 
   const ALL_ITEMS = [
-    { name: "Assam Tea Leaf", category: "FOOD", emoji: "🍃" },
-    { name: "Bhoot Jolokia", category: "FOOD", emoji: "🌶️" },
-    { name: "Banana", category: "FOOD", emoji: "🍌" },
-    { name: "Kazi Nemu Lemon", category: "FOOD", emoji: "🍋" },
-    { name: "Bamboo Basket", category: "HANDICRAFT", emoji: "🧺" },
-    { name: "Eri Silk Yarn", category: "HANDICRAFT", emoji: "🧶" },
-    { name: "Brass Utensil", category: "HANDICRAFT", emoji: "🫖" },
-    { name: "Handloom Gamusa", category: "HANDICRAFT", emoji: "🧣" },
+    { name: t.games.itemTeaLeaf || t.games.itemTea, category: "FOOD", emoji: "🍃" },
+    { name: t.games.itemPitha || "Bhoot Jolokia", category: "FOOD", emoji: "🌶️" },
+    { name: t.games.itemMilk || "Banana", category: "FOOD", emoji: "🍌" },
+    { name: t.games.itemLemon, category: "FOOD", emoji: "🍋" },
+    { name: t.games.itemBamboo, category: "HANDICRAFT", emoji: "🧺" },
+    { name: t.games.itemSilkCloth, category: "HANDICRAFT", emoji: "🧶" },
+    { name: t.games.itemSweets || "Brass Utensil", category: "HANDICRAFT", emoji: "🫖" },
+    { name: t.games.itemMustardOil || "Handloom Gamusa", category: "HANDICRAFT", emoji: "🧣" },
   ];
 
   const itemCount = level === 1 ? 4 : level === 2 ? 6 : 8;
@@ -1696,7 +1685,7 @@ export function GameBazaarScreen({ onNav, onBack, onProgress }: CommonGameProps)
     setFoodBasket([]);
     setCraftBasket([]);
     setWon(false);
-  }, [level]);
+  }, [level, t]);
 
   function sortItem(item: (typeof ITEMS)[0], targetCategory: "FOOD" | "HANDICRAFT") {
     if (item.category === targetCategory) {
@@ -1714,7 +1703,7 @@ export function GameBazaarScreen({ onNav, onBack, onProgress }: CommonGameProps)
         setTimeout(() => {
           const res = recordGamePerformance({
             gameId,
-            gameTitle: "NER Bazaar Sorting",
+            gameTitle: t.games.bazaarTitle,
             skill: "Categorization",
             level,
             accuracy: 100,
@@ -1731,9 +1720,9 @@ export function GameBazaarScreen({ onNav, onBack, onProgress }: CommonGameProps)
           setWon(true);
           saveGameRecord({
             gameId: "game-bazaar",
-            gameTitle: "NER Bazaar Sorting Game",
+            gameTitle: t.games.bazaarTitle,
             category: "Categorization",
-            score: "All Sorted",
+            score: t.common.completed,
             difficulty: level === 1 ? "Easy" : level === 2 ? "Medium" : level === 3 ? "Hard" : "Standard",
           });
           onProgress();
@@ -1741,7 +1730,7 @@ export function GameBazaarScreen({ onNav, onBack, onProgress }: CommonGameProps)
       }
     } else {
       playSoundTone("wrong");
-      setFeedback(`"${item.name}" belongs in the other basket.`);
+      setFeedback(`"${item.name}" ${t.games.feedbackBelongsOther}`);
       setTimeout(() => setFeedback(null), 1200);
     }
   }
@@ -1777,8 +1766,8 @@ export function GameBazaarScreen({ onNav, onBack, onProgress }: CommonGameProps)
   if (won) {
     return (
       <GameVictoryModal
-        title="Bazaar Sorted!"
-        message={`You correctly sorted all ${itemCount} food & handicraft items into their baskets!`}
+        title={t.games.congrats}
+        message={`${t.common.completed} ${t.games.bazaarTitle}!`}
         score="100%"
         feedbackMessage={adaptiveResult?.feedbackMessage}
         unlockedNewLevel={adaptiveResult?.unlockedNewLevel}
@@ -1796,8 +1785,8 @@ export function GameBazaarScreen({ onNav, onBack, onProgress }: CommonGameProps)
     <div className="min-h-screen pb-24 pt-6 space-y-6">
       <AdaptiveGameHeader
         gameId={gameId}
-        title="NER Bazaar Sorting Game"
-        subtitle="Drag or tap items into the FOOD or HANDICRAFT basket."
+        title={t.games.bazaarTitle}
+        subtitle={t.games.bazaarDesc}
         level={level}
         setLevel={setLevel}
         unlockedLevel={unlockedLevel}
@@ -1809,7 +1798,7 @@ export function GameBazaarScreen({ onNav, onBack, onProgress }: CommonGameProps)
         {/* Items Tray */}
         <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-3xl p-5 space-y-3 text-center shadow-md">
           <div className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider">
-            Bazaar Items (Drag or Tap to Select)
+            {t.games.bazaarTitle} ({t.games.promptLookItems})
           </div>
 
           <div className="flex flex-wrap justify-center gap-3">
@@ -1842,10 +1831,10 @@ export function GameBazaarScreen({ onNav, onBack, onProgress }: CommonGameProps)
           >
             <div>
               <span className="text-4xl">🥗</span>
-              <h3 className="text-lg font-black text-emerald-700 dark:text-emerald-400 mt-1">FOOD ITEMS</h3>
+              <h3 className="text-lg font-black text-emerald-700 dark:text-emerald-400 mt-1">{t.games.labelFoodBasket}</h3>
             </div>
             <div className="text-xs font-bold text-[var(--text-muted)]">
-              {foodBasket.length} stored ({foodBasket.map((i) => i.emoji).join(" ")})
+              {foodBasket.length} ({foodBasket.map((i) => i.emoji).join(" ")})
             </div>
           </div>
 
@@ -1857,16 +1846,16 @@ export function GameBazaarScreen({ onNav, onBack, onProgress }: CommonGameProps)
           >
             <div>
               <span className="text-4xl">🏡</span>
-              <h3 className="text-lg font-black text-amber-700 dark:text-amber-400 mt-1">HOUSEHOLD &amp; HANDICRAFT</h3>
+              <h3 className="text-lg font-black text-amber-700 dark:text-amber-400 mt-1">{t.games.labelHouseholdBasket}</h3>
             </div>
             <div className="text-xs font-bold text-[var(--text-muted)]">
-              {craftBasket.length} stored ({craftBasket.map((i) => i.emoji).join(" ")})
+              {craftBasket.length} ({craftBasket.map((i) => i.emoji).join(" ")})
             </div>
           </div>
         </div>
 
         {feedback && (
-          <div className={`text-center text-base font-black py-2 rounded-xl animate-pulse ${feedback.includes("Sorted") ? "text-green-600 dark:text-emerald-400" : "text-amber-600 dark:text-amber-400"}`}>
+          <div className={`text-center text-base font-black py-2 rounded-xl animate-pulse ${feedback.includes(t.games.feedbackSortedItem) ? "text-green-600 dark:text-emerald-400" : "text-amber-600 dark:text-amber-400"}`}>
             {feedback}
           </div>
         )}
@@ -1894,20 +1883,20 @@ export function GameMemoryLaneScreen({ onNav, onBack, onProgress }: CommonGamePr
 
   const CARDS = [
     {
-      title: "Guwahati River Ghat & Brahmaputra Ferries",
-      prompt: "Have you ever traveled on a river ferry across the majestic river?",
+      title: t.games.landmarkMajuli || "Guwahati River Ghat & Brahmaputra Ferries",
+      prompt: t.games.hintRiver || "Have you ever traveled on a river ferry across the majestic river?",
       sound: "water",
       img: majuliBoatImg,
     },
     {
-      title: "Traditional Assam Tea Estate House",
-      prompt: "Do you remember the fresh morning breeze near green tea gardens?",
+      title: t.games.landmarkTeaGarden || "Traditional Assam Tea Estate House",
+      prompt: t.games.hintTea || "Do you remember the fresh morning breeze near green tea gardens?",
       sound: "bird",
       img: teaGardenImg,
     },
     {
-      title: "Bihu Festival & Spring Celebrations",
-      prompt: "Have you enjoyed the rhythmic Dhol beats during Bihu celebrations?",
+      title: t.games.landmarkFinish || "Bihu Festival & Spring Celebrations",
+      prompt: t.games.hintBihu || "Have you enjoyed the rhythmic Dhol beats during Bihu celebrations?",
       sound: "dhol",
       img: bihuCelebrationImg,
     },
@@ -1942,16 +1931,16 @@ export function GameMemoryLaneScreen({ onNav, onBack, onProgress }: CommonGamePr
     audio.onended = () => {
       setIsPlaying(false);
       setIsPaused(false);
-      setAudioStatus("Audio finished");
+      setAudioStatus(null);
     };
 
     audio.onerror = () => {
       setIsPlaying(false);
       setIsPaused(false);
-      setAudioStatus("Unable to load audio file");
+      setAudioStatus(null);
     };
 
-    setAudioStatus(`Playing instrumental sound...`);
+    setAudioStatus(t.sounds.playing);
     setIsPlaying(true);
     setIsPaused(false);
 
@@ -1959,7 +1948,7 @@ export function GameMemoryLaneScreen({ onNav, onBack, onProgress }: CommonGamePr
       console.warn("Audio autoplay blocked or failed:", err);
       setIsPlaying(false);
       setIsPaused(true);
-      setAudioStatus("Tap Play to listen to instrumental audio");
+      setAudioStatus(t.sounds.listen);
     });
   }
 
@@ -1968,7 +1957,7 @@ export function GameMemoryLaneScreen({ onNav, onBack, onProgress }: CommonGamePr
       audioInstanceRef.current.pause();
       setIsPlaying(false);
       setIsPaused(true);
-      setAudioStatus("Paused");
+      setAudioStatus(t.sounds.pause);
     }
   }
 
@@ -1978,7 +1967,7 @@ export function GameMemoryLaneScreen({ onNav, onBack, onProgress }: CommonGamePr
       audioInstanceRef.current.play().then(() => {
         setIsPlaying(true);
         setIsPaused(false);
-        setAudioStatus("Playing instrumental sound...");
+        setAudioStatus(t.sounds.playing);
       }).catch(() => {
         handlePlayAudio();
       });
@@ -1999,7 +1988,7 @@ export function GameMemoryLaneScreen({ onNav, onBack, onProgress }: CommonGamePr
     if (next === 0) {
       recordGamePerformance({
         gameId,
-        gameTitle: "Northeast Memory Lane",
+        gameTitle: t.games.memoryLaneTitle,
         skill: "Memory",
         level,
         accuracy: 100,
@@ -2014,9 +2003,9 @@ export function GameMemoryLaneScreen({ onNav, onBack, onProgress }: CommonGamePr
       });
       saveGameRecord({
         gameId: "game-memory-lane",
-        gameTitle: "Memory Lane Reminiscence",
+        gameTitle: t.games.memoryLaneTitle,
         category: "Memory",
-        score: "Completed Reminiscence",
+        score: t.common.completed,
         difficulty: level === 1 ? "Easy" : level === 2 ? "Medium" : level === 3 ? "Hard" : "Standard",
       });
       onProgress();
@@ -2027,8 +2016,8 @@ export function GameMemoryLaneScreen({ onNav, onBack, onProgress }: CommonGamePr
     <div className="min-h-screen pb-24 pt-6 space-y-6">
       <AdaptiveGameHeader
         gameId={gameId}
-        title="Memory Lane: Purana North-East"
-        subtitle="Interactive digital reminiscence photo cards with gentle prompts and real instrumental audio."
+        title={t.games.memoryLaneTitle}
+        subtitle={t.games.memoryLaneDesc}
         level={level}
         setLevel={setLevel}
         unlockedLevel={unlockedLevel}
@@ -2050,9 +2039,9 @@ export function GameMemoryLaneScreen({ onNav, onBack, onProgress }: CommonGamePr
           </div>
 
           <div className="space-y-3">
-            <div className="text-xs font-bold text-[var(--text-muted)] uppercase">Share Your Memory:</div>
+            <div className="text-xs font-bold text-[var(--text-muted)] uppercase">{t.activities.storyRecall}:</div>
             <div className="flex justify-center gap-2">
-              {["Yes, I remember!", "Looks familiar", "New to me"].map((resp) => (
+              {[t.common.yes, t.common.confirm, t.common.no].map((resp) => (
                 <button
                   key={resp}
                   onClick={() => handleResponse(resp)}
@@ -2072,9 +2061,9 @@ export function GameMemoryLaneScreen({ onNav, onBack, onProgress }: CommonGamePr
           <div className="p-4 bg-[var(--bg-section)] border border-[var(--border)] rounded-2xl space-y-3">
             <div className="flex items-center justify-between text-xs font-black uppercase text-[var(--oxblood-dark)]">
               <span className="flex items-center gap-1.5">
-                <span>🎵</span> Real Instrumental Audio
+                <span>🎵</span> {t.sounds.title}
               </span>
-              {isPlaying && <span className="animate-pulse text-green-600 dark:text-emerald-400 font-extrabold">● PLAYING AUDIO</span>}
+              {isPlaying && <span className="animate-pulse text-green-600 dark:text-emerald-400 font-extrabold">● {t.sounds.playing}</span>}
             </div>
 
             {audioStatus && (
@@ -2089,14 +2078,14 @@ export function GameMemoryLaneScreen({ onNav, onBack, onProgress }: CommonGamePr
                   onClick={handlePlayAudio}
                   className="flex-1 py-3 px-5 rounded-2xl font-black text-sm text-white bg-[var(--oxblood)] hover:bg-[var(--oxblood-dark)] border border-[var(--brass)] cursor-pointer shadow-md flex items-center justify-center gap-2"
                 >
-                  <span>▶</span> {isPaused ? "Resume Instrumental" : "Play Instrumental Sound"}
+                  <span>▶</span> {isPaused ? t.sounds.resume : t.sounds.listen}
                 </button>
               ) : (
                 <button
                   onClick={handlePauseAudio}
                   className="flex-1 py-3 px-5 rounded-2xl font-black text-sm text-[var(--oxblood-dark)] bg-[var(--oxblood-light)] hover:bg-[var(--brass-light)] border border-[var(--oxblood)] cursor-pointer shadow-sm flex items-center justify-center gap-2"
                 >
-                  <span>⏸</span> Pause Audio
+                  <span>⏸</span> {t.sounds.pause}
                 </button>
               )}
 
@@ -2104,7 +2093,7 @@ export function GameMemoryLaneScreen({ onNav, onBack, onProgress }: CommonGamePr
                 onClick={handleReplayAudio}
                 className="py-3 px-4 rounded-2xl font-black text-sm text-[var(--text-primary)] bg-[var(--bg-card)] hover:bg-[var(--bg-hover)] border border-[var(--border)] cursor-pointer shadow-xs flex items-center justify-center gap-1"
               >
-                <span>↻</span> Replay
+                <span>↻</span> {t.sounds.replay}
               </button>
             </div>
           </div>
@@ -2114,7 +2103,7 @@ export function GameMemoryLaneScreen({ onNav, onBack, onProgress }: CommonGamePr
               onClick={handleNext}
               className="w-full py-3.5 px-4 rounded-2xl font-black text-sm text-white bg-[var(--oxblood)] hover:bg-[var(--oxblood-dark)] border border-[var(--brass)] cursor-pointer shadow-md"
             >
-              Next Memory Card →
+              {t.common.next} →
             </button>
           </div>
         </div>
@@ -2168,7 +2157,7 @@ export function GameKazirangaPuzzleScreen({ onNav, onBack, onProgress }: CommonG
       playSoundTone("correct");
       const res = recordGamePerformance({
         gameId,
-        gameTitle: "Kaziranga Wildlife Puzzle",
+        gameTitle: t.games.kazirangaTitle,
         skill: "Visual-Spatial",
         level,
         accuracy: 100,
@@ -2185,9 +2174,9 @@ export function GameKazirangaPuzzleScreen({ onNav, onBack, onProgress }: CommonG
       setWon(true);
       saveGameRecord({
         gameId: "game-kaziranga-puzzle",
-        gameTitle: "Kaziranga Wildlife Puzzle",
+        gameTitle: t.games.kazirangaTitle,
         category: "Visual-Spatial",
-        score: "100% Completed",
+        score: "100%",
         difficulty: level === 1 ? "Easy" : level === 2 ? "Medium" : level === 3 ? "Hard" : "Standard",
       });
       onProgress();
@@ -2210,8 +2199,8 @@ export function GameKazirangaPuzzleScreen({ onNav, onBack, onProgress }: CommonG
   if (won) {
     return (
       <GameVictoryModal
-        title="Kaziranga Rhino Complete!"
-        message={`You assembled all ${pieceCount} pieces of the Kaziranga rhino image!`}
+        title={t.games.congrats}
+        message={`${t.common.completed} ${t.games.kazirangaTitle}!`}
         score="100%"
         feedbackMessage={adaptiveResult?.feedbackMessage}
         unlockedNewLevel={adaptiveResult?.unlockedNewLevel}
@@ -2229,8 +2218,8 @@ export function GameKazirangaPuzzleScreen({ onNav, onBack, onProgress }: CommonG
     <div className="min-h-screen pb-24 pt-6 space-y-6">
       <AdaptiveGameHeader
         gameId={gameId}
-        title="Kaziranga Wildlife Visual Puzzle"
-        subtitle="Tap or drag a piece from the tray into the target slots."
+        title={t.games.kazirangaTitle}
+        subtitle={t.games.kazirangaDesc}
         level={level}
         setLevel={setLevel}
         unlockedLevel={unlockedLevel}
@@ -2256,10 +2245,10 @@ export function GameKazirangaPuzzleScreen({ onNav, onBack, onProgress }: CommonG
                 {piece !== null ? (
                   <div className="text-center">
                     <span className="text-3xl sm:text-4xl">🦏</span>
-                    <span className="text-[10px] block font-black uppercase">Part {piece + 1} {piece === slotIdx ? "✓" : ""}</span>
+                    <span className="text-[10px] block font-black uppercase">{piece + 1} {piece === slotIdx ? "✓" : ""}</span>
                   </div>
                 ) : (
-                  <span className="text-xs">Slot {slotIdx + 1}</span>
+                  <span className="text-xs">{slotIdx + 1}</span>
                 )}
               </button>
             ))}
@@ -2267,7 +2256,7 @@ export function GameKazirangaPuzzleScreen({ onNav, onBack, onProgress }: CommonG
         </div>
 
         <div className="bg-[var(--bg-section)] border border-[var(--border)] rounded-3xl p-5 space-y-3">
-          <div className="text-xs font-bold text-[var(--text-muted)] uppercase">Tray Pieces</div>
+          <div className="text-xs font-bold text-[var(--text-muted)] uppercase">{t.games.kazirangaTitle}</div>
           <div className="flex flex-wrap justify-center gap-3">
             {tray.map((piece) => (
               <button
@@ -2280,7 +2269,7 @@ export function GameKazirangaPuzzleScreen({ onNav, onBack, onProgress }: CommonG
                 }`}
               >
                 <span className="text-2xl sm:text-3xl">🦏</span>
-                <span className="text-[10px]">Part {piece + 1}</span>
+                <span className="text-[10px]">{piece + 1}</span>
               </button>
             ))}
           </div>
@@ -2312,12 +2301,12 @@ export function GameWhatsMissingScreen({ onNav, onBack, onProgress }: CommonGame
   const [feedback, setFeedback] = useState<string | null>(null);
 
   const ITEMS = [
-    { name: "Assam Tea Leaf", emoji: "🍃" },
-    { name: "Kaziranga Rhino", emoji: "🦏" },
-    { name: "Bamboo Basket", emoji: "🧺" },
-    { name: "River Boat", emoji: "🛶" },
-    { name: "Eri Silk Yarn", emoji: "🧶" },
-    { name: "Orchid Flower", emoji: "🌸" },
+    { name: t.games.itemTeaLeaf || t.games.itemTea, emoji: "🍃" },
+    { name: t.games.labelRhino || "Kaziranga Rhino", emoji: "🦏" },
+    { name: t.games.itemBamboo, emoji: "🧺" },
+    { name: t.games.labelBoat || "River Boat", emoji: "🛶" },
+    { name: t.games.itemSilkCloth, emoji: "🧶" },
+    { name: t.games.labelFlower || "Orchid Flower", emoji: "🌸" },
   ];
 
   const startRound = useCallback(() => {
@@ -2336,7 +2325,7 @@ export function GameWhatsMissingScreen({ onNav, onBack, onProgress }: CommonGame
     setPhase("observe");
     setTimer(obsTime);
     setFeedback(null);
-  }, [level]);
+  }, [level, t]);
 
   useEffect(() => { startRound(); }, [startRound]);
 
@@ -2360,7 +2349,7 @@ export function GameWhatsMissingScreen({ onNav, onBack, onProgress }: CommonGame
         if (rounds + 1 >= 3) {
           const res = recordGamePerformance({
             gameId,
-            gameTitle: "What's Missing?",
+            gameTitle: t.games.whatsMissingTitle,
             skill: "Visual-Spatial",
             level,
             accuracy: Math.round((nextScore / 30) * 100),
@@ -2377,9 +2366,9 @@ export function GameWhatsMissingScreen({ onNav, onBack, onProgress }: CommonGame
           setWon(true);
           saveGameRecord({
             gameId: "game-whats-missing",
-            gameTitle: "What's Missing?",
+            gameTitle: t.games.whatsMissingTitle,
             category: "Visual-Spatial",
-            score: `${nextScore} pts`,
+            score: `${nextScore} ${t.common.points}`,
             difficulty: level === 1 ? "Easy" : level === 2 ? "Medium" : level === 3 ? "Hard" : "Standard",
           });
           onProgress();
@@ -2390,7 +2379,7 @@ export function GameWhatsMissingScreen({ onNav, onBack, onProgress }: CommonGame
       }, 1000);
     } else {
       playSoundTone("wrong");
-      setFeedback("Not quite, try another option!");
+      setFeedback(t.common.incorrect);
       setTimeout(() => setFeedback(null), 1000);
     }
   }
@@ -2405,9 +2394,9 @@ export function GameWhatsMissingScreen({ onNav, onBack, onProgress }: CommonGame
   if (won) {
     return (
       <GameVictoryModal
-        title="Visual Recall Completed!"
-        message="You successfully recalled the missing objects across all rounds!"
-        score={`${score} points`}
+        title={t.games.congrats}
+        message={`${t.common.completed} ${t.games.whatsMissingTitle}!`}
+        score={`${score} ${t.common.points}`}
         feedbackMessage={adaptiveResult?.feedbackMessage}
         unlockedNewLevel={adaptiveResult?.unlockedNewLevel}
         nextRecommendedLevel={adaptiveResult?.nextRecommendedLevel}
@@ -2424,8 +2413,8 @@ export function GameWhatsMissingScreen({ onNav, onBack, onProgress }: CommonGame
     <div className="min-h-screen pb-24 pt-6 space-y-6">
       <AdaptiveGameHeader
         gameId={gameId}
-        title="What's Missing?"
-        subtitle="Observe the objects carefully before one disappears!"
+        title={t.games.whatsMissingTitle}
+        subtitle={t.games.whatsMissingDesc}
         level={level}
         setLevel={(lvl) => { setLevel(lvl); restart(); }}
         unlockedLevel={unlockedLevel}
@@ -2437,7 +2426,7 @@ export function GameWhatsMissingScreen({ onNav, onBack, onProgress }: CommonGame
         {phase === "observe" ? (
           <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-3xl p-6 sm:p-8 space-y-6 shadow-lg">
             <div className="text-xs font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider animate-pulse">
-              Observe carefully: {timer}s remaining
+              {t.games.promptLookItems}: {timer}s
             </div>
 
             <div className="flex flex-wrap justify-center gap-4 py-6">
@@ -2451,7 +2440,7 @@ export function GameWhatsMissingScreen({ onNav, onBack, onProgress }: CommonGame
           </div>
         ) : (
           <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-3xl p-6 sm:p-8 space-y-6 shadow-lg">
-            <h2 className="text-2xl font-black text-[var(--text-primary)]">Which object is missing?</h2>
+            <h2 className="text-2xl font-black text-[var(--text-primary)]">{t.games.promptOneVanished}</h2>
 
             <div className="flex flex-wrap justify-center gap-4 py-4">
               {displayItems.map((item) => (
@@ -2462,7 +2451,7 @@ export function GameWhatsMissingScreen({ onNav, onBack, onProgress }: CommonGame
                     <span className="text-5xl">{item.emoji}</span>
                   )}
                   <span className="text-xs font-black text-[var(--text-secondary)] mt-2">
-                    {item.name === missingItem?.name ? "MISSING" : item.name}
+                    {item.name === missingItem?.name ? "?" : item.name}
                   </span>
                 </div>
               ))}
@@ -2481,7 +2470,7 @@ export function GameWhatsMissingScreen({ onNav, onBack, onProgress }: CommonGame
             </div>
 
             {feedback && (
-              <div className={`text-base font-black py-2 rounded-xl animate-pulse ${feedback.includes("Correct") ? "text-green-600 dark:text-emerald-400" : "text-amber-600 dark:text-amber-400"}`}>
+              <div className={`text-base font-black py-2 rounded-xl animate-pulse ${feedback.includes(t.games.feedbackRemembered) ? "text-green-600 dark:text-emerald-400" : "text-amber-600 dark:text-amber-400"}`}>
                 {feedback}
               </div>
             )}
@@ -2504,14 +2493,14 @@ export function GameRoutineScreen({ onNav, onBack, onProgress }: CommonGameProps
   const [adaptiveResult, setAdaptiveResult] = useState<any>(null);
 
   const ALL_ROUTINE = [
-    { id: 1, title: "Wake Up", emoji: "🌅" },
-    { id: 2, title: "Brush Teeth", emoji: "🪥" },
-    { id: 3, title: "Morning Chai", emoji: "☕" },
-    { id: 4, title: "Take Medicine", emoji: "💊" },
-    { id: 5, title: "Walk in Garden", emoji: "🚶‍♂️" },
-    { id: 6, title: "Lunch", emoji: "🍲" },
-    { id: 7, title: "Afternoon Rest", emoji: "🌙" },
-    { id: 8, title: "Family Call", emoji: "📞" },
+    { id: 1, title: t.games.stepWakeUp, emoji: "🌅" },
+    { id: 2, title: t.games.stepChai || "Brush Teeth", emoji: "🪥" },
+    { id: 3, title: t.games.stepChai, emoji: "☕" },
+    { id: 4, title: t.games.stepMedicine, emoji: "💊" },
+    { id: 5, title: t.games.stepWalk, emoji: "🚶‍♂️" },
+    { id: 6, title: t.games.stepDinner || "Lunch", emoji: "🍲" },
+    { id: 7, title: t.common.back || "Afternoon Rest", emoji: "🌙" },
+    { id: 8, title: t.games.routineTitle || "Family Call", emoji: "📞" },
   ];
 
   const cardCount = level === 1 ? 3 : level === 2 ? 4 : level === 3 ? 6 : 8;
@@ -2525,7 +2514,7 @@ export function GameRoutineScreen({ onNav, onBack, onProgress }: CommonGameProps
     setCards([...ROUTINE].sort(() => Math.random() - 0.5));
     setWon(false);
     setFeedback(null);
-  }, [level]);
+  }, [level, t]);
 
   function move(idx: number, direction: -1 | 1) {
     playSoundTone("flip");
@@ -2544,7 +2533,7 @@ export function GameRoutineScreen({ onNav, onBack, onProgress }: CommonGameProps
       setTimeout(() => {
         const res = recordGamePerformance({
           gameId,
-          gameTitle: "Daily Routine Sequencing",
+          gameTitle: t.games.routineTitle,
           skill: "Sequencing",
           level,
           accuracy: 100,
@@ -2561,9 +2550,9 @@ export function GameRoutineScreen({ onNav, onBack, onProgress }: CommonGameProps
         setWon(true);
         saveGameRecord({
           gameId: "game-routine",
-          gameTitle: "Daily Routine Ordering",
+          gameTitle: t.games.routineTitle,
           category: "Sequencing",
-          score: "Ordered Correctly",
+          score: t.common.completed,
           difficulty: level === 1 ? "Easy" : level === 2 ? "Medium" : level === 3 ? "Hard" : "Standard",
         });
         onProgress();
@@ -2584,8 +2573,8 @@ export function GameRoutineScreen({ onNav, onBack, onProgress }: CommonGameProps
   if (won) {
     return (
       <GameVictoryModal
-        title="Routine Ordered!"
-        message={`You arranged all ${cardCount} daily activities into proper sequence!`}
+        title={t.games.congrats}
+        message={`${t.common.completed} ${t.games.routineTitle}!`}
         score="100%"
         feedbackMessage={adaptiveResult?.feedbackMessage}
         unlockedNewLevel={adaptiveResult?.unlockedNewLevel}
@@ -2603,8 +2592,8 @@ export function GameRoutineScreen({ onNav, onBack, onProgress }: CommonGameProps
     <div className="min-h-screen pb-24 pt-6 space-y-6">
       <AdaptiveGameHeader
         gameId={gameId}
-        title="Daily Routine Ordering"
-        subtitle="Arrange the daily activities into a natural morning-to-evening sequence."
+        title={t.games.routineTitle}
+        subtitle={t.games.routineDesc}
         level={level}
         setLevel={setLevel}
         unlockedLevel={unlockedLevel}
@@ -2648,11 +2637,11 @@ export function GameRoutineScreen({ onNav, onBack, onProgress }: CommonGameProps
             onClick={checkOrder}
             className="w-full min-h-[50px] py-3.5 rounded-2xl text-lg font-black text-white bg-[var(--oxblood)] hover:bg-[var(--oxblood-dark)] border border-[var(--brass)] shadow-md cursor-pointer"
           >
-            Check Sequence ✨
+            {t.games.promptCheckOrder} ✨
           </button>
 
           {feedback && (
-            <div className={`text-center text-base font-black py-2 rounded-xl animate-pulse ${feedback.includes("Perfect") ? "text-green-600 dark:text-emerald-400" : "text-amber-600 dark:text-amber-400"}`}>
+            <div className={`text-center text-base font-black py-2 rounded-xl animate-pulse ${feedback.includes(t.games.feedbackPerfectRoutine) ? "text-green-600 dark:text-emerald-400" : "text-amber-600 dark:text-amber-400"}`}>
               {feedback}
             </div>
           )}
@@ -2710,7 +2699,7 @@ export function GamePatternScreen({ onNav, onBack, onProgress }: CommonGameProps
         if (step + 1 >= PATTERNS.length) {
           const res = recordGamePerformance({
             gameId,
-            gameTitle: "Pattern Recognition",
+            gameTitle: t.games.patternTitle,
             skill: "Pattern Recognition",
             level,
             accuracy: 100,
@@ -2727,9 +2716,9 @@ export function GamePatternScreen({ onNav, onBack, onProgress }: CommonGameProps
           setWon(true);
           saveGameRecord({
             gameId: "game-pattern",
-            gameTitle: "Pattern Recognition",
+            gameTitle: t.games.patternTitle,
             category: "Pattern Recognition",
-            score: `${nextScore} pts`,
+            score: `${nextScore} ${t.common.points}`,
             difficulty: level === 1 ? "Easy" : level === 2 ? "Medium" : level === 3 ? "Hard" : "Standard",
           });
           onProgress();
@@ -2755,9 +2744,9 @@ export function GamePatternScreen({ onNav, onBack, onProgress }: CommonGameProps
   if (won) {
     return (
       <GameVictoryModal
-        title="Pattern Master!"
-        message={`You completed all pattern challenges at Level ${level}!`}
-        score={`${score} points`}
+        title={t.games.congrats}
+        message={`${t.common.completed} ${t.games.patternTitle}!`}
+        score={`${score} ${t.common.points}`}
         feedbackMessage={adaptiveResult?.feedbackMessage}
         unlockedNewLevel={adaptiveResult?.unlockedNewLevel}
         nextRecommendedLevel={adaptiveResult?.nextRecommendedLevel}
@@ -2774,8 +2763,8 @@ export function GamePatternScreen({ onNav, onBack, onProgress }: CommonGameProps
     <div className="min-h-screen pb-24 pt-6 space-y-6">
       <AdaptiveGameHeader
         gameId={gameId}
-        title="Pattern Recognition"
-        subtitle="Identify the repeating pattern and pick the item that comes next."
+        title={t.games.patternTitle}
+        subtitle={t.games.patternDesc}
         level={level}
         setLevel={(lvl) => { setLevel(lvl); restart(); }}
         unlockedLevel={unlockedLevel}
@@ -2786,7 +2775,7 @@ export function GamePatternScreen({ onNav, onBack, onProgress }: CommonGameProps
       <div className="max-w-md mx-auto px-4 space-y-6 text-center">
         <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-3xl p-6 sm:p-8 space-y-6 shadow-lg">
           <div className="text-xs font-bold text-[var(--text-muted)] uppercase">
-            Pattern {step + 1} of {PATTERNS.length}
+            {step + 1} / {PATTERNS.length}
           </div>
 
           <div className="flex flex-wrap justify-center items-center gap-3 py-6 bg-[var(--bg-section)] rounded-2xl border border-[var(--border)]">
@@ -2810,7 +2799,7 @@ export function GamePatternScreen({ onNav, onBack, onProgress }: CommonGameProps
           </div>
 
           {feedback && (
-            <div className={`text-base font-black py-2 rounded-xl animate-pulse ${feedback.includes("completed") ? "text-green-600 dark:text-emerald-400" : "text-amber-600 dark:text-amber-400"}`}>
+            <div className={`text-base font-black py-2 rounded-xl animate-pulse ${feedback.includes(t.games.feedbackPatternComplete) ? "text-green-600 dark:text-emerald-400" : "text-amber-600 dark:text-amber-400"}`}>
               {feedback}
             </div>
           )}
@@ -2858,7 +2847,7 @@ export function GameSoundRecScreen({ onNav, onBack, onProgress }: CommonGameProp
         if (step + 1 >= SOUND_TASKS.length) {
           const res = recordGamePerformance({
             gameId,
-            gameTitle: "Sound Recognition",
+            gameTitle: t.games.soundRecTitle,
             skill: "Recognition",
             level,
             accuracy: 100,
@@ -2875,9 +2864,9 @@ export function GameSoundRecScreen({ onNav, onBack, onProgress }: CommonGameProp
           setWon(true);
           saveGameRecord({
             gameId: "game-sound-rec",
-            gameTitle: "Sound Recognition & Memory",
+            gameTitle: t.games.soundRecTitle,
             category: "Recognition",
-            score: `${nextScore} pts`,
+            score: `${nextScore} ${t.common.points}`,
             difficulty: level === 1 ? "Easy" : level === 2 ? "Medium" : level === 3 ? "Hard" : "Standard",
           });
           onProgress();
@@ -2903,9 +2892,9 @@ export function GameSoundRecScreen({ onNav, onBack, onProgress }: CommonGameProp
   if (won) {
     return (
       <GameVictoryModal
-        title="Auditory Recognition Complete!"
-        message={`You recognized all ambient sound tracks at Level ${level}!`}
-        score={`${score} points`}
+        title={t.games.congrats}
+        message={`${t.common.completed} ${t.games.soundRecTitle}!`}
+        score={`${score} ${t.common.points}`}
         feedbackMessage={adaptiveResult?.feedbackMessage}
         unlockedNewLevel={adaptiveResult?.unlockedNewLevel}
         nextRecommendedLevel={adaptiveResult?.nextRecommendedLevel}
@@ -2922,8 +2911,8 @@ export function GameSoundRecScreen({ onNav, onBack, onProgress }: CommonGameProp
     <div className="min-h-screen pb-24 pt-6 space-y-6">
       <AdaptiveGameHeader
         gameId={gameId}
-        title="Sound Recognition & Memory"
-        subtitle="Tap to listen to the audio sound, then pick the correct answer."
+        title={t.games.soundRecTitle}
+        subtitle={t.games.soundRecDesc}
         level={level}
         setLevel={(lvl) => { setLevel(lvl); restart(); }}
         unlockedLevel={unlockedLevel}
@@ -2939,13 +2928,13 @@ export function GameSoundRecScreen({ onNav, onBack, onProgress }: CommonGameProp
               className="flex-1 py-5 rounded-2xl border-2 border-[var(--brass)] bg-[var(--brass-light)] text-[var(--brass-dark)] font-black text-lg flex items-center justify-center gap-2 cursor-pointer shadow-md active:scale-95"
             >
               <span className="text-3xl">🔊</span>
-              <span>Tap to Play Sound</span>
+              <span>{t.sounds.listen}</span>
             </button>
             <button
               onClick={playSound}
               className="px-4 py-5 rounded-2xl border border-[var(--border)] bg-[var(--bg-section)] text-sm font-bold text-[var(--text-secondary)] cursor-pointer"
             >
-              🔁 Replay
+              🔁 {t.sounds.replay}
             </button>
           </div>
 
@@ -2962,7 +2951,7 @@ export function GameSoundRecScreen({ onNav, onBack, onProgress }: CommonGameProp
           </div>
 
           {feedback && (
-            <div className={`text-base font-black py-2 rounded-xl animate-pulse ${feedback.includes("Correct") ? "text-green-600 dark:text-emerald-400" : "text-amber-600 dark:text-amber-400"}`}>
+            <div className={`text-base font-black py-2 rounded-xl animate-pulse ${feedback.includes(t.games.feedbackSoundIdentified) ? "text-green-600 dark:text-emerald-400" : "text-amber-600 dark:text-amber-400"}`}>
               {feedback}
             </div>
           )}
@@ -2971,3 +2960,4 @@ export function GameSoundRecScreen({ onNav, onBack, onProgress }: CommonGameProp
     </div>
   );
 }
+

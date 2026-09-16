@@ -792,7 +792,7 @@ function AIRecommendationCard({ onNav }: { onNav: (s: Screen) => void }) {
     whats_missing: t.games.whatsMissingTitle || "What's Missing?",
     pattern_recognition: t.games.patternTitle || "Pattern Matching",
     jigsaw_puzzle: t.games.jigsawTitle || "Jigsaw Memories",
-    sorting_game: t.activities.marketMemory,
+    sorting_game: t.games.bazaarTitle || t.activities.marketMemory,
     daily_routine: t.games.routineTitle || "Daily Routine",
     word_puzzles: t.games.wordPuzzlesTitle || "Word Puzzles",
     dice_activity: t.games.diceTitle || "Dice Activity",
@@ -900,8 +900,8 @@ function HomeScreen({ onNav, active, onSwitchProfile }: { onNav: (s: Screen) => 
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-8 border-b border-[var(--border)] relative z-10">
             <div className="max-w-2xl space-y-4">
               <div className="flex items-center gap-2 flex-wrap">
-                <Badge color="oxblood">🌿 Senior Dignity</Badge>
-                <Badge color="brass">Archival Companion</Badge>
+                <Badge color="oxblood">🌿 {t.home.heroBadge1 || "Senior Dignity"}</Badge>
+                <Badge color="brass">{t.home.heroBadge2 || "Archival Companion"}</Badge>
                 <Badge color="mineral">🌐 {LANGUAGE_METADATA[lang]?.nativeName || lang}</Badge>
               </div>
               <h1 className="text-4xl sm:text-6xl font-black tracking-tight leading-[1.1] text-[var(--text-primary)]">
@@ -937,7 +937,7 @@ function HomeScreen({ onNav, active, onSwitchProfile }: { onNav: (s: Screen) => 
               <div onClick={() => onNav("game-sounds")} className="rounded-3xl p-6 bg-[var(--bg-card)] border border-[var(--border)] hover:border-[var(--oxblood)] transition-all cursor-pointer group flex flex-col justify-start shadow-sm">
                 <div className="flex items-center justify-between">
                   <div className="w-12 h-12 rounded-2xl bg-[var(--oxblood)] border border-[var(--brass)] flex items-center justify-center text-2xl text-white shadow-md">🎧</div>
-                  <span className="text-xs font-black uppercase tracking-wider text-[var(--oxblood-dark)] bg-[var(--oxblood-light)] px-3 py-1 rounded-full border border-[var(--oxblood)]">Audio Lounge</span>
+                  <span className="text-xs font-black uppercase tracking-wider text-[var(--oxblood-dark)] bg-[var(--oxblood-light)] px-3 py-1 rounded-full border border-[var(--oxblood)]">{t.sounds.title}</span>
                 </div>
                 <div className="mt-4">
                   <h3 className="text-xl font-black text-[var(--text-primary)] group-hover:text-[var(--oxblood)] transition-colors">{t.home.soundsCardTitle}</h3>
@@ -951,7 +951,7 @@ function HomeScreen({ onNav, active, onSwitchProfile }: { onNav: (s: Screen) => 
               <div onClick={() => onNav("my-memories")} className="rounded-3xl p-6 bg-[var(--bg-card)] border border-[var(--border)] hover:border-[var(--brass)] transition-all cursor-pointer group flex flex-col justify-start shadow-sm">
                 <div className="flex items-center justify-between">
                   <div className="w-12 h-12 rounded-2xl bg-[var(--brass-light)] border border-[var(--brass)] flex items-center justify-center text-2xl text-[var(--brass-dark)] shadow-sm">📸</div>
-                  <span className="text-xs font-bold text-[var(--text-muted)]">Personal Space</span>
+                  <span className="text-xs font-bold text-[var(--text-muted)]">{t.nav.myMemories}</span>
                 </div>
                 <div className="mt-4">
                   <h3 className="text-xl font-black text-[var(--text-primary)] group-hover:text-[var(--brass-dark)] transition-colors">{t.home.keepsakeCardTitle}</h3>
@@ -973,7 +973,7 @@ function HomeScreen({ onNav, active, onSwitchProfile }: { onNav: (s: Screen) => 
               <Badge color="oxblood">🎮 {t.activities.title}</Badge>
               <h2 className="text-3xl sm:text-4xl font-black text-[var(--text-primary)] mt-1">{t.activities.subtitle}</h2>
             </div>
-            <Btn onClick={() => onNav("activities")} variant="secondary" className="text-sm py-2.5 px-5">View All Activities →</Btn>
+            <Btn onClick={() => onNav("activities")} variant="secondary" className="text-sm py-2.5 px-5">{t.activities.viewAll}</Btn>
           </div>
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -1007,11 +1007,11 @@ function HomeScreen({ onNav, active, onSwitchProfile }: { onNav: (s: Screen) => 
         <div className="space-y-8">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-[var(--border)]">
             <div>
-              <Badge color="brass">📸 Keepsake Memory Vault</Badge>
+              <Badge color="brass">📸 {t.memories.title}</Badge>
               <h2 className="text-3xl sm:text-4xl font-black text-[var(--text-primary)] mt-1">{t.home.keepsakeCardTitle}</h2>
               <p className="text-sm text-[var(--text-secondary)] font-medium mt-1">{t.home.keepsakeCardDesc}</p>
             </div>
-            <Btn onClick={() => onNav("my-memories")} variant="primary" className="text-sm py-2.5 px-5">Open Memory Album →</Btn>
+            <Btn onClick={() => onNav("my-memories")} variant="primary" className="text-sm py-2.5 px-5">{t.home.keepsakeCardAction}</Btn>
           </div>
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -1052,7 +1052,7 @@ function HomeScreen({ onNav, active, onSwitchProfile }: { onNav: (s: Screen) => 
                   </div>
                 </div>
                 <div className="pt-3 border-t border-[var(--border)] flex items-center justify-between text-xs font-black text-[var(--oxblood-dark)]">
-                  <span>View Full Memory</span>
+                  <span>{t.home.keepsakeCardAction}</span>
                   <span>→</span>
                 </div>
               </div>
@@ -1338,16 +1338,16 @@ function GameMemoryScreen({ onNav, onBack, active, onProgress }: { onNav: (s: Sc
   const unlockedLevel = getUnlockedLevel("memory_match");
 
   const ALL_ITEMS = [
-    { id: "1", emoji: "🍃", label: "Tea Leaf" },
-    { id: "2", emoji: "🦏", label: "Rhino" },
-    { id: "3", emoji: "🎋", label: "Bamboo" },
-    { id: "4", emoji: "🛶", label: "Boat" },
-    { id: "5", emoji: "🧶", label: "Eri Silk" },
-    { id: "6", emoji: "🌸", label: "Orchid" },
-    { id: "7", emoji: "🫖", label: "Tea Pot" },
-    { id: "8", emoji: "🧺", label: "Basket" },
-    { id: "9", emoji: "🐦", label: "Hornbill" },
-    { id: "10", emoji: "🥁", label: "Bihu Dhol" },
+    { id: "1", emoji: "🍃", label: t.games.labelTeaLeaf },
+    { id: "2", emoji: "🦏", label: t.games.labelRhino },
+    { id: "3", emoji: "🎋", label: t.games.itemBamboo },
+    { id: "4", emoji: "🛶", label: t.games.labelBoat },
+    { id: "5", emoji: "🧶", label: t.games.itemSilkCloth },
+    { id: "6", emoji: "🌸", label: t.games.labelFlower },
+    { id: "7", emoji: "🫖", label: t.games.labelBluePot },
+    { id: "8", emoji: "🧺", label: t.games.labelBasket },
+    { id: "9", emoji: "🐦", label: t.games.soundBirdChirping },
+    { id: "10", emoji: "🥁", label: t.games.itemDhol },
   ];
 
   const targetPairCount = level === 1 ? 3 : level === 2 ? 5 : level === 3 ? 8 : 10;
