@@ -1475,6 +1475,12 @@ function GameMemoryScreen({ onNav, onBack, active, onProgress }: { onNav: (s: Sc
   );
 }
 
+function getAudioUrl(filename: string): string {
+  const base = import.meta.env.BASE_URL || "./";
+  const cleanBase = base.endsWith("/") ? base : `${base}/`;
+  return `${cleanBase}audio/${filename}`;
+}
+
 function GameSoundsScreen({ onNav, onBack, active, onProgress }: { onNav: (s: Screen) => void; onBack?: () => void; active: Profile | null; onProgress: () => void }) {
   const { t } = useLanguage();
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -1500,17 +1506,15 @@ function GameSoundsScreen({ onNav, onBack, active, onProgress }: { onNav: (s: Sc
   }, []);
 
   const soundsList = [
-    { title: t.sounds.soundGogona, desc: t.sounds.soundGogonaDesc, icon: "🪕", type: "pepa" as const, src: pepaAudio },
-    { title: t.sounds.soundBihu, desc: t.sounds.soundBihuDesc, icon: "🥁", type: "dhol" as const, src: dholAudio },
-    { title: t.sounds.soundBirdsong, desc: t.sounds.soundBirdsongDesc, icon: "🐦", type: "bird" as const, src: fluteAudio },
-    { title: t.sounds.soundChai, desc: t.sounds.soundChaiDesc, icon: "☕", type: "water" as const, src: riverAudio },
+    { title: t.sounds.soundGogona, desc: t.sounds.soundGogonaDesc, icon: "🪕", type: "pepa" as const, audio: getAudioUrl("gogona.mp3"), fallbackSrc: pepaAudio },
+    { title: t.sounds.soundBihu, desc: t.sounds.soundBihuDesc, icon: "🥁", type: "dhol" as const, audio: getAudioUrl("bihu-dhol.mp3"), fallbackSrc: dholAudio },
+    { title: t.sounds.soundBirdsong, desc: t.sounds.soundBirdsongDesc, icon: "🐦", type: "bird" as const, audio: getAudioUrl("tea-garden-birdsong.mp3"), fallbackSrc: fluteAudio },
+    { title: t.sounds.soundChai, desc: t.sounds.soundChaiDesc, icon: "☕", type: "water" as const, audio: getAudioUrl("porch-rain-chai.mp3"), fallbackSrc: riverAudio },
   ];
 
   function handleSoundClick(s: typeof soundsList[0]) {
     const type = s.type;
     const currentStatus = statusMap[type] || "idle";
-
-    console.log("[MEMOVERSE AUDIO SOURCE]", { soundId: type, source: s.src });
 
     // 1. If currently playing this exact sound -> PAUSE IT
     if (activeType === type && currentStatus === "playing") {
@@ -1541,7 +1545,10 @@ function GameSoundsScreen({ onNav, onBack, active, onProgress }: { onNav: (s: Sc
     stopCurrentAudio();
     setStatusMap({});
 
-    const newAudio = new Audio(s.src);
+    let currentSrc = s.audio;
+    console.log("[MEMOVERSE AUDIO SOURCE]", { soundId: type, source: currentSrc });
+
+    const newAudio = new Audio(currentSrc);
     newAudio.preload = "auto";
     audioRef.current = newAudio;
     setActiveType(type);
@@ -1552,15 +1559,27 @@ function GameSoundsScreen({ onNav, onBack, active, onProgress }: { onNav: (s: Sc
     };
 
     newAudio.onerror = (e) => {
-      console.error("[MEMOVERSE AUDIO ERROR]", {
+      console.warn("[MEMOVERSE AUDIO PRIMARY ERROR - ATTEMPTING FALLBACK]", {
         soundId: type,
-        src: newAudio.src,
-        errorCode: newAudio.error?.code,
-        errorMessage: newAudio.error?.message,
-        networkState: newAudio.networkState,
-        readyState: newAudio.readyState,
-        event: e,
+        primarySrc: currentSrc,
+        fallbackSrc: s.fallbackSrc,
       });
+      if (currentSrc !== s.fallbackSrc) {
+        currentSrc = s.fallbackSrc;
+        newAudio.src = s.fallbackSrc;
+        newAudio.load();
+        newAudio
+          .play()
+          .then(() => {
+            setStatusMap((prev) => ({ ...prev, [type]: "playing" }));
+          })
+          .catch((err) => {
+            if (err && (err.name === "AbortError" || err.message?.includes("interrupted"))) return;
+            console.error("[MEMOVERSE AUDIO FALLBACK ERROR]", err);
+            setStatusMap((prev) => ({ ...prev, [type]: "error" }));
+          });
+        return;
+      }
       setStatusMap((prev) => ({ ...prev, [type]: "error" }));
     };
 
@@ -1580,7 +1599,6 @@ function GameSoundsScreen({ onNav, onBack, active, onProgress }: { onNav: (s: Sc
       })
       .catch((err) => {
         if (err && (err.name === "AbortError" || err.message?.includes("interrupted"))) {
-          // Normal interruption by user pause or sound switch
           console.log("[MEMOVERSE AUDIO PLAY INTERRUPTED]", type);
           return;
         }
@@ -1588,8 +1606,6 @@ function GameSoundsScreen({ onNav, onBack, active, onProgress }: { onNav: (s: Sc
           soundId: type,
           errName: err.name,
           message: err.message,
-          errorCode: newAudio.error?.code,
-          errorMessage: newAudio.error?.message,
         });
         setStatusMap((prev) => ({ ...prev, [type]: "error" }));
       });
