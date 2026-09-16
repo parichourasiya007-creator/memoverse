@@ -226,7 +226,7 @@ const DEFAULT_PROFILES: Profile[] = [
     familyContactName: "Ananya Devi (Daughter)",
     familyContactPhone: "+91 98123 45678",
     address: "House No. 42, Tea Estate Road, Near Central Park, Jorhat, Assam - 785001",
-    language: "Assamese",
+    language: "English",
     region: "Assam",
     accessibility: { spokenGuidance: true, largeText: true, highContrast: false },
     activities: { completed: 12, bestCategory: "Listening", level: 3 },

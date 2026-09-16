@@ -108,7 +108,15 @@ function normalizeSupportedLanguage(val: unknown): string | null {
  */
 function getInitialLanguage(): string {
   try {
-    const keysToTry = ["memoverse_language", "mv_lang"];
+    const keysToTry = [
+      "memoverse_language",
+      "mv_lang",
+      "language",
+      "selectedLanguage",
+      "user_language",
+      "memoverse_locale",
+      "mv_locale",
+    ];
     for (const key of keysToTry) {
       const raw = localStorage.getItem(key);
       if (!raw) continue;
