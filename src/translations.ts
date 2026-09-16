@@ -64,6 +64,10 @@ export interface TranslationSchema {
     listen: string;
     playing: string;
     stop: string;
+    pause?: string;
+    resume?: string;
+    replay?: string;
+    unavailable?: string;
     categoryAll: string;
     categoryInstruments: string;
     categoryNature: string;
@@ -329,6 +333,10 @@ const baseEnglish: TranslationSchema = {
     listen: "🔊 Listen Sound",
     playing: "🎵 Playing Sound...",
     stop: "⏹ Stop Sound",
+    pause: "Pause Sound",
+    resume: "Resume Sound",
+    replay: "Replay Sound",
+    unavailable: "Sound unavailable",
     categoryAll: "All Sounds",
     categoryInstruments: "Instruments",
     categoryNature: "Nature",

@@ -30,30 +30,83 @@ export const REAL_AUDIO_MAP: Record<string, string> = {
 };
 
 export function stopAllRealAudio() {
+  if (typeof window !== "undefined") {
+    if ((window as any).__activeMemoverseAudio) {
+      try {
+        (window as any).__activeMemoverseAudio.pause();
+        (window as any).__activeMemoverseAudio.currentTime = 0;
+      } catch (_) {}
+    }
+    (window as any).__activeMemoverseAudio = null;
+    (window as any).__activeMemoverseAudioKey = null;
+  }
+}
+
+export function pauseRealAudio() {
   if (typeof window !== "undefined" && (window as any).__activeMemoverseAudio) {
     try {
       (window as any).__activeMemoverseAudio.pause();
-      (window as any).__activeMemoverseAudio.currentTime = 0;
     } catch (_) {}
   }
 }
 
-export function playRealInstrumentalAudio(soundKey: string, onEnded?: () => void) {
+export function resumeRealAudio() {
+  if (typeof window !== "undefined" && (window as any).__activeMemoverseAudio) {
+    try {
+      (window as any).__activeMemoverseAudio.play().catch((err: any) => {
+        console.warn("Audio resume promise rejected:", err);
+      });
+    } catch (_) {}
+  }
+}
+
+export function getActiveRealAudioKey(): string | null {
+  if (typeof window !== "undefined") {
+    return (window as any).__activeMemoverseAudioKey || null;
+  }
+  return null;
+}
+
+export function isRealAudioPlaying(): boolean {
+  if (typeof window !== "undefined" && (window as any).__activeMemoverseAudio) {
+    const audio = (window as any).__activeMemoverseAudio as HTMLAudioElement;
+    return !audio.paused && !audio.ended && audio.readyState > 2;
+  }
+  return false;
+}
+
+export function playRealInstrumentalAudio(soundKey: string, onEnded?: () => void, onError?: (err: any) => void) {
   stopAllRealAudio();
   if (typeof window === "undefined") return null;
 
   const audioUrl = REAL_AUDIO_MAP[soundKey] || pepaAudio;
   const audio = new Audio(audioUrl);
   (window as any).__activeMemoverseAudio = audio;
+  (window as any).__activeMemoverseAudioKey = soundKey;
 
   if (onEnded) {
     audio.onended = () => {
+      if ((window as any).__activeMemoverseAudioKey === soundKey) {
+        (window as any).__activeMemoverseAudioKey = null;
+      }
       onEnded();
     };
   }
 
+  audio.onerror = (err) => {
+    console.error("Audio failed to load/play:", soundKey, err);
+    if ((window as any).__activeMemoverseAudioKey === soundKey) {
+      (window as any).__activeMemoverseAudioKey = null;
+    }
+    if (onError) onError(err);
+  };
+
   audio.play().catch((err) => {
     console.warn("Audio play promise rejected:", err);
+    if ((window as any).__activeMemoverseAudioKey === soundKey) {
+      (window as any).__activeMemoverseAudioKey = null;
+    }
+    if (onError) onError(err);
   });
 
   return audio;

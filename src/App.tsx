@@ -18,6 +18,8 @@ import {
   GameSoundRecScreen,
   getGameRecords,
   playRealInstrumentalAudio,
+  pauseRealAudio,
+  resumeRealAudio,
   stopAllRealAudio,
 } from "./CognitiveGames";
 import {
@@ -1470,21 +1472,78 @@ function GameMemoryScreen({ onNav, onBack, active, onProgress }: { onNav: (s: Sc
 
 function GameSoundsScreen({ onNav, onBack, active, onProgress }: { onNav: (s: Screen) => void; onBack?: () => void; active: Profile | null; onProgress: () => void }) {
   const { t } = useLanguage();
-  const [playing, setPlaying] = useState<string | null>(null);
+  const [activeSoundKey, setActiveSoundKey] = useState<string | null>(null);
+  const [playbackState, setPlaybackState] = useState<Record<string, "idle" | "playing" | "paused" | "ended" | "error">>({});
+
+  // Stop audio playback when unmounting Sounds of Home screen
+  useEffect(() => {
+    return () => {
+      stopAllRealAudio();
+    };
+  }, []);
 
   const soundsList = [
-    { title: t.sounds.soundGogona, desc: t.sounds.soundGogonaDesc, icon: "🪕", type: "flute" as const },
+    { title: t.sounds.soundGogona, desc: t.sounds.soundGogonaDesc, icon: "🪕", type: "pepa" as const },
     { title: t.sounds.soundBihu, desc: t.sounds.soundBihuDesc, icon: "🥁", type: "dhol" as const },
     { title: t.sounds.soundBirdsong, desc: t.sounds.soundBirdsongDesc, icon: "🐦", type: "bird" as const },
     { title: t.sounds.soundChai, desc: t.sounds.soundChaiDesc, icon: "☕", type: "water" as const },
   ];
 
-  function handlePlay(s: typeof soundsList[0]) {
-    setPlaying(s.title);
-    playRealInstrumentalAudio(s.type, () => {
-      setPlaying(null);
-    });
-    onProgress();
+  function handleSoundAction(type: string) {
+    const currentState = playbackState[type] || "idle";
+
+    // If another sound card is active, stop it before starting new one
+    if (activeSoundKey && activeSoundKey !== type) {
+      stopAllRealAudio();
+      setPlaybackState((prev) => ({ ...prev, [activeSoundKey]: "idle" }));
+    }
+
+    if (currentState === "playing") {
+      pauseRealAudio();
+      setActiveSoundKey(type);
+      setPlaybackState((prev) => ({ ...prev, [type]: "paused" }));
+    } else if (currentState === "paused") {
+      resumeRealAudio();
+      setActiveSoundKey(type);
+      setPlaybackState((prev) => ({ ...prev, [type]: "playing" }));
+    } else {
+      // "idle", "ended", "error" -> start playing fresh audio
+      setActiveSoundKey(type);
+      setPlaybackState((prev) => ({ ...prev, [type]: "playing" }));
+
+      playRealInstrumentalAudio(
+        type,
+        () => {
+          setPlaybackState((prev) => ({ ...prev, [type]: "ended" }));
+        },
+        (err) => {
+          console.error("Failed to play audio asset:", type, err);
+          setPlaybackState((prev) => ({ ...prev, [type]: "error" }));
+        }
+      );
+      onProgress();
+    }
+  }
+
+  function getButtonLabel(type: string) {
+    const state = playbackState[type] || "idle";
+    switch (state) {
+      case "playing":
+        return `⏸ ${t.sounds.pause || "Pause Sound"}`;
+      case "paused":
+        return `▶ ${t.sounds.resume || "Resume Sound"}`;
+      case "ended":
+        return `↻ ${t.sounds.replay || "Replay Sound"}`;
+      case "error":
+        return `⚠️ ${t.sounds.unavailable || "Sound unavailable"}`;
+      default:
+        return `▶ ${t.sounds.listen}`;
+    }
+  }
+
+  function getButtonVariant(type: string) {
+    const state = playbackState[type] || "idle";
+    return state === "playing" ? "primary" : "secondary";
   }
 
   return (
@@ -1508,8 +1567,8 @@ function GameSoundsScreen({ onNav, onBack, active, onProgress }: { onNav: (s: Sc
                   <p className="text-xs text-[var(--text-secondary)] leading-relaxed mt-1 font-medium">{s.desc}</p>
                 </div>
               </div>
-              <Btn onClick={() => handlePlay(s)} variant={playing === s.title ? "primary" : "secondary"} fullWidth className="text-sm py-2.5">
-                {playing === s.title ? `🎵 ${t.sounds.playing}` : `▶ ${t.sounds.listen}`}
+              <Btn onClick={() => handleSoundAction(s.type)} variant={getButtonVariant(s.type)} fullWidth className="text-sm py-2.5">
+                {getButtonLabel(s.type)}
               </Btn>
             </Card>
           ))}
