@@ -741,7 +741,7 @@ export function GameWordPuzzlesScreen({ onNav, onBack, onProgress }: CommonGameP
             </div>
 
             {feedback && (
-              <div className={`text-base font-black py-2 rounded-xl animate-pulse ${feedback.includes("Correct") ? "text-green-600" : "text-amber-600"}`}>
+              <div className={`text-base font-black py-2 rounded-xl animate-pulse ${feedback.includes("Correct") ? "text-green-600 dark:text-emerald-400" : "text-amber-600 dark:text-amber-400"}`}>
                 {feedback}
               </div>
             )}
@@ -769,7 +769,7 @@ export function GameWordPuzzlesScreen({ onNav, onBack, onProgress }: CommonGameP
             <div className="p-3 bg-[var(--bg-section)] rounded-2xl border border-[var(--border)] text-sm font-bold min-h-[44px] flex items-center justify-center">
               Selected: <span className="font-black text-lg ml-2 text-[var(--oxblood-dark)]">{gridSelected || "(Tap grid letters)"}</span>
               {gridSelected && (
-                <button onClick={() => setGridSelected("")} className="ml-3 text-xs text-amber-700 underline">Reset</button>
+                <button onClick={() => setGridSelected("")} className="ml-3 text-xs text-amber-700 dark:text-amber-400 underline cursor-pointer">Reset</button>
               )}
             </div>
 
@@ -789,7 +789,7 @@ export function GameWordPuzzlesScreen({ onNav, onBack, onProgress }: CommonGameP
             </div>
 
             {feedback && (
-              <div className="text-base font-black text-green-600 py-2 rounded-xl animate-pulse">
+              <div className="text-base font-black text-green-600 dark:text-emerald-400 py-2 rounded-xl animate-pulse">
                 {feedback}
               </div>
             )}
@@ -820,7 +820,7 @@ export function GameWordPuzzlesScreen({ onNav, onBack, onProgress }: CommonGameP
             </div>
 
             {feedback && (
-              <div className={`text-base font-black py-2 rounded-xl animate-pulse ${feedback.includes("Excellent") ? "text-green-600" : "text-amber-600"}`}>
+              <div className={`text-base font-black py-2 rounded-xl animate-pulse ${feedback.includes("Excellent") ? "text-green-600 dark:text-emerald-400" : "text-amber-600 dark:text-amber-400"}`}>
                 {feedback}
               </div>
             )}
@@ -997,8 +997,8 @@ export function GameJigsawScreen({ onNav, onBack, onProgress }: CommonGameProps)
                 className={`aspect-square rounded-2xl flex flex-col items-center justify-center font-black transition-all cursor-pointer relative overflow-hidden border-2 border-[var(--border)] ${
                   piece !== null
                     ? piece === slotIdx
-                      ? "bg-emerald-900/30 border-emerald-500 text-emerald-400"
-                      : "bg-amber-900/30 border-amber-500 text-amber-400"
+                      ? "bg-emerald-100 dark:bg-emerald-950/60 border-emerald-400 dark:border-emerald-600 text-emerald-800 dark:text-emerald-300"
+                      : "bg-amber-100 dark:bg-amber-950/60 border-amber-400 dark:border-amber-600 text-amber-800 dark:text-amber-300"
                     : "bg-[var(--bg-card)] hover:bg-[var(--bg-hover)] text-[var(--text-muted)]"
                 }`}
               >
@@ -1571,7 +1571,7 @@ export function GameInteractiveScreen({ onNav, onBack, onProgress }: CommonGameP
           </div>
 
           {feedback && (
-            <div className={`text-base font-black py-2 rounded-xl animate-pulse ${feedback.includes("Great") ? "text-green-600" : "text-amber-600"}`}>
+            <div className={`text-base font-black py-2 rounded-xl animate-pulse ${feedback.includes("Great") ? "text-green-600 dark:text-emerald-400" : "text-amber-600 dark:text-amber-400"}`}>
               {feedback}
             </div>
           )}
@@ -1788,7 +1788,7 @@ export function GameBazaarScreen({ onNav, onBack, onProgress }: CommonGameProps)
         </div>
 
         {feedback && (
-          <div className={`text-center text-base font-black py-2 rounded-xl animate-pulse ${feedback.includes("Sorted") ? "text-green-600" : "text-amber-600"}`}>
+          <div className={`text-center text-base font-black py-2 rounded-xl animate-pulse ${feedback.includes("Sorted") ? "text-green-600 dark:text-emerald-400" : "text-amber-600 dark:text-amber-400"}`}>
             {feedback}
           </div>
         )}
@@ -1995,7 +1995,7 @@ export function GameMemoryLaneScreen({ onNav, onBack, onProgress }: CommonGamePr
               <span className="flex items-center gap-1.5">
                 <span>🎵</span> Real Instrumental Audio
               </span>
-              {isPlaying && <span className="animate-pulse text-green-600 font-extrabold">● PLAYING AUDIO</span>}
+              {isPlaying && <span className="animate-pulse text-green-600 dark:text-emerald-400 font-extrabold">● PLAYING AUDIO</span>}
             </div>
 
             {audioStatus && (
@@ -2168,8 +2168,8 @@ export function GameKazirangaPuzzleScreen({ onNav, onBack, onProgress }: CommonG
                 className={`rounded-xl flex flex-col items-center justify-center font-black transition-all cursor-pointer ${
                   piece !== null
                     ? piece === slotIdx
-                      ? "bg-emerald-800 text-white border-2 border-emerald-500"
-                      : "bg-amber-800 text-white border-2 border-amber-500"
+                      ? "bg-emerald-700 dark:bg-emerald-800 text-white border-2 border-emerald-400 dark:border-emerald-500"
+                      : "bg-amber-700 dark:bg-amber-800 text-white border-2 border-amber-400 dark:border-amber-500"
                     : "bg-[var(--bg-card)] text-[var(--text-muted)]"
                 }`}
               >
@@ -2400,7 +2400,7 @@ export function GameWhatsMissingScreen({ onNav, onBack, onProgress }: CommonGame
             </div>
 
             {feedback && (
-              <div className={`text-base font-black py-2 rounded-xl animate-pulse ${feedback.includes("Correct") ? "text-green-600" : "text-amber-600"}`}>
+              <div className={`text-base font-black py-2 rounded-xl animate-pulse ${feedback.includes("Correct") ? "text-green-600 dark:text-emerald-400" : "text-amber-600 dark:text-amber-400"}`}>
                 {feedback}
               </div>
             )}
@@ -2570,7 +2570,7 @@ export function GameRoutineScreen({ onNav, onBack, onProgress }: CommonGameProps
           </button>
 
           {feedback && (
-            <div className={`text-center text-base font-black py-2 rounded-xl animate-pulse ${feedback.includes("Perfect") ? "text-green-600" : "text-amber-600"}`}>
+            <div className={`text-center text-base font-black py-2 rounded-xl animate-pulse ${feedback.includes("Perfect") ? "text-green-600 dark:text-emerald-400" : "text-amber-600 dark:text-amber-400"}`}>
               {feedback}
             </div>
           )}
@@ -2727,7 +2727,7 @@ export function GamePatternScreen({ onNav, onBack, onProgress }: CommonGameProps
           </div>
 
           {feedback && (
-            <div className={`text-base font-black py-2 rounded-xl animate-pulse ${feedback.includes("completed") ? "text-green-600" : "text-amber-600"}`}>
+            <div className={`text-base font-black py-2 rounded-xl animate-pulse ${feedback.includes("completed") ? "text-green-600 dark:text-emerald-400" : "text-amber-600 dark:text-amber-400"}`}>
               {feedback}
             </div>
           )}

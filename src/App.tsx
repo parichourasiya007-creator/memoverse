@@ -1859,10 +1859,10 @@ function ProgressScreen({ profile }: { profile: Profile; onNav: (s: Screen) => v
           <div className="space-y-4">
             {Object.values(skillProfiles).map((sk) => {
               const trendBadges = {
-                improving: { label: "📈 Improving", bg: "bg-green-100 text-green-800 border-green-300" },
-                strong: { label: "⭐ Strong", bg: "bg-amber-100 text-amber-800 border-amber-300" },
-                struggling: { label: "🔄 Practicing", bg: "bg-blue-100 text-blue-800 border-blue-300" },
-                stable: { label: "⚖️ Stable", bg: "bg-slate-100 text-slate-800 border-slate-300" },
+                improving: { label: "📈 Improving", bg: "bg-green-100 dark:bg-emerald-950/60 text-green-800 dark:text-emerald-300 border-green-300 dark:border-emerald-700/60" },
+                strong: { label: "⭐ Strong", bg: "bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border-amber-300 dark:border-amber-700/60" },
+                struggling: { label: "🔄 Practicing", bg: "bg-blue-100 dark:bg-blue-950/60 text-blue-800 dark:text-blue-300 border-blue-300 dark:border-blue-700/60" },
+                stable: { label: "⚖️ Stable", bg: "bg-slate-100 dark:bg-slate-800/60 text-slate-800 dark:text-slate-200 border-slate-300 dark:border-slate-600/60" },
               };
               const badge = trendBadges[sk.trend] || trendBadges.stable;
 
