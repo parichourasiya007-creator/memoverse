@@ -415,7 +415,7 @@ export function AdaptiveGameHeader({
 
       {level >= unlockedLevel && level < 4 && (
         <p className="text-xs text-[var(--text-muted)] italic font-semibold">
-          🔒 Complete {levelLabels[level]} with 75%+ accuracy to unlock Level {level + 1}.
+          {t.games.unlockLevelMsg ? t.games.unlockLevelMsg.replace("{level}", String(level)).replace("{nextLevel}", String(level + 1)) : `🔒 Complete Level ${level} with 75%+ accuracy to unlock Level ${level + 1}.`}
         </p>
       )}
     </div>
@@ -554,18 +554,19 @@ export function GameWordPuzzlesScreen({ onNav, onBack, onProgress }: CommonGameP
   const [feedback, setFeedback] = useState<string | null>(null);
 
   const ANAGRAMS = [
-    { target: "TEA", hint: "Popular morning warm drink in Assam", letters: ["A", "T", "E"] },
-    { target: "RHINO", hint: "Famous one-horned animal in Kaziranga", letters: ["N", "R", "I", "O", "H"] },
-    { target: "BIHU", hint: "Spring harvest festival of Assam", letters: ["H", "B", "I", "U"] },
-    { target: "BAMBOO", hint: "Tall green plant used to make baskets", letters: ["O", "B", "M", "A", "B", "O"] },
-    { target: "RIVER", hint: "Brahmaputra flowing through Northeast", letters: ["V", "R", "E", "R", "I"] },
+    { target: "TEA", hint: t.games.hintTea, letters: ["A", "T", "E"] },
+    { target: "RHINO", hint: t.games.hintRhino, letters: ["N", "R", "I", "O", "H"] },
+    { target: "BIHU", hint: t.games.hintBihu, letters: ["H", "B", "I", "U"] },
+    { target: "BAMBOO", hint: t.games.hintBamboo, letters: ["O", "B", "M", "A", "B", "O"] },
+    { target: "RIVER", hint: t.games.hintRiver, letters: ["V", "R", "E", "R", "I"] },
   ];
 
   const RIDDLES = [
-    { question: "Which golden silk is natively produced in Assam?", options: ["Muga", "Cotton", "Wool"], correct: "Muga" },
-    { question: "Which animal is Kaziranga National Park famous for?", options: ["Rhino", "Camel", "Polar Bear"], correct: "Rhino" },
-    { question: "What instrument produces the lively spring beats of Bihu?", options: ["Dhol", "Piano", "Guitar"], correct: "Dhol" },
-    { question: "Which island in Assam is known as the world's largest river island?", options: ["Majuli", "Goa", "Lakshadweep"], correct: "Majuli" },
+    { question: t.games.riddleGoldenSilk, options: [t.games.optMuga, t.games.optCotton, t.games.optWool], correct: t.games.optMuga },
+    { question: t.games.riddleKazirangaAnimal, options: [t.games.labelRhino || "Rhino", "Camel", "Polar Bear"], correct: t.games.labelRhino || "Rhino" },
+
+    { question: t.games.riddleBihuInstrument, options: [t.games.itemDhol || "Dhol", "Piano", "Guitar"], correct: t.games.itemDhol || "Dhol" },
+    { question: t.games.riddleLargestIsland, options: ["Majuli", "Goa", "Lakshadweep"], correct: "Majuli" },
   ];
 
   const SEARCH_WORDS = ["TEA", "BIHU", "RHINO", "SILK"];
@@ -625,7 +626,7 @@ export function GameWordPuzzlesScreen({ onNav, onBack, onProgress }: CommonGameP
     const spelled = constructedLetters.join("");
     if (spelled === currentAnagram.target) {
       playSoundTone("correct");
-      setFeedback("✨ Correct!");
+      setFeedback(t.games.feedbackCorrect);
       const nextScore = score + 10;
       setScore(nextScore);
       setTimeout(() => {
@@ -640,7 +641,7 @@ export function GameWordPuzzlesScreen({ onNav, onBack, onProgress }: CommonGameP
       }, 1000);
     } else {
       playSoundTone("wrong");
-      setFeedback(`Incorrect spelling ("${spelled}"). Try again!`);
+      setFeedback(`${t.games.feedbackWrongSpelling} ("${spelled}")`);
       setTimeout(() => setFeedback(null), 1400);
     }
   }
@@ -648,7 +649,7 @@ export function GameWordPuzzlesScreen({ onNav, onBack, onProgress }: CommonGameP
   function handleRiddleSubmit(option: string) {
     if (option === currentRiddle.correct) {
       playSoundTone("correct");
-      setFeedback("✨ Excellent!");
+      setFeedback(t.games.feedbackExcellent);
       const nextScore = score + 10;
       setScore(nextScore);
       setTimeout(() => {
@@ -661,7 +662,7 @@ export function GameWordPuzzlesScreen({ onNav, onBack, onProgress }: CommonGameP
       }, 1000);
     } else {
       playSoundTone("wrong");
-      setFeedback("Not quite, try another option!");
+      setFeedback(t.games.feedbackTryAnother);
       setTimeout(() => setFeedback(null), 1200);
     }
   }
@@ -677,7 +678,7 @@ export function GameWordPuzzlesScreen({ onNav, onBack, onProgress }: CommonGameP
       const nextFound = [...foundWords, match];
       setFoundWords(nextFound);
       setGridSelected("");
-      setFeedback(`✨ Found "${match}"!`);
+      setFeedback(`${t.games.feedbackFound} "${match}"!`);
       setTimeout(() => setFeedback(null), 1000);
 
       if (nextFound.length === SEARCH_WORDS.length) {
@@ -1500,17 +1501,17 @@ export function GameInteractiveScreen({ onNav, onBack, onProgress }: CommonGameP
 
   const TASKS = [
     {
-      instruction: "Tap the TEA LEAF 🍃",
+      instruction: t.games.promptTapTeaLeaf,
       target: "Tea Leaf",
       options: [
-        { emoji: "🍃", label: "Tea Leaf", isCorrect: true },
-        { emoji: "🛶", label: "Boat", isCorrect: false },
-        { emoji: "🦏", label: "Rhino", isCorrect: false },
-        { emoji: "🧺", label: "Basket", isCorrect: false },
+        { emoji: "🍃", label: t.games.labelTeaLeaf, isCorrect: true },
+        { emoji: "🛶", label: t.games.labelBoat, isCorrect: false },
+        { emoji: "🦏", label: t.games.labelRhino, isCorrect: false },
+        { emoji: "🧺", label: t.games.labelBasket, isCorrect: false },
       ],
     },
     {
-      instruction: "Tap the RED TEA POT 🫖",
+      instruction: t.games.promptTapRedPot,
       target: "Red Pot",
       options: [
         { emoji: "🫖", color: "blue", label: "Blue Pot", isCorrect: false },
@@ -1519,7 +1520,7 @@ export function GameInteractiveScreen({ onNav, onBack, onProgress }: CommonGameP
       ],
     },
     {
-      instruction: "Tap the LARGEST Rhino 🦏",
+      instruction: t.games.promptTapLargestRhino,
       target: "Large Rhino",
       options: [
         { emoji: "🦏", size: "text-3xl", label: "Small Rhino", isCorrect: false },
@@ -1528,7 +1529,7 @@ export function GameInteractiveScreen({ onNav, onBack, onProgress }: CommonGameP
       ],
     },
     {
-      instruction: "Which item does NOT belong in nature?",
+      instruction: t.games.promptNotBelongNature,
       target: "Airplane",
       options: [
         { emoji: "🌸", label: "Flower", isCorrect: false },
@@ -1544,7 +1545,7 @@ export function GameInteractiveScreen({ onNav, onBack, onProgress }: CommonGameP
   function handleSelect(isCorrect: boolean) {
     if (isCorrect) {
       playSoundTone("correct");
-      setFeedback("✨ Great observation!");
+      setFeedback(t.games.feedbackGreatObservation);
       const nextScore = score + 10;
       setScore(nextScore);
       setTimeout(() => {
@@ -1581,7 +1582,7 @@ export function GameInteractiveScreen({ onNav, onBack, onProgress }: CommonGameP
       }, 900);
     } else {
       playSoundTone("wrong");
-      setFeedback("Look closely and try again!");
+      setFeedback(t.games.feedbackLookClosely);
       setTimeout(() => setFeedback(null), 1000);
     }
   }
@@ -1700,7 +1701,7 @@ export function GameBazaarScreen({ onNav, onBack, onProgress }: CommonGameProps)
   function sortItem(item: (typeof ITEMS)[0], targetCategory: "FOOD" | "HANDICRAFT") {
     if (item.category === targetCategory) {
       playSoundTone("correct");
-      setFeedback(`✨ Sorted "${item.name}"!`);
+      setFeedback(`${t.games.feedbackSortedItem} "${item.name}"`);
 
       if (targetCategory === "FOOD") setFoodBasket((prev) => [...prev, item]);
       else setCraftBasket((prev) => [...prev, item]);
@@ -2352,7 +2353,7 @@ export function GameWhatsMissingScreen({ onNav, onBack, onProgress }: CommonGame
   function handleGuess(guess: string) {
     if (missingItem && guess === missingItem.name) {
       playSoundTone("correct");
-      setFeedback("✨ Correct! You remembered!");
+      setFeedback(t.games.feedbackRemembered);
       const nextScore = score + 10;
       setScore(nextScore);
       setTimeout(() => {
@@ -2539,7 +2540,7 @@ export function GameRoutineScreen({ onNav, onBack, onProgress }: CommonGameProps
     const isCorrect = cards.every((c, idx) => c.id === idx + 1);
     if (isCorrect) {
       playSoundTone("correct");
-      setFeedback("✨ Perfect daily sequence!");
+      setFeedback(t.games.feedbackPerfectRoutine);
       setTimeout(() => {
         const res = recordGamePerformance({
           gameId,
@@ -2569,7 +2570,7 @@ export function GameRoutineScreen({ onNav, onBack, onProgress }: CommonGameProps
       }, 700);
     } else {
       playSoundTone("wrong");
-      setFeedback("Some activities are out of order. Hint: Wake Up is first!");
+      setFeedback(t.games.feedbackRoutineHint);
       setTimeout(() => setFeedback(null), 1500);
     }
   }
@@ -2702,7 +2703,7 @@ export function GamePatternScreen({ onNav, onBack, onProgress }: CommonGameProps
   function handleSelect(choice: string) {
     if (choice === current.answer) {
       playSoundTone("correct");
-      setFeedback("✨ Pattern completed!");
+      setFeedback(t.games.feedbackPatternComplete);
       const nextScore = score + 10;
       setScore(nextScore);
       setTimeout(() => {
@@ -2739,7 +2740,7 @@ export function GamePatternScreen({ onNav, onBack, onProgress }: CommonGameProps
       }, 900);
     } else {
       playSoundTone("wrong");
-      setFeedback("Look at the repeating order!");
+      setFeedback(t.games.feedbackPatternOrder);
       setTimeout(() => setFeedback(null), 1000);
     }
   }
@@ -2836,9 +2837,9 @@ export function GameSoundRecScreen({ onNav, onBack, onProgress }: CommonGameProp
   const [feedback, setFeedback] = useState<string | null>(null);
 
   const SOUND_TASKS = [
-    { title: "Songbirds in Morning", sound: "bird", options: ["Bird Chirping", "Monsoon Rain", "River Flow"], correct: "Bird Chirping" },
-    { title: "Bihu Dhol Beat", sound: "dhol", options: ["Bihu Dhol", "Temple Bell", "Bird Chirping"], correct: "Bihu Dhol" },
-    { title: "Morning Temple Bell", sound: "bell", options: ["Monsoon Rain", "Temple Bell", "River Flow"], correct: "Temple Bell" },
+    { title: t.games.soundSongbirds, sound: "bird", options: [t.games.soundBirdChirping, t.games.soundMonsoonRain, t.games.soundRiverFlow], correct: t.games.soundBirdChirping },
+    { title: t.games.soundBihuBeat, sound: "dhol", options: [t.games.soundBihuBeat, t.games.soundTempleBell, t.games.soundBirdChirping], correct: t.games.soundBihuBeat },
+    { title: t.games.soundTempleBell, sound: "bell", options: [t.games.soundMonsoonRain, t.games.soundTempleBell, t.games.soundRiverFlow], correct: t.games.soundTempleBell },
   ];
 
   const current = SOUND_TASKS[step % SOUND_TASKS.length];
@@ -2850,7 +2851,7 @@ export function GameSoundRecScreen({ onNav, onBack, onProgress }: CommonGameProp
   function handleAnswer(ans: string) {
     if (ans === current.correct) {
       playSoundTone("correct");
-      setFeedback("✨ Correct sound identified!");
+      setFeedback(t.games.feedbackSoundIdentified);
       const nextScore = score + 10;
       setScore(nextScore);
       setTimeout(() => {
@@ -2887,7 +2888,7 @@ export function GameSoundRecScreen({ onNav, onBack, onProgress }: CommonGameProp
       }, 900);
     } else {
       playSoundTone("wrong");
-      setFeedback("Listen again carefully!");
+      setFeedback(t.games.feedbackListenCarefully);
       setTimeout(() => setFeedback(null), 1000);
     }
   }

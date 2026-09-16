@@ -1,22 +1,21 @@
 import fs from 'fs';
 import path from 'path';
-import { fileURLToPath } from 'url';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+// Load translations file text and analyze
+const filePath = path.resolve('src/translations.ts');
+const content = fs.readFileSync(filePath, 'utf8');
 
-const file = path.join(__dirname, '..', 'src', 'translations.ts');
-const code = fs.readFileSync(file, 'utf8');
+console.log("Analyzing translations.ts...");
 
-const langs = [
-  "Assamese", "Bengali", "Bodo", "Dogri", "Gujarati", "Hindi", "Kannada", "Kashmiri",
-  "Konkani", "Maithili", "Malayalam", "Manipuri", "Marathi", "Nepali", "Odia", "Punjabi",
-  "Sanskrit", "Santali", "Sindhi", "Tamil", "Telugu", "Urdu"
+const languages = [
+  "Assamese", "Bengali", "Bodo", "Dogri", "Gujarati",
+  "Hindi", "Kannada", "Kashmiri", "Konkani", "Maithili",
+  "Malayalam", "Manipuri", "Marathi", "Nepali", "Odia",
+  "Punjabi", "Sanskrit", "Santali", "Sindhi", "Tamil",
+  "Telugu", "Urdu"
 ];
 
-console.log('=== AUDITING TRANSLATIONS ===\n');
-
-langs.forEach(lang => {
-  const exists = code.includes(`${lang}: {`) || code.includes(`${lang}: baseEnglish`);
-  console.log(`Language [${lang}]: ${exists ? '✅ PRESENT' : '❌ MISSING'}`);
-});
+for (const lang of languages) {
+  const hasLang = content.includes(`${lang}:`);
+  console.log(`${lang}: ${hasLang ? "Found" : "MISSING"}`);
+}
