@@ -38,6 +38,11 @@ import defaultMemoryCoverImg from "./assets/images/default_memory_cover.png";
 import kazirangaRhinoImg from "./assets/images/kaziranga_rhino_memory.png";
 import majuliBoatImg from "./assets/images/majuli_boat_memory.png";
 
+import pepaAudio from "./assets/audio/pepa_instrumental.wav";
+import dholAudio from "./assets/audio/dhol_rhythm.wav";
+import fluteAudio from "./assets/audio/bamboo_flute.wav";
+import riverAudio from "./assets/audio/river_nature.wav";
+
 const IMAGE_MAP: Record<string, string> = {
   "bihu-celebration.png": bihuCelebrationImg,
   "bihu-celebration": bihuCelebrationImg,
@@ -1472,62 +1477,109 @@ function GameMemoryScreen({ onNav, onBack, active, onProgress }: { onNav: (s: Sc
 
 function GameSoundsScreen({ onNav, onBack, active, onProgress }: { onNav: (s: Screen) => void; onBack?: () => void; active: Profile | null; onProgress: () => void }) {
   const { t } = useLanguage();
-  const [activeSoundKey, setActiveSoundKey] = useState<string | null>(null);
-  const [playbackState, setPlaybackState] = useState<Record<string, "idle" | "playing" | "paused" | "ended" | "error">>({});
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [activeType, setActiveType] = useState<string | null>(null);
+  const [statusMap, setStatusMap] = useState<Record<string, "idle" | "playing" | "paused" | "ended" | "error">>({});
 
-  // Stop audio playback when unmounting Sounds of Home screen
+  // Stop current playing audio and reset reference
+  function stopCurrentAudio() {
+    if (audioRef.current) {
+      try {
+        audioRef.current.pause();
+        audioRef.current.currentTime = 0;
+      } catch (_) {}
+      audioRef.current = null;
+    }
+  }
+
+  // Clean unmount on screen exit
   useEffect(() => {
     return () => {
-      stopAllRealAudio();
+      stopCurrentAudio();
     };
   }, []);
 
   const soundsList = [
-    { title: t.sounds.soundGogona, desc: t.sounds.soundGogonaDesc, icon: "🪕", type: "pepa" as const },
-    { title: t.sounds.soundBihu, desc: t.sounds.soundBihuDesc, icon: "🥁", type: "dhol" as const },
-    { title: t.sounds.soundBirdsong, desc: t.sounds.soundBirdsongDesc, icon: "🐦", type: "bird" as const },
-    { title: t.sounds.soundChai, desc: t.sounds.soundChaiDesc, icon: "☕", type: "water" as const },
+    { title: t.sounds.soundGogona, desc: t.sounds.soundGogonaDesc, icon: "🪕", type: "pepa" as const, src: pepaAudio },
+    { title: t.sounds.soundBihu, desc: t.sounds.soundBihuDesc, icon: "🥁", type: "dhol" as const, src: dholAudio },
+    { title: t.sounds.soundBirdsong, desc: t.sounds.soundBirdsongDesc, icon: "🐦", type: "bird" as const, src: fluteAudio },
+    { title: t.sounds.soundChai, desc: t.sounds.soundChaiDesc, icon: "☕", type: "water" as const, src: riverAudio },
   ];
 
-  function handleSoundAction(type: string) {
-    const currentState = playbackState[type] || "idle";
+  function handleSoundClick(s: typeof soundsList[0]) {
+    const type = s.type;
+    const currentStatus = statusMap[type] || "idle";
 
-    // If another sound card is active, stop it before starting new one
-    if (activeSoundKey && activeSoundKey !== type) {
-      stopAllRealAudio();
-      setPlaybackState((prev) => ({ ...prev, [activeSoundKey]: "idle" }));
+    // 1. If currently playing this exact sound -> PAUSE IT
+    if (activeType === type && currentStatus === "playing") {
+      if (audioRef.current) {
+        audioRef.current.pause();
+      }
+      setStatusMap((prev) => ({ ...prev, [type]: "paused" }));
+      return;
     }
 
-    if (currentState === "playing") {
-      pauseRealAudio();
-      setActiveSoundKey(type);
-      setPlaybackState((prev) => ({ ...prev, [type]: "paused" }));
-    } else if (currentState === "paused") {
-      resumeRealAudio();
-      setActiveSoundKey(type);
-      setPlaybackState((prev) => ({ ...prev, [type]: "playing" }));
-    } else {
-      // "idle", "ended", "error" -> start playing fresh audio
-      setActiveSoundKey(type);
-      setPlaybackState((prev) => ({ ...prev, [type]: "playing" }));
+    // 2. If currently paused on this exact sound -> RESUME IT
+    if (activeType === type && currentStatus === "paused") {
+      if (audioRef.current) {
+        audioRef.current
+          .play()
+          .then(() => {
+            setStatusMap((prev) => ({ ...prev, [type]: "playing" }));
+          })
+          .catch((err) => {
+            console.error("[MEMOVERSE AUDIO RESUME ERROR]", err);
+          });
+      }
+      return;
+    }
 
-      playRealInstrumentalAudio(
-        type,
-        () => {
-          setPlaybackState((prev) => ({ ...prev, [type]: "ended" }));
-        },
-        (err) => {
-          console.error("Failed to play audio asset:", type, err);
-          setPlaybackState((prev) => ({ ...prev, [type]: "error" }));
+    // 3. Otherwise -> STOP ANY PREVIOUS AUDIO & PLAY THIS SOUND
+    stopCurrentAudio();
+    setStatusMap({});
+
+    const newAudio = new Audio(s.src);
+    audioRef.current = newAudio;
+    setActiveType(type);
+
+    newAudio.onended = () => {
+      setStatusMap((prev) => ({ ...prev, [type]: "ended" }));
+    };
+
+    newAudio.onerror = (e) => {
+      console.error("[MEMOVERSE AUDIO ERROR]", {
+        soundId: type,
+        src: newAudio.src,
+        error: newAudio.error,
+        networkState: newAudio.networkState,
+        readyState: newAudio.readyState,
+        event: e,
+      });
+      setStatusMap((prev) => ({ ...prev, [type]: "error" }));
+    };
+
+    setStatusMap((prev) => ({ ...prev, [type]: "playing" }));
+
+    newAudio
+      .play()
+      .then(() => {
+        console.log("[MEMOVERSE AUDIO PLAYING SUCCESS]", type);
+      })
+      .catch((err) => {
+        if (err && (err.name === "AbortError" || err.message?.includes("interrupted"))) {
+          // Normal interruption by user pause or sound switch
+          return;
         }
-      );
-      onProgress();
-    }
+        console.error("[MEMOVERSE AUDIO PLAY PROMISE REJECTED]", { type, errName: err.name, message: err.message });
+        setStatusMap((prev) => ({ ...prev, [type]: "error" }));
+      });
+
+    onProgress();
   }
 
   function getButtonLabel(type: string) {
-    const state = playbackState[type] || "idle";
-    switch (state) {
+    const st = statusMap[type] || "idle";
+    switch (st) {
       case "playing":
         return `⏸ ${t.sounds.pause || "Pause Sound"}`;
       case "paused":
@@ -1541,16 +1593,11 @@ function GameSoundsScreen({ onNav, onBack, active, onProgress }: { onNav: (s: Sc
     }
   }
 
-  function getButtonVariant(type: string) {
-    const state = playbackState[type] || "idle";
-    return state === "playing" ? "primary" : "secondary";
-  }
-
   return (
     <div className="min-h-screen pb-24 pt-6">
       <div className="max-w-4xl mx-auto px-4 space-y-8">
         <div className="space-y-2 text-center">
-          <button onClick={() => { stopAllRealAudio(); if (onBack) onBack(); else onNav("activities"); }} className="text-sm font-bold text-[var(--text-muted)] cursor-pointer hover:underline">
+          <button onClick={() => { stopCurrentAudio(); if (onBack) onBack(); else onNav("activities"); }} className="text-sm font-bold text-[var(--text-muted)] cursor-pointer hover:underline">
             {t.games.backToActivities}
           </button>
           <h1 className="text-3xl sm:text-5xl font-black text-[var(--text-primary)]">{t.sounds.title}</h1>
@@ -1567,7 +1614,7 @@ function GameSoundsScreen({ onNav, onBack, active, onProgress }: { onNav: (s: Sc
                   <p className="text-xs text-[var(--text-secondary)] leading-relaxed mt-1 font-medium">{s.desc}</p>
                 </div>
               </div>
-              <Btn onClick={() => handleSoundAction(s.type)} variant={getButtonVariant(s.type)} fullWidth className="text-sm py-2.5">
+              <Btn onClick={() => handleSoundClick(s)} variant={statusMap[s.type] === "playing" ? "primary" : "secondary"} fullWidth className="text-sm py-2.5">
                 {getButtonLabel(s.type)}
               </Btn>
             </Card>
