@@ -38,10 +38,10 @@ import defaultMemoryCoverImg from "./assets/images/default_memory_cover.png";
 import kazirangaRhinoImg from "./assets/images/kaziranga_rhino_memory.png";
 import majuliBoatImg from "./assets/images/majuli_boat_memory.png";
 
-import pepaAudio from "./assets/audio/pepa_instrumental.wav";
-import dholAudio from "./assets/audio/dhol_rhythm.wav";
-import fluteAudio from "./assets/audio/bamboo_flute.wav";
-import riverAudio from "./assets/audio/river_nature.wav";
+import pepaAudio from "./assets/audio/gogona.wav";
+import dholAudio from "./assets/audio/bihu-dhol.wav";
+import fluteAudio from "./assets/audio/tea-garden-birdsong.wav";
+import riverAudio from "./assets/audio/porch-rain-chai.wav";
 
 const IMAGE_MAP: Record<string, string> = {
   "bihu-celebration.png": bihuCelebrationImg,
@@ -1510,6 +1510,8 @@ function GameSoundsScreen({ onNav, onBack, active, onProgress }: { onNav: (s: Sc
     const type = s.type;
     const currentStatus = statusMap[type] || "idle";
 
+    console.log("[MEMOVERSE AUDIO SOURCE]", { soundId: type, source: s.src });
+
     // 1. If currently playing this exact sound -> PAUSE IT
     if (activeType === type && currentStatus === "playing") {
       if (audioRef.current) {
@@ -1525,6 +1527,7 @@ function GameSoundsScreen({ onNav, onBack, active, onProgress }: { onNav: (s: Sc
         audioRef.current
           .play()
           .then(() => {
+            console.log("[MEMOVERSE AUDIO RESUMED]", type);
             setStatusMap((prev) => ({ ...prev, [type]: "playing" }));
           })
           .catch((err) => {
@@ -1539,10 +1542,12 @@ function GameSoundsScreen({ onNav, onBack, active, onProgress }: { onNav: (s: Sc
     setStatusMap({});
 
     const newAudio = new Audio(s.src);
+    newAudio.preload = "auto";
     audioRef.current = newAudio;
     setActiveType(type);
 
     newAudio.onended = () => {
+      console.log("[MEMOVERSE AUDIO ENDED]", type);
       setStatusMap((prev) => ({ ...prev, [type]: "ended" }));
     };
 
@@ -1550,7 +1555,8 @@ function GameSoundsScreen({ onNav, onBack, active, onProgress }: { onNav: (s: Sc
       console.error("[MEMOVERSE AUDIO ERROR]", {
         soundId: type,
         src: newAudio.src,
-        error: newAudio.error,
+        errorCode: newAudio.error?.code,
+        errorMessage: newAudio.error?.message,
         networkState: newAudio.networkState,
         readyState: newAudio.readyState,
         event: e,
@@ -1558,6 +1564,13 @@ function GameSoundsScreen({ onNav, onBack, active, onProgress }: { onNav: (s: Sc
       setStatusMap((prev) => ({ ...prev, [type]: "error" }));
     };
 
+    try {
+      newAudio.load();
+    } catch (e) {
+      console.warn("[MEMOVERSE AUDIO LOAD WARN]", e);
+    }
+
+    console.log("[MEMOVERSE AUDIO PLAY]", newAudio.src);
     setStatusMap((prev) => ({ ...prev, [type]: "playing" }));
 
     newAudio
@@ -1568,9 +1581,16 @@ function GameSoundsScreen({ onNav, onBack, active, onProgress }: { onNav: (s: Sc
       .catch((err) => {
         if (err && (err.name === "AbortError" || err.message?.includes("interrupted"))) {
           // Normal interruption by user pause or sound switch
+          console.log("[MEMOVERSE AUDIO PLAY INTERRUPTED]", type);
           return;
         }
-        console.error("[MEMOVERSE AUDIO PLAY PROMISE REJECTED]", { type, errName: err.name, message: err.message });
+        console.error("[MEMOVERSE AUDIO PLAY PROMISE REJECTED]", {
+          soundId: type,
+          errName: err.name,
+          message: err.message,
+          errorCode: newAudio.error?.code,
+          errorMessage: newAudio.error?.message,
+        });
         setStatusMap((prev) => ({ ...prev, [type]: "error" }));
       });
 

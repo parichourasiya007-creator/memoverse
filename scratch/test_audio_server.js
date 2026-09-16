@@ -12,6 +12,7 @@ const mimeTypes = {
   '.js': 'text/javascript',
   '.css': 'text/css',
   '.wav': 'audio/wav',
+  '.mp3': 'audio/mpeg',
   '.png': 'image/png',
 };
 
@@ -42,18 +43,20 @@ const server = http.createServer((req, res) => {
 server.listen(4173, () => {
   console.log('Test server running at http://localhost:4173/');
 
-  // Test requesting audio files via http
   const testWavs = [
-    'assets/pepa_instrumental-nX23IMNm.wav',
-    'assets/dhol_rhythm-D-ZmDqP2.wav',
-    'assets/bamboo_flute-sSae6rAN.wav',
-    'assets/river_nature-u04hEizZ.wav',
-    'assets/tea_garden-CsUXETAP.wav'
+    'assets/gogona-UywANp4M.wav',
+    'assets/bihu-dhol-DeL6LJ_a.wav',
+    'assets/bamboo_flute-JTHjdbGP.wav',
+    'assets/river_nature-df_70Cep.wav'
   ];
 
   testWavs.forEach(wav => {
     http.get(`http://localhost:4173/${wav}`, (res) => {
-      console.log(`HTTP GET ${wav} -> Status: ${res.statusCode}, Content-Type: ${res.headers['content-type']}, Length: ${res.headers['content-length'] || dataLength(res)}`);
+      let dataLen = 0;
+      res.on('data', chunk => dataLen += chunk.length);
+      res.on('end', () => {
+        console.log(`HTTP GET ${wav} -> Status: ${res.statusCode}, Content-Type: ${res.headers['content-type']}, ReceivedBytes: ${dataLen}`);
+      });
     });
   });
 
@@ -62,9 +65,3 @@ server.listen(4173, () => {
     process.exit(0);
   }, 3000);
 });
-
-function dataLength(res) {
-  let len = 0;
-  res.on('data', chunk => len += chunk.length);
-  return len;
-}
