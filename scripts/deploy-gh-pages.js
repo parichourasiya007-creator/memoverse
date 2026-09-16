@@ -14,11 +14,31 @@ if (!fs.existsSync(distPath)) {
   process.exit(1);
 }
 
-// Add .nojekyll and copy 404.html if needed
+// Add .nojekyll, copy 404.html, and add Vercel static release configs
 fs.writeFileSync(path.join(distPath, '.nojekyll'), '');
 if (!fs.existsSync(path.join(distPath, '404.html')) && fs.existsSync(path.join(distPath, 'index.html'))) {
   fs.copyFileSync(path.join(distPath, 'index.html'), path.join(distPath, '404.html'));
 }
+
+// Add Vercel compatibility files to gh-pages so Vercel builds succeed regardless of branch
+const ghPagesVercelJson = JSON.stringify({
+  buildCommand: "echo 'Pre-built MEMOVERSE static release ready'",
+  outputDirectory: "."
+}, null, 2);
+fs.writeFileSync(path.join(distPath, 'vercel.json'), ghPagesVercelJson);
+
+const ghPagesPackageJson = JSON.stringify({
+  name: "memoverse-gh-pages",
+  version: "1.0.0",
+  private: true,
+  scripts: {
+    build: "echo 'Pre-built MEMOVERSE static release ready'"
+  },
+  devDependencies: {
+    vite: "^8.0.5"
+  }
+}, null, 2);
+fs.writeFileSync(path.join(distPath, 'package.json'), ghPagesPackageJson);
 
 console.log('📦 Deploying dist build to gh-pages branch...');
 
